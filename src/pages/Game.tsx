@@ -4,10 +4,10 @@ import { Home, Play, RotateCcw, Pause, Trophy, X, Check, Volume2, VolumeX } from
 import { Logo } from '@/components/Logo';
 import { WASTE_BINS, WasteCategory } from '@/types';
 
-import binOrange from '@/assets/uploads/bin-orange.png';
-import binBlue from '@/assets/uploads/bin-blue.png';
-import binPurple from '@/assets/uploads/bin-purple.png';
-import binBrown from '@/assets/uploads/bin-brown.png';
+import binOrange from '@/assets/uploads/bin-orange.svg';
+import binBlue from '@/assets/uploads/bin-blue.svg';
+import binPurple from '@/assets/uploads/bin-purple.svg';
+import binBrown from '@/assets/uploads/bin-brown.svg';
 
 import plasticDetergentOrange from '@/assets/uploads/plastic-detergent-orange.png';
 import plasticBagGreen from '@/assets/uploads/plastic-bag-green.png';
@@ -270,8 +270,8 @@ export default function Game() {
               </div>
             ))}
           </div>
-          <button onClick={startGame} className="flex items-center gap-3 bg-gradient-to-r from-primary to-primary-dark text-white text-2xl font-bold py-5 px-10 rounded-2xl shadow-lg hover:scale-105 active:scale-95 transition-transform">
-            <Play size={32} fill="white" /><span>התחל לשחק!</span>
+          <button onClick={startGame} className="flex items-center gap-3 bg-gradient-to-r color from-green-300 to-green-500 from-primary-light-500 to-primary-dark-600 text-white text-2xl font-bold py-5 px-10 rounded-2xl shadow-lg hover:scale-105 active:scale-95 transition-transform">
+            <Play size={32} fill="white" /><span>התחל לשחק !</span>
           </button>
           <button onClick={() => navigate('/')} className="text-muted-foreground hover:text-foreground transition-colors">חזרה לתפריט</button>
         </div>
@@ -334,12 +334,12 @@ export default function Game() {
           {gameState === 'paused' && (
             <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
               <div className="bg-white rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl">
-                <h2 className="text-3xl font-black text-foreground mb-6">⏸️ הפסקה</h2>
+                <h2 className="text-3xl font-black text-foreground mb-6">⏸️ הפסק משחק</h2>
                 <div className="flex flex-col gap-3">
-                  <button onClick={() => setGameState('playing')} className="w-full py-4 bg-primary text-white rounded-xl font-bold text-lg hover:bg-primary-dark transition-colors flex items-center justify-center gap-2">
+                  <button onClick={() => setGameState('playing')} className="w-full bg-gray-200 py-4 bg-primary text rounded-xl font-bold text-lg hover:bg-primary-dark transition-colors flex items-center justify-center gap-2">
                     <Play size={24} />המשך לשחק
                   </button>
-                  <button onClick={startGame} className="w-full py-4 bg-gray-100 text-foreground rounded-xl font-bold text-lg hover:bg-gray-200 transition-colors flex items-center justify-center gap-2">
+                  <button onClick={startGame} className="w-full py-4 bg-gray-200 text-foreground rounded-xl font-bold text-lg hover:bg-gray-200 transition-colors flex items-center justify-center gap-2 from-primary-light to-primary-dark">
                     <RotateCcw size={24} />התחל מחדש
                   </button>
                   <button onClick={() => navigate('/')} className="w-full py-3 text-muted-foreground hover:text-foreground transition-colors">יציאה לתפריט</button>
