@@ -1,0 +1,178 @@
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router';
+import { ArrowRight, Camera, AlertCircle, Check, X, Trash2 } from 'lucide-react';
+import { ScanAnimation } from '@/components/ScanAnimation';
+import { StarCounter } from '@/components/StarCounter';
+import { useApp } from '@/context/AppContext';
+import { WASTE_BINS, type WasteCategory } from '@/types';
+
+type AnalysisStep = 'scanning' | 'confirm_identification' | 'select_bin' | 'not_identified';
+
+export default function Analysis() {
+  const navigate = useNavigate();
+  const { currentImage, sortingSession, setIdentifiedCategory, confirmIdentification, selectBin, setCurrentImage } = useApp();
+  const [step, setStep] = useState<AnalysisStep>('scanning');
+  const [selectedBinLocal, setSelectedBinLocal] = useState<WasteCategory | null>(null);
+  const [showBinError, setShowBinError] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+
+  useEffect(() => { if (!currentImage) navigate('/camera'); }, [currentImage, navigate]);
+
+  const generateRandomCategory = (): WasteCategory => {
+    const categories: WasteCategory[] = ['plastic', 'paper', 'glass', 'organic'];
+    return categories[Math.floor(Math.random() * categories.length)];
+  };
+
+  const handleScanComplete = () => {
+    if (Math.random() < 0.1) { setStep('not_identified'); }
+    else { const category = generateRandomCategory(); setIdentifiedCategory(category); setStep('confirm_identification'); }
+  };
+
+  const handleConfirmIdentification = (isCorrect: boolean) => {
+    if (isCorrect) { confirmIdentification(); setStep('select_bin'); }
+    else {
+      setStep('scanning');
+      setTimeout(() => { const category = generateRandomCategory(); setIdentifiedCategory(category); setStep('confirm_identification'); }, 2000);
+    }
+  };
+
+  const handleBinSelect = (category: WasteCategory) => {
+    if (isSuccess || showBinError) return;
+    setSelectedBinLocal(category);
+    const isCorrect = selectBin(category);
+    if (isCorrect) { setIsSuccess(true); setTimeout(() => navigate('/robot'), 1500); }
+    else { setShowBinError(true); setTimeout(() => { setSelectedBinLocal(null); setShowBinError(false); }, 1500); }
+  };
+
+  const identifiedBin = sortingSession.identifiedCategory ? WASTE_BINS.find((b) => b.category === sortingSession.identifiedCategory) : null;
+
+  if (!currentImage) return null;
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-green-50 to-blue-50 flex flex-col">
+      <div className="p-4 flex items-center justify-between">
+        <button onClick={() => navigate('/camera')} className="w-12 h-12 bg-white rounded-full shadow-md flex items-center justify-center hover:bg-gray-50 transition-colors">
+          <ArrowRight size={24} className="text-gray-600" />
+        </button>
+        <StarCounter />
+      </div>
+      <div className="flex-1 flex flex-col items-center justify-center p-6 gap-6">
+        {step === 'scanning' && (
+          <>
+            <div className="text-center mb-4">
+              <h2 className="text-2xl font-bold text-foreground">סורק את הפריט...</h2>
+              <p className="text-muted-foreground">ה-AI לומד לזהות את הפריט</p>
+            </div>
+            <ScanAnimation imageSrc={currentImage} onComplete={handleScanComplete} duration={3000} />
+            <div className="flex gap-2 mt-4">
+              <div className="w-4 h-4 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0s' }} />
+              <div className="w-4 h-4 bg-secondary rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
+              <div className="w-4 h-4 bg-accent rounded-full animate-bounce" style={{ animationDelay: '0.4s' }} />
+            </div>
+          </>
+        )}
+        {step === 'not_identified' && (
+          <div className="w-full max-w-sm">
+            <div className="relative rounded-2xl overflow-hidden shadow-xl mb-6">
+              <img src={currentImage} alt="פריט שצולם" className="w-full aspect-square object-cover" />
+              <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+                <div className="bg-white rounded-full p-4"><AlertCircle size={48} className="text-yellow-500" /></div>
+              </div>
+            </div>
+            <div className="bg-yellow-50 border-2 border-yellow-300 rounded-2xl p-6 text-center mb-6">
+              <div className="text-5xl mb-4">🤔</div>
+              <h3 className="text-xl font-bold text-yellow-800 mb-2">לא הצלחתי לזהות את האובייקט</h3>
+              <p className="text-yellow-700">נסו לצלם שוב מזווית אחרת</p>
+            </div>
+            <button onClick={() => { setCurrentImage(null); navigate('/camera'); }}
+              className="w-full flex items-center justify-center gap-3 bg-primary text-white font-bold py-5 px-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 active:scale-95">
+              <Camera size={28} /><span>צלם שוב</span>
+            </button>
+          </div>
+        )}
+        {step === 'confirm_identification' && identifiedBin && (
+          <div className="w-full max-w-sm">
+            <div className="relative rounded-2xl overflow-hidden shadow-xl mb-6">
+              <img src={currentImage} alt="פריט שצולם" className="w-full aspect-square object-cover" />
+              <div className="absolute top-4 right-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full">
+                <span className="text-sm font-medium text-primary">✅ נסרק!</span>
+              </div>
+            </div>
+            <div className="bg-white rounded-2xl p-6 shadow-lg mb-6">
+              <p className="text-muted-foreground text-center mb-3">זיהיתי את הפריט:</p>
+              <div className="flex items-center justify-center gap-4 p-4 rounded-xl" style={{ backgroundColor: identifiedBin.bgColor }}>
+                <span className="text-5xl">{identifiedBin.icon}</span>
+                <span className="text-3xl font-bold" style={{ color: identifiedBin.color }}>{identifiedBin.labelHe}</span>
+              </div>
+            </div>
+            <div className="text-center mb-4">
+              <h3 className="text-xl font-bold text-foreground">האם הזיהוי נכון?</h3>
+            </div>
+            <div className="flex gap-4">
+              <button onClick={() => handleConfirmIdentification(true)}
+                className="flex-1 flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white font-bold text-xl py-5 px-6 rounded-2xl shadow-lg transition-all duration-300 hover:scale-105 active:scale-95">
+                <Check size={28} /><span>כן</span>
+              </button>
+              <button onClick={() => handleConfirmIdentification(false)}
+                className="flex-1 flex items-center justify-center gap-2 bg-red-500 hover:bg-red-600 text-white font-bold text-xl py-5 px-6 rounded-2xl shadow-lg transition-all duration-300 hover:scale-105 active:scale-95">
+                <X size={28} /><span>לא</span>
+              </button>
+            </div>
+          </div>
+        )}
+        {step === 'select_bin' && identifiedBin && (
+          <div className="w-full max-w-sm">
+            {isSuccess && (
+              <div className="fixed inset-0 z-50 bg-green-500/90 flex items-center justify-center">
+                <div className="text-center text-white">
+                  <div className="text-8xl mb-4 animate-bounce">🎉</div>
+                  <h2 className="text-3xl font-black">מעולה!</h2>
+                  <p className="text-xl mt-2">עוברים לרובוט...</p>
+                </div>
+              </div>
+            )}
+            <div className="flex items-center gap-4 bg-white rounded-2xl p-4 shadow-md mb-6">
+              <img src={currentImage} alt="פריט" className="w-20 h-20 rounded-xl object-cover" />
+              <div>
+                <p className="text-sm text-muted-foreground">זוהה:</p>
+                <div className="flex items-center gap-2">
+                  <span className="text-2xl">{identifiedBin.icon}</span>
+                  <span className="font-bold text-lg" style={{ color: identifiedBin.color }}>{identifiedBin.labelHe}</span>
+                </div>
+              </div>
+            </div>
+            <div className="text-center mb-6">
+              <h3 className="text-2xl font-bold text-foreground mb-2">לאיזה פח שולחים את הפריט?</h3>
+              <p className="text-muted-foreground">בחרו את צבע הפח הנכון</p>
+            </div>
+            {showBinError && (
+              <div className="bg-red-100 border-2 border-red-300 rounded-xl p-4 mb-4 text-center">
+                <p className="text-red-700 font-bold">אופס! זה לא הצבע הנכון</p>
+                <p className="text-red-600 text-sm">נסו שוב</p>
+              </div>
+            )}
+            <div className="grid grid-cols-2 gap-4">
+              {WASTE_BINS.map((bin) => {
+                const isSelected = selectedBinLocal === bin.category;
+                const isWrong = isSelected && showBinError;
+                const isCorrectAnswer = isSelected && isSuccess;
+                return (
+                  <button key={bin.category} onClick={() => handleBinSelect(bin.category)} disabled={isSuccess || showBinError}
+                    className={`relative p-5 rounded-2xl transition-all duration-300 flex items-center justify-center border-4 ${isWrong ? 'border-red-500 bg-red-100' : ''} ${isCorrectAnswer ? 'border-green-500 bg-green-100 scale-110' : ''} ${!isSelected ? 'hover:scale-105 active:scale-95' : ''}`}
+                    style={{ backgroundColor: !isWrong && !isCorrectAnswer ? bin.bgColor : undefined, borderColor: !isWrong && !isCorrectAnswer ? bin.color : undefined }}>
+                    <div className="w-20 h-20 rounded-xl flex items-center justify-center" style={{ backgroundColor: bin.color }}>
+                      <Trash2 size={44} className="text-white" />
+                    </div>
+                    {isWrong && <div className="absolute -top-2 -right-2 w-10 h-10 rounded-full bg-red-500 flex items-center justify-center"><X size={24} className="text-white" /></div>}
+                    {isCorrectAnswer && <div className="absolute -top-2 -right-2 w-10 h-10 rounded-full bg-green-500 flex items-center justify-center"><Check size={24} className="text-white" /></div>}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+      </div>
+      <style>{`@keyframes shake { 0%, 100% { transform: translateX(0) rotate(0deg); } 10%, 30%, 50%, 70%, 90% { transform: translateX(-4px) rotate(-1deg); } 20%, 40%, 60%, 80% { transform: translateX(4px) rotate(1deg); } } .animate-shake { animation: shake 0.5s ease-in-out; }`}</style>
+    </div>
+  );
+}
