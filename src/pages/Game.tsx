@@ -10,33 +10,33 @@ import binBlue from '@/assets/uploads/bin-blue.svg';
 import binPurple from '@/assets/uploads/bin-purple.svg';
 import binBrown from '@/assets/uploads/bin-brown.svg';
 
-import plasticDetergentOrange from '@/assets/uploads/plastic-detergent-orange.png';
-import plasticBagGreen from '@/assets/uploads/plastic-bag-green.png';
-import plasticDetergentBlue from '@/assets/uploads/plastic-detergent-blue.png';
-import plasticCupSmall from '@/assets/uploads/plastic-cup-small.png';
-import plasticCupTall from '@/assets/uploads/plastic-cup-tall.png';
-import plasticBagBlue from '@/assets/uploads/plastic-bag-blue.png';
-import plasticChipsBag from '@/assets/uploads/plastic-chips-bag.png';
-import plasticCupClear from '@/assets/uploads/plastic-cup-clear.png';
-import plasticShampooYellow from '@/assets/uploads/plastic-shampoo-yellow.png';
+import plasticDetergentOrange from '@/assets/uploads/plastic-detergent-orange.svg';
+import plasticBagGreen from '@/assets/uploads/plastic-bag-green.svg';
+import plasticDetergentBlue from '@/assets/uploads/plastic-detergent-blue.svg';
+import plasticCupSmall from '@/assets/uploads/plastic-cup-small.svg';
+import plasticCupTall from '@/assets/uploads/plastic-cup-tall.svg';
+import plasticBagBlue from '@/assets/uploads/plastic-bag-blue.svg';
+import plasticChipsBag from '@/assets/uploads/plastic-chips-bag.svg';
+import plasticCupClear from '@/assets/uploads/plastic-cup-clear.svg';
+import plasticShampooYellow from '@/assets/uploads/plastic-shampoo-yellow.svg';
 
-import paperNotebook from '@/assets/uploads/paper-notebook.png';
-import paperBag from '@/assets/uploads/paper-bag.png';
-import paperCardboardFlat from '@/assets/uploads/paper-cardboard-flat.png';
-import paperNewspaper from '@/assets/uploads/paper-newspaper.png';
-import paperCardboardBox from '@/assets/uploads/paper-cardboard-box.png';
-import paperFolder from '@/assets/uploads/paper-folder.png';
+import paperNotebook from '@/assets/uploads/paper-notebook.svg';
+import paperBag from '@/assets/uploads/paper-bag.svg';
+import paperCardboardFlat from '@/assets/uploads/paper-cardboard-flat.svg';
+import paperNewspaper from '@/assets/uploads/paper-newspaper.svg';
+import paperCardboardBox from '@/assets/uploads/paper-cardboard-box.svg';
+import paperFolder from '@/assets/uploads/paper-folder.svg';
 
-import organicEggshells from '@/assets/uploads/organic-eggshells.png';
-import organicTomato from '@/assets/uploads/organic-tomato.png';
-import organicBananaPeel from '@/assets/uploads/organic-banana-peel.png';
-import organicFishBones from '@/assets/uploads/organic-fish-bones.png';
-import organicCucumber from '@/assets/uploads/organic-cucumber.png';
+import organicEggshells from '@/assets/uploads/organic-eggshells.svg';
+import organicTomato from '@/assets/uploads/organic-tomato.svg';
+import organicBananaPeel from '@/assets/uploads/organic-banana-peel.svg';
+import organicFishBones from '@/assets/uploads/organic-fish-bones.svg';
+import organicCucumber from '@/assets/uploads/organic-cucumber.svg';
 
-import glassPerfume from '@/assets/uploads/glass-perfume.png';
-import glassPickles from '@/assets/uploads/glass-pickles.png';
-import glassJam from '@/assets/uploads/glass-jam.png';
-import glassSoapBottle from '@/assets/uploads/glass-soap-bottle.png';
+import glassPerfume from '@/assets/uploads/glass-perfume.svg';
+import glassPickles from '@/assets/uploads/glass-pickles.svg';
+import glassJam from '@/assets/uploads/glass-jam.svg';
+import glassSoapBottle from '@/assets/uploads/glass-soap-bottle.svg';
 
 const BIN_IMAGES: Record<WasteCategory, string> = { plastic: binOrange, paper: binBlue, glass: binPurple, organic: binBrown };
 
