@@ -99,7 +99,7 @@ export default function PasswordEntry() {
   const { setUserLevel } = useApp();
   const handleSuccess = () => { setUserLevel('teacher'); navigate('/dashboard'); };
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white flex flex-col items-center p-6">
+    <div className="h-dvh bg-gradient-to-b from-blue-50 to-white flex flex-col items-center p-6">
       <button onClick={() => navigate('/')} className="absolute top-6 right-6 w-12 h-12 bg-white rounded-full shadow-md flex items-center justify-center hover:bg-gray-50 transition-colors">
         <ArrowRight size={24} className="text-gray-600" />
       </button>

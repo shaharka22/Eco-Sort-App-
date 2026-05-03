@@ -11,7 +11,7 @@ export default function Summary() {
   const handleContinue = () => navigate('/camera');
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 via-green-50 to-white flex flex-col">
+    <div className="h-dvh bg-gradient-to-b from-blue-50 via-green-50 to-white flex flex-col">
       <div className="p-6 text-center"><Logo size="sm" /></div>
       <div className="flex-1 flex flex-col items-center p-6 gap-6">
         <div className="text-center">

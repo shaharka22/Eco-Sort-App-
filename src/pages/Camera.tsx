@@ -66,7 +66,7 @@ export default function Camera() {
   };
 
   return (
-    <div className="min-h-screen bg-black flex flex-col">
+    <div className=" bg-black flex flex-col">
       <canvas ref={canvasRef} className="hidden" />
       <div className="absolute top-0 left-0 right-0 z-10 p-4 flex items-center justify-between">
         <button onClick={() => navigate('/')} className="w-12 h-12 bg-white/20 backdrop-blur rounded-full flex items-center justify-center hover:bg-white/30 transition-colors">

@@ -37,7 +37,7 @@ export default function Impact() {
     const success = validateFullSuccess();
     if (!success) {
       return (
-        <div className="min-h-screen bg-gradient-to-b from-yellow-100 to-orange-100 flex flex-col items-center justify-center p-6">
+        <div className=" bg-gradient-to-b from-yellow-100 to-orange-100 flex flex-col items-center justify-center p-6">
           <div className="bg-white rounded-3xl p-8 max-w-sm text-center shadow-xl">
             <div className="w-24 h-24 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-6">
               <AlertTriangle size={48} className="text-yellow-600" />
@@ -54,7 +54,7 @@ export default function Impact() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-green-100 via-emerald-50 to-white flex flex-col">
+    <div className=" bg-gradient-to-b from-green-100 via-emerald-50 to-white flex flex-col">
       {showConfetti && (
         <div className="fixed inset-0 pointer-events-none overflow-hidden z-10">
           {[...Array(20)].map((_, i) => (

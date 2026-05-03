@@ -37,6 +37,7 @@ import glassPerfume from '@/assets/uploads/glass-perfume.svg';
 import glassPickles from '@/assets/uploads/glass-pickles.svg';
 import glassJam from '@/assets/uploads/glass-jam.svg';
 import glassSoapBottle from '@/assets/uploads/glass-soap-bottle.svg';
+import ecosortLogo from '@/assets/uploads/ecosort-logo.png';
 
 const BIN_IMAGES: Record<WasteCategory, string> = { plastic: binOrange, paper: binBlue, glass: binPurple, organic: binBrown };
 
@@ -295,10 +296,9 @@ const handleGameOver = useCallback(async (finalScore: number, correct: number, w
   const stars = getStars(correctCatches, wrongCatches, misses);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-sky-200 via-sky-100 to-green-100 flex flex-col">
+    <div className="h-dvh bg-gradient-to-b from-sky-200 via-sky-100 to-green-100 flex flex-col">
       {gameState === 'start' && (
-        <div className="flex-1 flex flex-col items-center justify-center p-6 gap-8">
-          <Logo size="md" />
+        <div className="h-dvh flex-1 flex flex-col items-center justify-center p-6 gap-8">
           <div className="text-center">
             <h1 className="text-4xl font-black text-primary mb-2">🎮 תפוס את הפסולת!</h1>
             <p className="text-lg text-muted-foreground">תפסו את הפריטים הנופלים עם הפח הנכון</p>
@@ -351,6 +351,7 @@ const handleGameOver = useCallback(async (finalScore: number, correct: number, w
           </div>
 
           <div ref={gameAreaRef} className="flex-1 relative overflow-hidden cursor-none" onPointerMove={handlePointerMove} onTouchMove={handleTouchMove} style={{ touchAction: 'none' }}>
+            <img src={ecosortLogo} alt="EcoSort" className="absolute inset-0 m-auto w-64 opacity-10 pointer-events-none select-none z-0" />
             {fallingItems.map((item) => (
               <div key={item.id} className="absolute transition-none" style={{ left: item.x, top: item.y, width: ITEM_SIZE, height: ITEM_SIZE }}>
                 <div className="w-full h-full bg-white rounded-2xl shadow-lg flex items-center justify-center overflow-hidden">

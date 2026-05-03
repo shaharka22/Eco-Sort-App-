@@ -54,7 +54,7 @@ export default function RobotControl() {
   if (!targetBin || !selectedBin) return null;
 
   if (robotState === 'error') return (
-    <div className="min-h-screen bg-gradient-to-b from-yellow-100 to-orange-100 flex flex-col items-center justify-center p-6">
+    <div className="h-dvh bg-gradient-to-b from-yellow-100 to-orange-100 flex flex-col items-center justify-center p-6">
       <div className="bg-white rounded-3xl p-8 max-w-sm text-center shadow-xl">
         <div className="w-24 h-24 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-6"><AlertTriangle size={48} className="text-yellow-600" /></div>
         <h2 className="text-2xl font-bold text-foreground mb-2">אירעה שגיאה בתהליך</h2>
@@ -67,7 +67,7 @@ export default function RobotControl() {
   );
 
   if (robotState === 'emergency') return (
-    <div className="min-h-screen bg-red-600 flex flex-col items-center justify-center p-6">
+    <div className="h-dvh bg-red-600 flex flex-col items-center justify-center p-6">
       <div className="text-center text-white">
         <AlertTriangle size={80} className="mx-auto mb-6 animate-pulse" />
         <h1 className="text-4xl font-black mb-4">עצירת חירום!</h1>
@@ -82,7 +82,7 @@ export default function RobotControl() {
   );
 
   if (robotState === 'disconnected') return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-100 to-gray-200 flex flex-col items-center justify-center p-6">
+    <div className="h-dvh bg-gradient-to-b from-gray-100 to-gray-200 flex flex-col items-center justify-center p-6">
       <div className="bg-white rounded-3xl p-8 max-w-sm text-center shadow-xl">
         <div className="w-24 h-24 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-6"><WifiOff size={48} className="text-orange-500" /></div>
         <h2 className="text-2xl font-bold text-foreground mb-2">הקשר עם הרובוט נותק</h2>
@@ -96,7 +96,7 @@ export default function RobotControl() {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-100 to-gray-200 flex flex-col">
+    <div className="h-dvh bg-gradient-to-b from-gray-100 to-gray-200 flex flex-col">
       <div className="p-4 flex items-center justify-between">
         <button onClick={() => navigate('/analysis')} disabled={robotState === 'executing'} className="w-12 h-12 bg-white rounded-full shadow-md flex items-center justify-center hover:bg-gray-50 transition-colors disabled:opacity-50">
           <ArrowRight size={24} className="text-gray-600" />

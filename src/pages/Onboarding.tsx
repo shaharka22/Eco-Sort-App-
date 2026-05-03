@@ -22,7 +22,7 @@ export default function Onboarding() {
   const handlePrev = () => { if (currentSlide > 0) setCurrentSlide((prev) => prev - 1); };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-green-50 to-blue-50 flex flex-col">
+    <div className="h-dvh bg-gradient-to-b from-green-50 to-blue-50 flex flex-col">
       <div className="p-4 flex justify-end">
         <button onClick={handleSkip} className="flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur rounded-full shadow-md hover:bg-white transition-colors">
           <span className="text-muted-foreground">דלג</span>

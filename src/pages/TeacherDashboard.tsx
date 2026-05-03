@@ -88,7 +88,7 @@ export default function TeacherDashboard() {
   const totalBinEvents = Object.values(binStats).reduce((a, b) => a + b, 0);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="h-dvh bg-gray-50">
       <div className="bg-white shadow-sm">
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
           <Logo size="sm" />

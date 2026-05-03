@@ -27,7 +27,7 @@ const handleNameSubmit = async () => {
   const handlePasswordSuccess = () => { setShowPasswordModal(false); setUserLevel('teacher'); navigate('/dashboard'); };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-green-50 via-blue-50 to-white flex flex-col items-center justify-center p-6">
+    <div className="h-dvh bg-gradient-to-b from-green-50 via-blue-50 to-white flex flex-col items-center justify-center p-6">
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-10 left-10 text-6xl opacity-20 animate-bounce" style={{ animationDuration: '3s' }}>🌿</div>
         <div className="absolute top-20 right-10 text-5xl opacity-20 animate-bounce" style={{ animationDuration: '4s', animationDelay: '1s' }}>🌍</div>
