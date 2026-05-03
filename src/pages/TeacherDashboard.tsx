@@ -1,30 +1,69 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
-import { LogOut, Settings, Users, BarChart3, Sliders, RefreshCw, Check, AlertTriangle, Loader2 } from 'lucide-react';
+import { LogOut, Settings, Users, BarChart3, Sliders, RefreshCw, Check, AlertTriangle, Loader2, Gamepad2, Trophy, Star } from 'lucide-react';
 import { Logo } from '@/components/Logo';
 import { useApp } from '@/context/AppContext';
 import { WASTE_BINS } from '@/types';
-
-const MOCK_CLASS_STATS = { totalStudents: 24, activeToday: 18, totalItemsSorted: 156, accuracy: 78 };
-const MOCK_LEADERBOARD = [
-  { name: 'נועם כ.', score: 120, items: 12 },
-  { name: 'מיה ל.', score: 95, items: 10 },
-  { name: 'איתי ש.', score: 85, items: 9 },
-  { name: 'דניאל ג.', score: 70, items: 7 },
-  { name: 'עדי ב.', score: 65, items: 7 },
-];
+import { supabase } from '@/supabaseClient';
 
 type CalibrationStatus = 'idle' | 'calibrating' | 'success' | 'error';
 type MotorError = { motor: number; message: string } | null;
 
+interface Student { name: string; total_score: number; total_items: number; }
+interface SortEvent { correct_bin: string; is_correct: boolean; }
+interface GameScore { score: number; correct_catches: number; wrong_catches: number; misses: number; stars: number; played_at: string; }
+interface DashboardStats { totalStudents: number; totalItemsSorted: number; accuracy: number; }
+interface GameStats { totalGames: number; avgScore: number; avgStars: number; topScore: number; }
+
 export default function TeacherDashboard() {
   const navigate = useNavigate();
   const { setUserLevel, resetSession } = useApp();
-  const [activeTab, setActiveTab] = useState<'stats' | 'settings'>('stats');
+  const [activeTab, setActiveTab] = useState<'stats' | 'game' | 'settings'>('stats');
   const [robotCalibration, setRobotCalibration] = useState({ speed: 50, precision: 75, gripForce: 60 });
   const [calibrationStatus, setCalibrationStatus] = useState<CalibrationStatus>('idle');
   const [motorError, setMotorError] = useState<MotorError>(null);
   const [sessionResetConfirm, setSessionResetConfirm] = useState(false);
+  const [stats, setStats] = useState<DashboardStats>({ totalStudents: 0, totalItemsSorted: 0, accuracy: 0 });
+  const [leaderboard, setLeaderboard] = useState<Student[]>([]);
+  const [binStats, setBinStats] = useState<Record<string, number>>({});
+  const [gameStats, setGameStats] = useState<GameStats>({ totalGames: 0, avgScore: 0, avgStars: 0, topScore: 0 });
+  const [gameScores, setGameScores] = useState<GameScore[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => { fetchData(); }, []);
+
+  const fetchData = async () => {
+    setLoading(true);
+    const { data: students } = await supabase.from('students').select('name, total_score, total_items');
+    const { data: sortEvents } = await supabase.from('sort_events').select('correct_bin, is_correct');
+    const { data: scores } = await supabase.from('game_scores').select('*').order('played_at', { ascending: false });
+
+    if (students) {
+      const sorted = [...students].sort((a, b) => b.total_score - a.total_score);
+      setLeaderboard(sorted.slice(0, 5));
+      setStats(prev => ({ ...prev, totalStudents: students.length }));
+    }
+
+    if (sortEvents) {
+      const total = sortEvents.length;
+      const correct = sortEvents.filter((e: SortEvent) => e.is_correct).length;
+      const accuracy = total > 0 ? Math.round(correct / total * 100) : 0;
+      const binCounts: Record<string, number> = {};
+      sortEvents.forEach((e: SortEvent) => { binCounts[e.correct_bin] = (binCounts[e.correct_bin] || 0) + 1; });
+      setStats(prev => ({ ...prev, totalItemsSorted: total, accuracy }));
+      setBinStats(binCounts);
+    }
+
+    if (scores && scores.length > 0) {
+      setGameScores(scores);
+      const avgScore = Math.round(scores.reduce((a: number, b: GameScore) => a + b.score, 0) / scores.length);
+      const avgStars = Math.round(scores.reduce((a: number, b: GameScore) => a + b.stars, 0) / scores.length * 10) / 10;
+      const topScore = Math.max(...scores.map((s: GameScore) => s.score));
+      setGameStats({ totalGames: scores.length, avgScore, avgStars, topScore });
+    }
+
+    setLoading(false);
+  };
 
   const handleLogout = () => { setUserLevel(null); navigate('/'); };
 
@@ -46,6 +85,8 @@ export default function TeacherDashboard() {
     resetSession(); setSessionResetConfirm(false);
   };
 
+  const totalBinEvents = Object.values(binStats).reduce((a, b) => a + b, 0);
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="bg-white shadow-sm">
@@ -58,66 +99,124 @@ export default function TeacherDashboard() {
         </div>
       </div>
       <div className="max-w-4xl mx-auto px-4 mt-6">
-        <div className="flex gap-2 mb-6">
-          <button onClick={() => setActiveTab('stats')} className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-colors ${activeTab === 'stats' ? 'bg-primary text-white' : 'bg-white text-muted-foreground hover:bg-gray-100'}`}>
-            <BarChart3 size={20} /><span>סטטיסטיקות</span>
+        <div className="flex gap-2 mb-6 flex-wrap">
+          <button onClick={() => setActiveTab('stats')} className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-colors ${activeTab === 'stats' ? 'bg-primary text-black' : 'bg-white text-muted-foreground hover:bg-gray-100'}`}>
+            <BarChart3 size={20} /><span>מיון</span>
           </button>
-          <button onClick={() => setActiveTab('settings')} className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-colors ${activeTab === 'settings' ? 'bg-primary text-white' : 'bg-white text-muted-foreground hover:bg-gray-100'}`}>
-            <Settings size={20} /><span>הגדרות</span>
+          <button onClick={() => setActiveTab('game')} className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-colors ${activeTab === 'game' ? 'bg-primary text-black' : 'bg-white text-muted-foreground hover:bg-gray-100'}`}>
+            <Gamepad2 size={20} /><span>משחק</span>
           </button>
         </div>
 
         {activeTab === 'stats' && (
           <div className="flex flex-col gap-6">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="bg-white rounded-xl p-4 shadow-sm">
-                <div className="flex items-center gap-2 text-muted-foreground mb-2"><Users size={20} /><span className="text-sm">תלמידים פעילים</span></div>
-                <p className="text-3xl font-bold">{MOCK_CLASS_STATS.activeToday}<span className="text-lg text-muted-foreground">/{MOCK_CLASS_STATS.totalStudents}</span></p>
+            {loading ? (
+              <div className="flex items-center justify-center py-20">
+                <Loader2 size={40} className="animate-spin text-primary" />
               </div>
-              <div className="bg-white rounded-xl p-4 shadow-sm">
-                <div className="flex items-center gap-2 text-muted-foreground mb-2"><RefreshCw size={20} /><span className="text-sm">פריטים מוינו</span></div>
-                <p className="text-3xl font-bold text-primary">{MOCK_CLASS_STATS.totalItemsSorted}</p>
-              </div>
-              <div className="bg-white rounded-xl p-4 shadow-sm">
-                <div className="flex items-center gap-2 text-muted-foreground mb-2"><Check size={20} /><span className="text-sm">דיוק מיון</span></div>
-                <p className="text-3xl font-bold text-green-600">{MOCK_CLASS_STATS.accuracy}%</p>
-              </div>
-              <div className="bg-white rounded-xl p-4 shadow-sm">
-                <div className="flex items-center gap-2 text-muted-foreground mb-2"><BarChart3 size={20} /><span className="text-sm">מגמה השבוע</span></div>
-                <p className="text-3xl font-bold text-secondary">↑ 15%</p>
-              </div>
-            </div>
-            <div className="bg-white rounded-xl p-6 shadow-sm">
-              <h3 className="font-bold text-foreground mb-4">התפלגות לפי קטגוריה</h3>
-              <div className="flex flex-col gap-3">
-                {WASTE_BINS.map((bin) => {
-                  const percentage = Math.floor(Math.random() * 30) + 15;
-                  return (
-                    <div key={bin.category} className="flex items-center gap-3">
-                      <span className="text-2xl w-8">{bin.icon}</span>
-                      <span className="w-20 text-sm font-medium" style={{ color: bin.color }}>{bin.labelHe}</span>
-                      <div className="flex-1 h-6 bg-gray-100 rounded-full overflow-hidden">
-                        <div className="h-full rounded-full" style={{ width: `${percentage}%`, backgroundColor: bin.color }} />
-                      </div>
-                      <span className="text-sm font-bold text-muted-foreground w-12">{percentage}%</span>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-            <div className="bg-white rounded-xl p-6 shadow-sm">
-              <h3 className="font-bold text-foreground mb-4">🏆 לוח מובילים</h3>
-              <div className="flex flex-col gap-2">
-                {MOCK_LEADERBOARD.map((student, index) => (
-                  <div key={student.name} className={`flex items-center gap-4 p-3 rounded-lg ${index === 0 ? 'bg-yellow-50' : index === 1 ? 'bg-gray-50' : index === 2 ? 'bg-orange-50' : 'bg-white'}`}>
-                    <span className="text-2xl w-8 text-center">{index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}.`}</span>
-                    <span className="flex-1 font-medium">{student.name}</span>
-                    <span className="text-sm text-muted-foreground">{student.items} פריטים</span>
-                    <span className="font-bold text-primary">{student.score} נקודות</span>
+            ) : (
+              <>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  <div className="bg-white rounded-xl p-4 shadow-sm">
+                    <div className="flex items-center gap-2 text-muted-foreground mb-2"><Users size={20} /><span className="text-sm">תלמידים</span></div>
+                    <p className="text-3xl font-bold">{stats.totalStudents}</p>
                   </div>
-                ))}
+                  <div className="bg-white rounded-xl p-4 shadow-sm">
+                    <div className="flex items-center gap-2 text-muted-foreground mb-2"><RefreshCw size={20} /><span className="text-sm">פריטים מוינו</span></div>
+                    <p className="text-3xl font-bold text-primary">{stats.totalItemsSorted}</p>
+                  </div>
+                  <div className="bg-white rounded-xl p-4 shadow-sm">
+                    <div className="flex items-center gap-2 text-muted-foreground mb-2"><Check size={20} /><span className="text-sm">דיוק מיון</span></div>
+                    <p className="text-3xl font-bold text-green-600">{stats.accuracy}%</p>
+                  </div>
+                </div>
+                <div className="bg-white rounded-xl p-6 shadow-sm">
+                  <h3 className="font-bold text-foreground mb-4">התפלגות לפי קטגוריה</h3>
+                  <div className="flex flex-col gap-3">
+                    {WASTE_BINS.map((bin) => {
+                      const count = binStats[bin.category] || 0;
+                      const percentage = totalBinEvents > 0 ? Math.round(count / totalBinEvents * 100) : 0;
+                      return (
+                        <div key={bin.category} className="flex items-center gap-3">
+                          <span className="text-2xl w-8">{bin.icon}</span>
+                          <span className="w-20 text-sm font-medium" style={{ color: bin.color }}>{bin.labelHe}</span>
+                          <div className="flex-1 h-6 bg-gray-100 rounded-full overflow-hidden">
+                            <div className="h-full rounded-full transition-all duration-500" style={{ width: `${percentage}%`, backgroundColor: bin.color }} />
+                          </div>
+                          <span className="text-sm font-bold text-muted-foreground w-12">{percentage}%</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+                <div className="bg-white rounded-xl p-6 shadow-sm">
+                  <h3 className="font-bold text-foreground mb-4">🏆 לוח מובילים</h3>
+                  {leaderboard.length === 0 ? (
+                    <p className="text-muted-foreground text-center py-4">אין נתונים עדיין</p>
+                  ) : (
+                    <div className="flex flex-col gap-2">
+                      {leaderboard.map((student, index) => (
+                        <div key={student.name} className={`flex items-center gap-4 p-3 rounded-lg ${index === 0 ? 'bg-yellow-50' : index === 1 ? 'bg-gray-50' : index === 2 ? 'bg-orange-50' : 'bg-white'}`}>
+                          <span className="text-2xl w-8 text-center">{index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}.`}</span>
+                          <span className="flex-1 font-medium">{student.name}</span>
+                          <span className="text-sm text-muted-foreground">{student.total_items} פריטים</span>
+                          <span className="font-bold text-primary">{student.total_score} נקודות</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
+          </div>
+        )}
+
+        {activeTab === 'game' && (
+          <div className="flex flex-col gap-6">
+            {loading ? (
+              <div className="flex items-center justify-center py-20">
+                <Loader2 size={40} className="animate-spin text-primary" />
               </div>
-            </div>
+            ) : (
+              <>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="bg-white rounded-xl p-4 shadow-sm">
+                    <div className="flex items-center gap-2 text-muted-foreground mb-2"><Gamepad2 size={20} /><span className="text-sm">משחקים</span></div>
+                    <p className="text-3xl font-bold">{gameStats.totalGames}</p>
+                  </div>
+                  <div className="bg-white rounded-xl p-4 shadow-sm">
+                    <div className="flex items-center gap-2 text-muted-foreground mb-2"><BarChart3 size={20} /><span className="text-sm">ממוצע ניקוד</span></div>
+                    <p className="text-3xl font-bold text-primary">{gameStats.avgScore}</p>
+                  </div>
+                  <div className="bg-white rounded-xl p-4 shadow-sm">
+                    <div className="flex items-center gap-2 text-muted-foreground mb-2"><Star size={20} /><span className="text-sm">ממוצע כוכבים</span></div>
+                    <p className="text-3xl font-bold text-yellow-500">{gameStats.avgStars}⭐</p>
+                  </div>
+                  <div className="bg-white rounded-xl p-4 shadow-sm">
+                    <div className="flex items-center gap-2 text-muted-foreground mb-2"><Trophy size={20} /><span className="text-sm">שיא</span></div>
+                    <p className="text-3xl font-bold text-green-600">{gameStats.topScore}</p>
+                  </div>
+                </div>
+                <div className="bg-white rounded-xl p-6 shadow-sm">
+                  <h3 className="font-bold text-foreground mb-4">תוצאות אחרונות</h3>
+                  {gameScores.length === 0 ? (
+                    <p className="text-muted-foreground text-center py-4">אין נתונים עדיין</p>
+                  ) : (
+                    <div className="flex flex-col gap-2">
+                      {gameScores.slice(0, 10).map((game, index) => (
+                        <div key={index} className="flex items-center gap-4 p-3 bg-gray-50 rounded-lg">
+                          <span className="text-lg">{[...Array(game.stars)].map((_, i) => <span key={i}>⭐</span>)}{[...Array(3 - game.stars)].map((_, i) => <span key={i}>☆</span>)}</span>
+                          <span className="flex-1 font-bold text-primary">{game.score} נקודות</span>
+                          <span className="text-sm text-green-600">{game.correct_catches} ✓</span>
+                          <span className="text-sm text-red-500">{game.wrong_catches} ✗</span>
+                          <span className="text-sm text-muted-foreground">{new Date(game.played_at).toLocaleDateString('he-IL')}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
           </div>
         )}
 

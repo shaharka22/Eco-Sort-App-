@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router';
 import { Home, Play, RotateCcw, Pause, Trophy, X, Check, Volume2, VolumeX } from 'lucide-react';
 import { Logo } from '@/components/Logo';
 import { WASTE_BINS, WasteCategory } from '@/types';
+import { supabase } from '@/supabaseClient';
 
 import binOrange from '@/assets/uploads/bin-orange.svg';
 import binBlue from '@/assets/uploads/bin-blue.svg';
@@ -83,7 +84,7 @@ type GameState = 'start' | 'playing' | 'paused' | 'gameover';
 export default function Game() {
   const navigate = useNavigate();
   const gameAreaRef = useRef<HTMLDivElement>(null);
- const animationFrameRef = useRef<number | undefined>(undefined);
+  const animationFrameRef = useRef<number | undefined>(undefined);
   const lastSpawnTimeRef = useRef<number>(0);
   const itemIdCounterRef = useRef<number>(0);
   const feedbackIdRef = useRef<number>(0);
@@ -101,6 +102,7 @@ export default function Game() {
   const [feedbacks, setFeedbacks] = useState<GameFeedback[]>([]);
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [fallSpeed, setFallSpeed] = useState(INITIAL_FALL_SPEED);
+  const gameOverCalledRef = useRef(false);
   const [spawnInterval, setSpawnInterval] = useState(INITIAL_SPAWN_INTERVAL);
 
   useEffect(() => {
@@ -148,6 +150,27 @@ export default function Game() {
     setTimeout(() => { setFeedbacks((prev) => prev.filter((f) => f.id !== feedback.id)); }, 1000);
   }, []);
 
+  const getStars = useCallback((correct: number, wrong: number, missCount: number) => {
+    const accuracy = correct + wrong > 0 ? correct / (correct + wrong) * 100 : 0;
+    if (accuracy >= 90 && missCount === 0) return 3;
+    if (accuracy >= 70) return 2;
+    if (accuracy >= 50) return 1;
+    return 0;
+  }, []);
+
+const handleGameOver = useCallback(async (finalScore: number, correct: number, wrong: number, missCount: number) => {
+  if (gameOverCalledRef.current) return;
+  gameOverCalledRef.current = true;
+  setGameState('gameover');
+  await supabase.from('game_scores').insert({
+    score: finalScore,
+    correct_catches: correct,
+    wrong_catches: wrong,
+    misses: missCount,
+    stars: getStars(correct, wrong, missCount),
+  });
+}, [getStars]);
+
   useEffect(() => {
     if (gameState !== 'playing') return;
     let lastTime = performance.now();
@@ -166,8 +189,25 @@ export default function Game() {
             continue;
           }
           if (newY > height) {
-            setMisses((m) => { const newMisses = m + 1; if (newMisses >= MAX_MISSES) setGameState('gameover'); return newMisses; });
-            setScore((s) => Math.max(0, s - 2)); addFeedback('miss', item.x, height - 50); continue;
+            setMisses((m) => {
+              const newMisses = m + 1;
+              if (newMisses >= MAX_MISSES) {
+                setScore((s) => {
+                  setCorrectCatches((c) => {
+                    setWrongCatches((w) => {
+                      handleGameOver(Math.max(0, s - 2), c, w, newMisses);
+                      return w;
+                    });
+                    return c;
+                  });
+                  return s;
+                });
+              }
+              return newMisses;
+            });
+            setScore((s) => Math.max(0, s - 2));
+            addFeedback('miss', item.x, height - 50);
+            continue;
           }
           updated.push({ ...item, y: newY });
         }
@@ -177,20 +217,35 @@ export default function Game() {
     };
     animationFrameRef.current = requestAnimationFrame(gameLoop);
     return () => { if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current); };
-  }, [gameState, selectedBin, spawnInterval, spawnItem, checkCollision, addFeedback, getGameAreaDimensions]);
+  }, [gameState, selectedBin, spawnInterval, spawnItem, checkCollision, addFeedback, getGameAreaDimensions, handleGameOver]);
 
   useEffect(() => {
     if (gameState !== 'playing') return;
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
-        if (prev <= 1) { setGameState('gameover'); return 0; }
+        if (prev <= 1) {
+          setScore((s) => {
+            setCorrectCatches((c) => {
+              setWrongCatches((w) => {
+                setMisses((m) => {
+                  handleGameOver(s, c, w, m);
+                  return m;
+                });
+                return w;
+              });
+              return c;
+            });
+            return s;
+          });
+          return 0;
+        }
         const elapsed = GAME_DURATION - prev + 1;
         if (elapsed % SPEED_INCREASE_INTERVAL === 0) { setFallSpeed((s) => s + SPEED_INCREMENT); setSpawnInterval((i) => Math.max(MIN_SPAWN_INTERVAL, i - 200)); }
         return prev - 1;
       });
     }, 1000);
     return () => clearInterval(timer);
-  }, [gameState]);
+  }, [gameState, handleGameOver]);
 
   useEffect(() => {
     if (gameState !== 'playing') return;
@@ -230,19 +285,14 @@ export default function Game() {
   }, [gameState]);
 
   const startGame = () => {
+    gameOverCalledRef.current = false;
     setGameState('playing'); setScore(0); setTimeLeft(GAME_DURATION); setMisses(0);
     setCorrectCatches(0); setWrongCatches(0); setFallingItems([]); setFallSpeed(INITIAL_FALL_SPEED);
     setSpawnInterval(INITIAL_SPAWN_INTERVAL); setBinX(50); lastSpawnTimeRef.current = 0;
   };
 
   const currentBin = WASTE_BINS.find((b) => b.category === selectedBin)!;
-  const getStars = () => {
-    const accuracy = correctCatches + wrongCatches > 0 ? correctCatches / (correctCatches + wrongCatches) * 100 : 0;
-    if (accuracy >= 90 && misses === 0) return 3;
-    if (accuracy >= 70) return 2;
-    if (accuracy >= 50) return 1;
-    return 0;
-  };
+  const stars = getStars(correctCatches, wrongCatches, misses);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-sky-200 via-sky-100 to-green-100 flex flex-col">
@@ -353,12 +403,12 @@ export default function Game() {
       {gameState === 'gameover' && (
         <div className="flex-1 flex flex-col items-center justify-center p-6 gap-6">
           <div className="text-center">
-            <div className="text-6xl mb-4">{getStars() === 3 ? '🏆' : getStars() >= 1 ? '⭐' : '😢'}</div>
+            <div className="text-6xl mb-4">{stars === 3 ? '🏆' : stars >= 1 ? '⭐' : '😢'}</div>
             <h1 className="text-4xl font-black text-foreground mb-2">{misses >= MAX_MISSES ? 'נגמרו הניסיונות!' : 'נגמר הזמן!'}</h1>
           </div>
           <div className="flex gap-2">
             {[1, 2, 3].map((star) => (
-              <div key={star} className={`text-5xl transition-all duration-500 ${star <= getStars() ? 'scale-100' : 'scale-75 opacity-30'}`}>⭐</div>
+              <div key={star} className={`text-5xl transition-all duration-500 ${star <= stars ? 'scale-100' : 'scale-75 opacity-30'}`}>⭐</div>
             ))}
           </div>
           <div className="bg-white rounded-2xl p-6 shadow-lg max-w-sm w-full">

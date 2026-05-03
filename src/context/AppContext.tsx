@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useCallback, type ReactNode } from 'react';
 import type { UserLevel, WasteCategory, SessionStats, SortingResult, SortingSession } from '@/types';
+import { supabase } from '@/supabaseClient';
 
 interface AppContextType {
   userLevel: UserLevel | null;
@@ -22,6 +23,8 @@ interface AppContextType {
   resetSession: () => void;
   soundEnabled: boolean;
   toggleSound: () => void;
+  studentId: number | null;
+  setStudentId: (id: number | null) => void;
 }
 
 const initialStats: SessionStats = {
@@ -45,6 +48,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [sessionStats, setSessionStats] = useState<SessionStats>(initialStats);
   const [sortingHistory, setSortingHistory] = useState<SortingResult[]>([]);
   const [soundEnabled, setSoundEnabled] = useState(true);
+  const [studentId, setStudentId] = useState<number | null>(null);
 
   const addScore = useCallback((points: number) => setScore(prev => prev + points), []);
 
@@ -81,16 +85,38 @@ export function AppProvider({ children }: { children: ReactNode }) {
     return identifiedCategory !== null && identificationConfirmed && selectedBinCategory !== null && binSelectionCorrect && robotTargetBin !== null && robotActionCompleted && identifiedCategory === selectedBinCategory && selectedBinCategory === robotTargetBin;
   }, [sortingSession]);
 
-  const recordSuccessfulSort = useCallback(() => {
-    if (!sortingSession.isFullSuccess || !sortingSession.identifiedCategory) return;
-    const category = sortingSession.identifiedCategory;
-    setSessionStats(prev => ({ ...prev, totalItems: prev.totalItems + 1, successfulSorts: prev.successfulSorts + 1, [`${category}Count`]: (prev as unknown as Record<string, number>)[`${category}Count`] + 1, }));
-    setSortingHistory(prev => [...prev, { category, timestamp: new Date(), success: true }]);
-    addScore(10);
-  }, [sortingSession, addScore]);
+const recordSuccessfulSort = useCallback(() => {
+  console.log('studentId:', studentId);
+  if (!sortingSession.isFullSuccess || !sortingSession.identifiedCategory) return;
+  const category = sortingSession.identifiedCategory;
+
+  setSessionStats(prev => {
+    const newStats = {
+      ...prev,
+      totalItems: prev.totalItems + 1,
+      successfulSorts: prev.successfulSorts + 1,
+      [`${category}Count`]: (prev as unknown as Record<string, number>)[`${category}Count`] + 1,
+    };
+    if (studentId) {
+      setScore(prevScore => {
+        const newScore = prevScore + 10;
+        supabase.from('students')
+          .update({ total_score: newScore, total_items: newStats.totalItems })
+          .eq('id', studentId)
+          .then();
+        return newScore;
+      });
+    } else {
+      setScore(prev => prev + 10);
+    }
+    return newStats;
+  });
+
+  setSortingHistory(prev => [...prev, { category, timestamp: new Date(), success: true }]);
+}, [sortingSession, studentId]);
 
   const resetSortingSession = useCallback(() => { setSortingSession(initialSortingSession); setCurrentImage(null); }, []);
-  const resetSession = useCallback(() => { setScore(0); setSessionStats(initialStats); setSortingHistory([]); setSortingSession(initialSortingSession); setCurrentImage(null); }, []);
+  const resetSession = useCallback(() => { setScore(0); setSessionStats(initialStats); setSortingHistory([]); setSortingSession(initialSortingSession); setCurrentImage(null); setStudentId(null); }, []);
   const toggleSound = useCallback(() => setSoundEnabled(prev => !prev), []);
 
   const value: AppContextType = {
@@ -99,6 +125,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     startRobotAction, completeRobotAction, validateFullSuccess,
     sessionStats, sortingHistory, recordSuccessfulSort,
     resetSortingSession, resetSession, soundEnabled, toggleSound,
+    studentId, setStudentId,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

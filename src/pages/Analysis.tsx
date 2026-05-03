@@ -5,6 +5,7 @@ import { ScanAnimation } from '@/components/ScanAnimation';
 import { StarCounter } from '@/components/StarCounter';
 import { useApp } from '@/context/AppContext';
 import { WASTE_BINS, type WasteCategory } from '@/types';
+import { supabase } from '@/supabaseClient';
 
 type AnalysisStep = 'scanning' | 'confirm_identification' | 'select_bin' | 'not_identified';
 
@@ -36,14 +37,24 @@ export default function Analysis() {
     }
   };
 
-  const handleBinSelect = (category: WasteCategory) => {
-    if (isSuccess || showBinError) return;
-    setSelectedBinLocal(category);
-    const isCorrect = selectBin(category);
-    if (isCorrect) { setIsSuccess(true); setTimeout(() => navigate('/robot'), 1500); }
-    else { setShowBinError(true); setTimeout(() => { setSelectedBinLocal(null); setShowBinError(false); }, 1500); }
-  };
-
+  const handleBinSelect = async (category: WasteCategory) => {
+  if (isSuccess || showBinError) return;
+  setSelectedBinLocal(category);
+  const isCorrect = selectBin(category);
+  if (isCorrect) {
+    setIsSuccess(true);
+    await supabase.from('sort_events').insert({
+      item_name: identifiedBin?.labelHe,
+      correct_bin: sortingSession.identifiedCategory,
+      chosen_bin: category,
+      is_correct: true,
+    });
+    setTimeout(() => navigate('/robot'), 1500);
+  } else {
+    setShowBinError(true);
+    setTimeout(() => { setSelectedBinLocal(null); setShowBinError(false); }, 1500);
+  }
+};
   const identifiedBin = sortingSession.identifiedCategory ? WASTE_BINS.find((b) => b.category === sortingSession.identifiedCategory) : null;
 
   if (!currentImage) return null;

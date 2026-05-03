@@ -26,7 +26,7 @@ export default function Impact() {
   }, []);
 
   const handleSortAnother = () => { resetSortingSession(); navigate('/camera'); };
-  const handleFinish = () => navigate('/summary');
+  const handleFinish = () => navigate('/');
   const handleRetry = () => { resetSortingSession(); navigate('/camera'); };
 
   const sortedCategory = sortingSession.identifiedCategory;
