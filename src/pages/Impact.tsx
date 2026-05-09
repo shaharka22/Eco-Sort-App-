@@ -117,7 +117,7 @@ export default function Impact() {
           </div>
         </div>
         <div className="flex flex-col gap-3 w-full max-w-sm mt-4">
-          <button onClick={handleSortAnother} className="flex items-center justify-center gap-3 bg-gradient-to-r from-primary to-primary-dark text-white text-xl font-bold py-5 px-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 active:scale-95">
+          <button onClick={handleSortAnother} className="flex items-center justify-center gap-3 bg-white border-2 border-gray-200 text-foreground text-lg font-medium py-4 px-8 rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 hover:border-primary">
             <RotateCcw size={28} /><span>מיין עוד פריט</span>
           </button>
           <button onClick={handleFinish} className="flex items-center justify-center gap-3 bg-white border-2 border-gray-200 text-foreground text-lg font-medium py-4 px-8 rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 hover:border-primary">

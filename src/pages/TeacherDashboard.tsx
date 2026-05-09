@@ -93,17 +93,17 @@ export default function TeacherDashboard() {
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
           <Logo size="sm" />
           <h1 className="text-xl font-bold text-foreground">לוח בקרה - מורה</h1>
-          <button onClick={handleLogout} className="flex items-center gap-2 px-4 py-2 text-muted-foreground hover:text-foreground transition-colors">
+          <button onClick={handleLogout} className="hover:scale-105 flex items-center gap-2 px-4 py-2 text-muted-foreground hover:text-foreground transition-colors">
             <LogOut size={20} /><span>יציאה</span>
           </button>
         </div>
       </div>
       <div className="max-w-4xl mx-auto px-4 mt-6">
         <div className="flex gap-2 mb-6 flex-wrap">
-          <button onClick={() => setActiveTab('stats')} className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-colors ${activeTab === 'stats' ? 'bg-primary text-black' : 'bg-white text-muted-foreground hover:bg-gray-100'}`}>
+          <button onClick={() => setActiveTab('stats')} className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-colors border border-gray-1000 hover:bg-gray-100 ${activeTab === 'stats' ? 'bg-primary text-black' : 'border border-gray-300 bg-white text-muted-foreground hover:bg-gray-300'}`}>
             <BarChart3 size={20} /><span>מיון</span>
           </button>
-          <button onClick={() => setActiveTab('game')} className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-colors ${activeTab === 'game' ? 'bg-primary text-black' : 'bg-white text-muted-foreground hover:bg-gray-100'}`}>
+          <button onClick={() => setActiveTab('game')} className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-colors border border-gray-1000 hover:bg-gray-100 ${activeTab === 'game' ? 'bg-primary text-black' : 'border border-gray-300 bg-white text-muted-foreground hover:bg-gray-300'}`}>
             <Gamepad2 size={20} /><span>משחק</span>
           </button>
         </div>

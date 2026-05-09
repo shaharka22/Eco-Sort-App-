@@ -300,7 +300,7 @@ const handleGameOver = useCallback(async (finalScore: number, correct: number, w
       {gameState === 'start' && (
         <div className="h-dvh flex-1 flex flex-col items-center justify-center p-6 gap-8">
           <div className="text-center">
-            <h1 className="text-4xl font-black text-primary mb-2">🎮 תפוס את הפסולת!</h1>
+            <h1 className="text-4xl font-black text-primary mb-2">תפוס את הפסולת 🎮 </h1>
             <p className="text-lg text-muted-foreground">תפסו את הפריטים הנופלים עם הפח הנכון</p>
           </div>
           <div className="bg-white rounded-2xl p-6 shadow-lg max-w-sm w-full">
@@ -323,7 +323,7 @@ const handleGameOver = useCallback(async (finalScore: number, correct: number, w
           <button onClick={startGame} className="flex items-center gap-3 bg-gradient-to-r color from-green-300 to-green-500 from-primary-light-500 to-primary-dark-600 text-white text-2xl font-bold py-5 px-10 rounded-2xl shadow-lg hover:scale-105 active:scale-95 transition-transform">
             <Play size={32} fill="white" /><span>התחל לשחק !</span>
           </button>
-          <button onClick={() => navigate('/')} className="text-muted-foreground hover:text-foreground transition-colors">חזרה לתפריט</button>
+          <button onClick={() => navigate('/')} className="hover:scale-105 text-muted-foreground hover:text-foreground transition-colors">חזרה לתפריט</button>
         </div>
       )}
 
@@ -387,13 +387,13 @@ const handleGameOver = useCallback(async (finalScore: number, correct: number, w
               <div className="bg-white rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl">
                 <h2 className="text-3xl font-black text-foreground mb-6">⏸️ הפסק משחק</h2>
                 <div className="flex flex-col gap-3">
-                  <button onClick={() => setGameState('playing')} className="w-full bg-gray-200 py-4 bg-primary text rounded-xl font-bold text-lg hover:bg-primary-dark transition-colors flex items-center justify-center gap-2">
+                  <button onClick={() => setGameState('playing')} className="w-full hover:scale-105 bg-gray-200 py-4 bg-primary text rounded-xl font-bold text-lg hover:bg-primary-dark transition-colors flex items-center justify-center gap-2">
                     <Play size={24} />המשך לשחק
                   </button>
-                  <button onClick={startGame} className="w-full py-4 bg-gray-200 text-foreground rounded-xl font-bold text-lg hover:bg-gray-200 transition-colors flex items-center justify-center gap-2 from-primary-light to-primary-dark">
+                  <button onClick={startGame} className="w-full hover:scale-105 py-4 bg-gray-200 text-foreground rounded-xl font-bold text-lg hover:bg-gray-200 transition-colors flex items-center justify-center gap-2 from-primary-light to-primary-dark">
                     <RotateCcw size={24} />התחל מחדש
                   </button>
-                  <button onClick={() => navigate('/')} className="w-full py-3 text-muted-foreground hover:text-foreground transition-colors">יציאה לתפריט</button>
+                  <button onClick={() => navigate('/')} className="w-full hover:scale-105 py-3 text-muted-foreground hover:text-foreground transition-colors">יציאה לתפריט</button>
                 </div>
               </div>
             </div>
@@ -425,7 +425,7 @@ const handleGameOver = useCallback(async (finalScore: number, correct: number, w
             </div>
           </div>
           <div className="flex flex-col gap-3 w-full max-w-sm">
-            <button onClick={startGame} className="flex items-center justify-center gap-3 bg-gradient-to-r from-primary to-primary-dark text-white text-xl font-bold py-5 px-8 rounded-2xl shadow-lg hover:scale-105 active:scale-95 transition-transform">
+            <button onClick={startGame} className="flex items-center justify-center gap-3 bg-gradient-to-r border-2 border-gray-200 from-primary to-primary-dark text-black text-xl font-bold py-5 px-8 rounded-2xl shadow-lg hover:scale-105 active:scale-95 transition-transform">
               <RotateCcw size={28} /><span>שחק שוב</span>
             </button>
             <button onClick={() => navigate('/')} className="flex items-center justify-center gap-3 bg-white border-2 border-gray-200 text-foreground text-lg font-medium py-4 px-8 rounded-2xl shadow-md hover:border-primary transition-colors">

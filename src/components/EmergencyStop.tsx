@@ -17,7 +17,7 @@ export function EmergencyStop({ onStop }: EmergencyStopProps) {
       className="
         w-full py-6 px-8
         bg-gradient-to-b from-destructive to-destructive-dark
-        hover:from-red-500 hover:to-red-700
+        from-red-600 hover:to-red-700
         active:from-red-700 active:to-red-800
         rounded-2xl shadow-lg
         flex items-center justify-center gap-4

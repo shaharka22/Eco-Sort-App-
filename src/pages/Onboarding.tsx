@@ -61,7 +61,7 @@ export default function Onboarding() {
               <ChevronRight size={28} className="text-gray-600" />
             </button>
           )}
-          <button onClick={handleNext} className="px-8 py-4 bg-primary text-white rounded-full shadow-lg font-bold text-lg hover:bg-primary-dark transition-colors flex items-center gap-2">
+          <button onClick={handleNext} className="px-8 py-4 bg-primary text-black rounded-full shadow-lg font-bold text-lg hover:bg-green-600 transition-colors flex items-center gap-2">
             {currentSlide < slides.length - 1 ? (
               <><span>הבא</span><ChevronLeft size={24} /></>
             ) : (

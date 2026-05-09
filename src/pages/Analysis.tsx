@@ -60,7 +60,7 @@ export default function Analysis() {
   if (!currentImage) return null;
 
   return (
-    <div className=" bg-gradient-to-b from-green-50 to-blue-50 flex flex-col">
+    <div className="min-h-screen bg-gradient-to-b from-green-50 to-blue-50 flex flex-col">
       <div className="p-4 flex items-center justify-between">
         <button onClick={() => navigate('/camera')} className="w-12 h-12 bg-white rounded-full shadow-md flex items-center justify-center hover:bg-gray-50 transition-colors">
           <ArrowRight size={24} className="text-gray-600" />
@@ -96,7 +96,7 @@ export default function Analysis() {
               <p className="text-yellow-700">נסו לצלם שוב מזווית אחרת</p>
             </div>
             <button onClick={() => { setCurrentImage(null); navigate('/camera'); }}
-              className="w-full flex items-center justify-center gap-3 bg-primary text-white font-bold py-5 px-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 active:scale-95">
+              className="w-full flex items-center justify-center border-2 border-black-300 gap-3 bg-primary text-black font-bold py-5 px-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 active:scale-95">
               <Camera size={28} /><span>צלם שוב</span>
             </button>
           </div>

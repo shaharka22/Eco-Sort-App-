@@ -136,9 +136,9 @@ export default function RobotControl() {
           {robotState === 'complete' ? (
             <div className="text-center"><div className="text-6xl mb-4 animate-bounce">🎉</div><p className="text-xl font-bold text-primary">מעולה! הפריט מוין!</p></div>
           ) : robotState === 'idle' || robotState === 'stopped' ? (
-            <button onClick={handleLaunch} className="w-48 h-48 rounded-full flex flex-col items-center justify-center gap-2 shadow-2xl bg-gradient-to-b from-primary to-primary-dark hover:scale-105 active:scale-95 transition-all duration-300">
-              <Play size={64} className="text-white" fill="white" />
-              <span className="text-white font-bold text-lg">שגר!</span>
+            <button onClick={handleLaunch} className="w-48 h-48 rounded-full flex flex-col items-center justify-center gap-2 shadow-2xl bg-gradient-to-b from-primary to-primary-dark hover:scale-105 active:scale-95 transition-all duration-300 border-2">
+              <Play size={64} className="text-black" fill="black " />
+              <span className="text-black font-bold text-lg">שגר!</span>
             </button>
           ) : robotState === 'executing' ? (
             <div className="w-48 h-48 rounded-full bg-gray-400 flex items-center justify-center"><Loader2 size={64} className="text-white animate-spin" /></div>

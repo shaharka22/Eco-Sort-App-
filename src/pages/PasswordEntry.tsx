@@ -83,9 +83,9 @@ export function PasswordModal({ isOpen, onClose, onSuccess }: PasswordModalProps
                 {digit}
               </button>
             ))}
-            <button type="button" onClick={handleDelete} className="h-14 rounded-xl bg-gray-100 border-2 border-gray-200 text-base font-medium text-gray-600 hover:bg-gray-200 transition-colors">מחק</button>
+            <button type="button" onClick={handleDelete} className="hover:scale-105 h-14 rounded-xl bg-gray-100 border-2 border-gray-200 text-base font-medium text-gray-600 hover:bg-gray-200 transition-colors">מחק</button>
             <button type="button" onClick={() => handleDigitClick('0')} className="h-14 rounded-xl bg-gray-50 border-2 border-gray-200 text-2xl font-bold text-foreground hover:bg-gray-100 transition-colors">0</button>
-            <button type="submit" disabled={password.length !== 4} className="h-14 rounded-xl bg-secondary text-white text-base font-bold bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors">אישור</button>
+            <button type="submit" disabled={password.length !== 4} className="h-14 rounded-xl bg-secondary text-white text-base font-bold bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors hover:scale-105">אישור</button>
           </div>
         </form>
       </div>

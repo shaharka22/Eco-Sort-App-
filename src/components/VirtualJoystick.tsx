@@ -10,7 +10,7 @@ export function VirtualJoystick({ disabled = false }: VirtualJoystickProps) {
   const [activeDirection, setActiveDirection] = useState<string | null>(null);
   const intervalRef = useRef<number | null>(null);
 
-  const handleDirectionStart = (direction: 'up' | 'down' | 'left' | 'right') => {
+  const handleDirectionStart = (direction: 'up' | 'down' | 'right' | 'left') => {
     if (disabled) return;
     setActiveDirection(direction);
     robotAPI.moveArm(direction);

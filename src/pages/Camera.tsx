@@ -66,7 +66,7 @@ export default function Camera() {
   };
 
   return (
-    <div className=" bg-black flex flex-col">
+    <div className="min-h-screen bg-black flex flex-col relative">
       <canvas ref={canvasRef} className="hidden" />
       <div className="absolute top-0 left-0 right-0 z-10 p-4 flex items-center justify-between">
         <button onClick={() => navigate('/')} className="w-12 h-12 bg-white/20 backdrop-blur rounded-full flex items-center justify-center hover:bg-white/30 transition-colors">
@@ -115,7 +115,7 @@ export default function Camera() {
             <button onClick={handleCapture} disabled={isCapturing}
               className={`w-24 h-24 rounded-full bg-gradient-to-b from-white to-gray-200 border-4 border-primary flex items-center justify-center shadow-lg shadow-primary/30 transition-all duration-200 ${isCapturing ? 'scale-90 opacity-50' : 'hover:scale-105 active:scale-95'}`}>
               <div className={`w-16 h-16 rounded-full bg-primary flex items-center justify-center ${!isCapturing && 'animate-pulse'}`}>
-                <CameraIcon size={32} className="text-white" />
+                <CameraIcon size={32} className="text-black" />
               </div>
             </button>
             <button onClick={() => setFacingMode((prev) => prev === 'user' ? 'environment' : 'user')}
