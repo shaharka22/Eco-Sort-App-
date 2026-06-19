@@ -13,18 +13,28 @@ export default function Onboarding() {
   const navigate = useNavigate();
   const [started, setStarted] = useState(false); // האם המשתמש כבר לחץ "התחל" ועבר את מסך הפתיחה
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [isVisible, setIsVisible] = useState(true); // לאנימציית fade בין סליידים
   const videoRef = useRef(null);
 
-  // כל פעם שעוברים סלייד (אחרי שהתחילו) - לטעון את הוידאו החדש ולנגן אותו אוטומטית עם קול
+  // כל פעם שעוברים סלייד (אחרי שהתחילו) - לטעון את הוידאו החדש, להריץ fade-in, ולנגן אותו אוטומטית עם קול
   useEffect(() => {
     if (!started) return;
     const videoEl = videoRef.current;
     if (!videoEl) return;
 
+    setIsVisible(false); // מתחילים שקופים
+    const fadeInTimeout = setTimeout(() => setIsVisible(true), 30); // ואז מציגים עם טרנזישן
+
     videoEl.muted = false;
     videoEl.load();
     videoEl.play().catch(() => {}); // אם הדפדפן חוסם, פשוט נשאר על הפריים הראשון
+
+    return () => clearTimeout(fadeInTimeout);
   }, [currentSlide, started]);
+
+  const goToSlide = (index) => {
+    setCurrentSlide(index);
+  };
 
   const handleStart = () => {
     setStarted(true);
@@ -32,10 +42,19 @@ export default function Onboarding() {
 
   const handleSkip = () => navigate('/camera');
   const handleNext = () => {
-    if (currentSlide < slides.length - 1) setCurrentSlide((prev) => prev + 1);
+    if (currentSlide < slides.length - 1) goToSlide(currentSlide + 1);
     else navigate('/camera');
   };
-  const handlePrev = () => { if (currentSlide > 0) setCurrentSlide((prev) => prev - 1); };
+  const handlePrev = () => { if (currentSlide > 0) goToSlide(currentSlide - 1); };
+
+  // כשהוידאו מסיים לנגן - מעבר אוטומטי לסלייד הבא (או לעמוד הבא באפליקציה בסוף)
+  const handleVideoEnded = () => {
+    if (currentSlide < slides.length - 1) {
+      goToSlide(currentSlide + 1);
+    } else {
+      navigate('/camera');
+    }
+  };
 
   return (
     <div className="h-dvh bg-gradient-to-b from-green-50 to-blue-50 flex flex-col">
@@ -64,24 +83,27 @@ export default function Onboarding() {
         </div>
       ) : (
         <div className="flex-1 flex flex-col items-center p-6 min-h-0 overflow-hidden">
-          <div className="w-full max-w-lg flex-1 min-h-0 flex items-center justify-center mb-4">
+          <div
+            className={`w-full max-w-lg flex-1 min-h-0 flex items-center justify-center mb-4 transition-opacity duration-300 ${isVisible ? 'opacity-100' : 'opacity-0'}`}
+          >
             <video
               ref={videoRef}
               className="max-w-full max-h-full w-auto h-auto rounded-3xl shadow-lg"
               playsInline
               autoPlay
+              onEnded={handleVideoEnded}
             >
               <source src={slides[currentSlide].video} type="video/mp4" />
             </video>
           </div>
-          <div className="text-center mb-4 shrink-0">
+          <div className={`text-center mb-4 shrink-0 transition-opacity duration-300 ${isVisible ? 'opacity-100' : 'opacity-0'}`}>
             <div className="text-4xl mb-2">{slides[currentSlide].emoji}</div>
             <h2 className="text-xl font-bold text-foreground mb-1">{slides[currentSlide].titleHe}</h2>
             <p className="text-muted-foreground text-sm max-w-xs">{slides[currentSlide].descHe}</p>
           </div>
           <div className="flex gap-2 mb-4 shrink-0">
             {slides.map((_, index) => (
-              <button key={index} onClick={() => setCurrentSlide(index)}
+              <button key={index} onClick={() => goToSlide(index)}
                 className={`w-3 h-3 rounded-full transition-all ${index === currentSlide ? 'bg-primary w-8' : 'bg-gray-300 hover:bg-gray-400'}`} />
             ))}
           </div>
