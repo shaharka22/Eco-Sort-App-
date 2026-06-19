@@ -17,7 +17,7 @@ export default function Onboarding() {
   const videoRef = useRef(null);
   const transitionTimeoutRef = useRef(null);
 
-  const TRANSITION_MS = 350;
+  const TRANSITION_MS = 600;
 
   // כשעוברים לסלייד חדש (אחרי שהתחילו) - לטעון את הוידאו, להריץ fade-in, ולנגן אותו אוטומטית עם קול
   useEffect(() => {
@@ -61,12 +61,10 @@ export default function Onboarding() {
   };
   const handlePrev = () => { if (currentSlide > 0) goToSlide(currentSlide - 1); };
 
-  // כשהוידאו מסיים לנגן - מעבר אוטומטי לסלייד הבא (או לעמוד הבא באפליקציה בסוף)
+  // כשהוידאו מסיים לנגן - מעבר אוטומטי לסלייד הבא, אך לא ממשיכים אוטומטית לעמוד המצלמה בסוף
   const handleVideoEnded = () => {
     if (currentSlide < slides.length - 1) {
       goToSlide(currentSlide + 1);
-    } else {
-      navigate('/camera');
     }
   };
 
@@ -98,7 +96,7 @@ export default function Onboarding() {
       ) : (
         <div className="flex-1 flex flex-col items-center p-6 min-h-0 overflow-hidden">
           <div
-            className={`w-full max-w-lg flex-1 min-h-0 flex items-center justify-center mb-4 transition-all duration-[350ms] ease-in-out ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
+            className={`w-full max-w-lg flex-1 min-h-0 flex items-center justify-center mb-4 transition-all duration-[600ms] ease-in-out ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
           >
             <video
               ref={videoRef}
@@ -110,7 +108,7 @@ export default function Onboarding() {
               <source src={slides[currentSlide].video} type="video/mp4" />
             </video>
           </div>
-          <div className={`text-center mb-4 shrink-0 transition-all duration-[350ms] ease-in-out ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}`}>
+          <div className={`text-center mb-4 shrink-0 transition-all duration-[600ms] ease-in-out ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}`}>
             <div className="text-4xl mb-2">{slides[currentSlide].emoji}</div>
             <h2 className="text-xl font-bold text-foreground mb-1">{slides[currentSlide].titleHe}</h2>
             <p className="text-muted-foreground text-sm max-w-xs">{slides[currentSlide].descHe}</p>
