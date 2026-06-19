@@ -15,25 +15,39 @@ export default function Onboarding() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isVisible, setIsVisible] = useState(true); // לאנימציית fade בין סליידים
   const videoRef = useRef(null);
+  const transitionTimeoutRef = useRef(null);
 
-  // כל פעם שעוברים סלייד (אחרי שהתחילו) - לטעון את הוידאו החדש, להריץ fade-in, ולנגן אותו אוטומטית עם קול
+  const TRANSITION_MS = 350;
+
+  // כשעוברים לסלייד חדש (אחרי שהתחילו) - לטעון את הוידאו, להריץ fade-in, ולנגן אותו אוטומטית עם קול
   useEffect(() => {
     if (!started) return;
     const videoEl = videoRef.current;
     if (!videoEl) return;
 
-    setIsVisible(false); // מתחילים שקופים
-    const fadeInTimeout = setTimeout(() => setIsVisible(true), 30); // ואז מציגים עם טרנזישן
-
     videoEl.muted = false;
     videoEl.load();
     videoEl.play().catch(() => {}); // אם הדפדפן חוסם, פשוט נשאר על הפריים הראשון
 
+    // לאחר שהמקור הוחלף, מציגים בהדרגה (fade-in)
+    const fadeInTimeout = setTimeout(() => setIsVisible(true), 30);
     return () => clearTimeout(fadeInTimeout);
   }, [currentSlide, started]);
 
+  useEffect(() => {
+    return () => {
+      if (transitionTimeoutRef.current) clearTimeout(transitionTimeoutRef.current);
+    };
+  }, []);
+
+  // מעבר רך: קודם דוהים (fade-out), ורק לאחר מכן מחליפים את הסלייד בפועל
   const goToSlide = (index) => {
-    setCurrentSlide(index);
+    if (index === currentSlide) return;
+    setIsVisible(false);
+    if (transitionTimeoutRef.current) clearTimeout(transitionTimeoutRef.current);
+    transitionTimeoutRef.current = setTimeout(() => {
+      setCurrentSlide(index);
+    }, TRANSITION_MS);
   };
 
   const handleStart = () => {
@@ -84,7 +98,7 @@ export default function Onboarding() {
       ) : (
         <div className="flex-1 flex flex-col items-center p-6 min-h-0 overflow-hidden">
           <div
-            className={`w-full max-w-lg flex-1 min-h-0 flex items-center justify-center mb-4 transition-opacity duration-300 ${isVisible ? 'opacity-100' : 'opacity-0'}`}
+            className={`w-full max-w-lg flex-1 min-h-0 flex items-center justify-center mb-4 transition-all duration-[350ms] ease-in-out ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
           >
             <video
               ref={videoRef}
@@ -96,7 +110,7 @@ export default function Onboarding() {
               <source src={slides[currentSlide].video} type="video/mp4" />
             </video>
           </div>
-          <div className={`text-center mb-4 shrink-0 transition-opacity duration-300 ${isVisible ? 'opacity-100' : 'opacity-0'}`}>
+          <div className={`text-center mb-4 shrink-0 transition-all duration-[350ms] ease-in-out ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}`}>
             <div className="text-4xl mb-2">{slides[currentSlide].emoji}</div>
             <h2 className="text-xl font-bold text-foreground mb-1">{slides[currentSlide].titleHe}</h2>
             <p className="text-muted-foreground text-sm max-w-xs">{slides[currentSlide].descHe}</p>
