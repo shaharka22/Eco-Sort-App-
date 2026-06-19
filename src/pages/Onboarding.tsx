@@ -1,18 +1,47 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router';
-import { Play, SkipForward, ChevronLeft, ChevronRight, Recycle } from 'lucide-react';
+import { Play, Pause, SkipForward, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const slides = [
-  { emoji: '🤖', titleHe: 'הכירו את הרובוט!', descHe: 'הרובוט שלנו עוזר למיין אשפה לפחים הנכונים' },
-  { emoji: '📸', titleHe: 'צלמו פריט', descHe: 'צלמו את האשפה והאפליקציה תזהה לאן היא שייכת' },
-  { emoji: '✅', titleHe: 'אשרו את המיון', descHe: 'בדקו שהאפליקציה צדקה ולחצו על הפח הנכון' },
-  { emoji: '🌍', titleHe: 'שמרו על העולם!', descHe: 'כל מיון נכון עוזר לשמור על כדור הארץ' },
+  { emoji: '🤖', titleHe: 'הכירו את הרובוט!', descHe: 'הרובוט שלנו עוזר למיין אשפה לפחים הנכונים', video: '/1rd onboarding video.mp4' },
+  { emoji: '📸', titleHe: 'צלמו פריט', descHe: 'צלמו את האשפה והאפליקציה תזהה לאן היא שייכת', video: '/2rd onboarding video.mp4' },
+  { emoji: '✅', titleHe: 'אשרו את המיון', descHe: 'בדקו שהאפליקציה צדקה ולחצו על הפח הנכון', video: '/3rd onboarding video.mp4' },
+  { emoji: '🌍', titleHe: 'שמרו על העולם!', descHe: 'כל מיון נכון עוזר לשמור על כדור הארץ', video: '/4rd onboarding video.mp4' },
 ];
 
 export default function Onboarding() {
   const navigate = useNavigate();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
+  const videoRef = useRef(null);
+
+  // כל פעם שעוברים סלייד - לטעון את הוידאו החדש ולנגן אותו אוטומטית
+  useEffect(() => {
+    const videoEl = videoRef.current;
+    if (!videoEl) return;
+
+    videoEl.load();
+    const playPromise = videoEl.play();
+
+    if (playPromise !== undefined) {
+      playPromise
+        .then(() => setIsPlaying(true))
+        .catch(() => setIsPlaying(false)); // הדפדפן חוסם autoplay - נשאר על מצב מושהה
+    }
+  }, [currentSlide]);
+
+  const togglePlay = () => {
+    const videoEl = videoRef.current;
+    if (!videoEl) return;
+
+    if (videoEl.paused) {
+      videoEl.play();
+      setIsPlaying(true);
+    } else {
+      videoEl.pause();
+      setIsPlaying(false);
+    }
+  };
 
   const handleSkip = () => navigate('/camera');
   const handleNext = () => {
@@ -30,17 +59,37 @@ export default function Onboarding() {
         </button>
       </div>
       <div className="flex-1 flex flex-col items-center justify-center p-6">
-        <div className="w-full max-w-sm aspect-video bg-gradient-to-br from-primary/20 to-secondary/20 rounded-3xl mb-8 flex items-center justify-center shadow-lg overflow-hidden relative">
-          {isPlaying ? (
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="relative">
-                <div className="text-8xl animate-bounce" style={{ animationDuration: '2s' }}>{slides[currentSlide].emoji}</div>
-                <Recycle size={40} className="absolute -bottom-2 -right-2 text-primary animate-spin" style={{ animationDuration: '3s' }} />
+        <div className="w-full max-w-sm aspect-video bg-gradient-to-br from-primary/20 to-secondary/20 rounded-3xl mb-8 shadow-lg overflow-hidden relative">
+          <video
+            ref={videoRef}
+            className="w-full h-full object-cover"
+            playsInline
+            muted
+            loop
+            onClick={togglePlay}
+          >
+            <source src={slides[currentSlide].video} type="video/mp4" />
+          </video>
+
+          {/* כפתור Play/Pause מרכזי - מוצג כשהוידאו מושהה, ונעלם כשהוא מתנגן */}
+          {!isPlaying && (
+            <button
+              onClick={togglePlay}
+              className="absolute inset-0 flex items-center justify-center bg-black/10"
+            >
+              <div className="w-20 h-20 bg-white rounded-full shadow-lg flex items-center justify-center hover:scale-110 transition-transform">
+                <Play size={40} className="text-primary ml-1" fill="currentColor" />
               </div>
-            </div>
-          ) : (
-            <button onClick={() => setIsPlaying(true)} className="w-20 h-20 bg-white rounded-full shadow-lg flex items-center justify-center hover:scale-110 transition-transform">
-              <Play size={40} className="text-primary ml-1" fill="currentColor" />
+            </button>
+          )}
+
+          {/* כפתור Pause קטן בפינה כשהוידאו מתנגן */}
+          {isPlaying && (
+            <button
+              onClick={togglePlay}
+              className="absolute bottom-3 left-3 w-10 h-10 bg-white/80 backdrop-blur rounded-full shadow-md flex items-center justify-center hover:bg-white transition-colors"
+            >
+              <Pause size={18} className="text-primary" fill="currentColor" />
             </button>
           )}
         </div>
