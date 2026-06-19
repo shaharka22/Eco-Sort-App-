@@ -13,7 +13,7 @@ export default function Onboarding() {
   const navigate = useNavigate();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
-  const videoRef = useRef(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   // כל פעם שעוברים סלייד - לטעון את הוידאו החדש ולנגן אותו אוטומטית
   useEffect(() => {
