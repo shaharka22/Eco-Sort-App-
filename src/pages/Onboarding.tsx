@@ -17,7 +17,7 @@ export default function Onboarding() {
   const videoRef = useRef(null);
   const transitionTimeoutRef = useRef(null);
 
-  const TRANSITION_MS = 600;
+  const TRANSITION_MS = 800;
 
   // כשעוברים לסלייד חדש (אחרי שהתחילו) - לטעון את הוידאו, להריץ fade-in, ולנגן אותו אוטומטית עם קול
   useEffect(() => {
@@ -55,10 +55,6 @@ export default function Onboarding() {
   };
 
   const handleSkip = () => navigate('/camera');
-  const handleNext = () => {
-    if (currentSlide < slides.length - 1) goToSlide(currentSlide + 1);
-    else navigate('/camera');
-  };
   const handlePrev = () => { if (currentSlide > 0) goToSlide(currentSlide - 1); };
 
   // כשהוידאו מסיים לנגן - מעבר אוטומטי לסלייד הבא, אך לא ממשיכים אוטומטית לעמוד המצלמה בסוף
@@ -125,13 +121,11 @@ export default function Onboarding() {
                 <ChevronRight size={24} className="text-gray-600" />
               </button>
             )}
-            <button onClick={handleNext} className="px-6 py-3 bg-primary text-black rounded-full shadow-lg font-bold hover:bg-green-600 transition-colors flex items-center gap-2">
-              {currentSlide < slides.length - 1 ? (
-                <><span>הבא</span><ChevronLeft size={20} /></>
-              ) : (
-                <><span>בואו נתחיל!</span><span className="text-xl">🚀</span></>
-              )}
-            </button>
+            {currentSlide === slides.length - 1 && (
+              <button onClick={handleSkip} className="px-6 py-3 bg-primary text-black rounded-full shadow-lg font-bold hover:bg-green-600 transition-colors flex items-center gap-2">
+                <span>בואו נתחיל!</span><span className="text-xl">🚀</span>
+              </button>
+            )}
           </div>
         </div>
       )}
