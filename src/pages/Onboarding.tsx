@@ -13,13 +13,15 @@ export default function Onboarding() {
   const navigate = useNavigate();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const [hasInteracted, setHasInteracted] = useState(false); // האם המשתמש כבר לחץ Play פעם אחת
+  const videoRef = useRef(null);
 
   // כל פעם שעוברים סלייד - לטעון את הוידאו החדש ולנגן אותו אוטומטית
   useEffect(() => {
     const videoEl = videoRef.current;
     if (!videoEl) return;
 
+    videoEl.muted = !hasInteracted; // לפני אינטראקציה ראשונה - מושתק (כדי שה-autoplay יעבוד); אחריה - עם קול
     videoEl.load();
     const playPromise = videoEl.play();
 
@@ -28,11 +30,17 @@ export default function Onboarding() {
         .then(() => setIsPlaying(true))
         .catch(() => setIsPlaying(false)); // הדפדפן חוסם autoplay - נשאר על מצב מושהה
     }
-  }, [currentSlide]);
+  }, [currentSlide, hasInteracted]);
 
   const togglePlay = () => {
     const videoEl = videoRef.current;
     if (!videoEl) return;
+
+    if (!hasInteracted) {
+      // לחיצה ראשונה: מסירים השתקה ומפעילים קול מעכשיו והלאה
+      setHasInteracted(true);
+      videoEl.muted = false;
+    }
 
     if (videoEl.paused) {
       videoEl.play();
@@ -59,12 +67,11 @@ export default function Onboarding() {
         </button>
       </div>
       <div className="flex-1 flex flex-col items-center justify-center p-6">
-        <div className="w-full max-w-sm aspect-video bg-gradient-to-br from-primary/20 to-secondary/20 rounded-3xl mb-8 shadow-lg overflow-hidden relative">
+        <div className="w-full max-w-lg aspect-video bg-gradient-to-br from-primary/20 to-secondary/20 rounded-3xl mb-8 shadow-lg overflow-hidden relative">
           <video
             ref={videoRef}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-contain"
             playsInline
-            muted
             loop
             onClick={togglePlay}
           >
@@ -114,7 +121,7 @@ export default function Onboarding() {
             {currentSlide < slides.length - 1 ? (
               <><span>הבא</span><ChevronLeft size={24} /></>
             ) : (
-              <><span>בואו נתחיל!</span><span className="text-2xl">🚀</span></>
+              <><span>בואו נתחיל!</span><span className="text-2xl"></span></>
             )}
           </button>
         </div>
