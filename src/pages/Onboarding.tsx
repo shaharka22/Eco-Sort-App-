@@ -14,10 +14,13 @@ export default function Onboarding() {
   const [started, setStarted] = useState(false); // האם המשתמש כבר לחץ "התחל" ועבר את מסך הפתיחה
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isVisible, setIsVisible] = useState(true); // לאנימציית fade בין סליידים
+  const [videoProgress, setVideoProgress] = useState(0); // 0-1, להתקדמות העיגול בסלייד האחרון
   const videoRef = useRef(null);
   const transitionTimeoutRef = useRef(null);
 
-  const TRANSITION_MS = 800;
+  const TRANSITION_MS = 600;
+  const isLastSlide = currentSlide === slides.length - 1;
+  const showStartButton = isLastSlide && videoProgress >= 1;
 
   // כשעוברים לסלייד חדש (אחרי שהתחילו) - לטעון את הוידאו, להריץ fade-in, ולנגן אותו אוטומטית עם קול
   useEffect(() => {
@@ -25,6 +28,7 @@ export default function Onboarding() {
     const videoEl = videoRef.current;
     if (!videoEl) return;
 
+    setVideoProgress(0);
     videoEl.muted = false;
     videoEl.load();
     videoEl.play().catch(() => {}); // אם הדפדפן חוסם, פשוט נשאר על הפריים הראשון
@@ -39,6 +43,13 @@ export default function Onboarding() {
       if (transitionTimeoutRef.current) clearTimeout(transitionTimeoutRef.current);
     };
   }, []);
+
+  // מעקב אחרי התקדמות הוידאו - רלוונטי רק לעיגול בסלייד האחרון
+  const handleTimeUpdate = () => {
+    const videoEl = videoRef.current;
+    if (!videoEl || !videoEl.duration) return;
+    setVideoProgress(videoEl.currentTime / videoEl.duration);
+  };
 
   // מעבר רך: קודם דוהים (fade-out), ורק לאחר מכן מחליפים את הסלייד בפועל
   const goToSlide = (index) => {
@@ -66,6 +77,12 @@ export default function Onboarding() {
 
   return (
     <div className="h-dvh bg-gradient-to-b from-green-50 to-blue-50 flex flex-col">
+      <style>{`
+        @keyframes onboardingStartPop {
+          0% { opacity: 0; transform: scale(0.8); }
+          100% { opacity: 1; transform: scale(1); }
+        }
+      `}</style>
       <div className="p-4 flex justify-end">
         <button onClick={handleSkip} className="flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur rounded-full shadow-md hover:bg-white transition-colors">
           <span className="text-muted-foreground">דלג</span>
@@ -94,15 +111,43 @@ export default function Onboarding() {
           <div
             className={`w-full max-w-lg flex-1 min-h-0 flex items-center justify-center mb-4 transition-all duration-[600ms] ease-in-out ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
           >
-            <video
-              ref={videoRef}
-              className="max-w-full max-h-full w-auto h-auto rounded-3xl shadow-lg"
-              playsInline
-              autoPlay
-              onEnded={handleVideoEnded}
-            >
-              <source src={slides[currentSlide].video} type="video/mp4" />
-            </video>
+            <div className="relative max-w-full max-h-full">
+              <video
+                ref={videoRef}
+                className="max-w-full max-h-full w-auto h-auto rounded-3xl shadow-lg block"
+                playsInline
+                autoPlay
+                onEnded={handleVideoEnded}
+                onTimeUpdate={handleTimeUpdate}
+              >
+                <source src={slides[currentSlide].video} type="video/mp4" />
+              </video>
+
+              {isLastSlide && (
+                <svg
+                  className="absolute -top-3 -right-3 w-12 h-12 -rotate-90 pointer-events-none"
+                  viewBox="0 0 48 48"
+                >
+                  <circle cx="24" cy="24" r="20" fill="white" className="drop-shadow-md" />
+                  <circle
+                    cx="24" cy="24" r="20"
+                    fill="none"
+                    stroke="#e5e7eb"
+                    strokeWidth="4"
+                  />
+                  <circle
+                    cx="24" cy="24" r="20"
+                    fill="none"
+                    stroke="currentColor"
+                    className="text-primary transition-all duration-150 ease-linear"
+                    strokeWidth="4"
+                    strokeLinecap="round"
+                    strokeDasharray={2 * Math.PI * 20}
+                    strokeDashoffset={2 * Math.PI * 20 * (1 - videoProgress)}
+                  />
+                </svg>
+              )}
+            </div>
           </div>
           <div className={`text-center mb-4 shrink-0 transition-all duration-[600ms] ease-in-out ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}`}>
             <div className="text-4xl mb-2">{slides[currentSlide].emoji}</div>
@@ -121,8 +166,12 @@ export default function Onboarding() {
                 <ChevronRight size={24} className="text-gray-600" />
               </button>
             )}
-            {currentSlide === slides.length - 1 && (
-              <button onClick={handleSkip} className="px-6 py-3 bg-primary text-black rounded-full shadow-lg font-bold hover:bg-green-600 transition-colors flex items-center gap-2">
+            {showStartButton && (
+              <button
+                onClick={handleSkip}
+                className="px-6 py-3 bg-primary text-black rounded-full shadow-lg font-bold hover:bg-green-600 transition-all duration-300 ease-out flex items-center gap-2 scale-100 opacity-100"
+                style={{ animation: 'onboardingStartPop 0.35s ease-out' }}
+              >
                 <span>בואו נתחיל!</span><span className="text-xl">🚀</span>
               </button>
             )}
