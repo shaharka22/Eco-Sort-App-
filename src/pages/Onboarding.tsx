@@ -63,39 +63,39 @@ export default function Onboarding() {
           </button>
         </div>
       ) : (
-        <div className="flex-1 flex flex-col items-center justify-center p-6">
-          <div className="w-full max-w-lg rounded-3xl mb-8 shadow-lg overflow-hidden">
+        <div className="flex-1 flex flex-col items-center p-6 min-h-0 overflow-hidden">
+          <div className="w-full max-w-lg flex-1 min-h-0 flex items-center justify-center mb-4">
             <video
               ref={videoRef}
-              className="w-full h-auto block"
+              className="max-w-full max-h-full w-auto h-auto rounded-3xl shadow-lg"
               playsInline
               autoPlay
             >
               <source src={slides[currentSlide].video} type="video/mp4" />
             </video>
           </div>
-          <div className="text-center mb-8">
-            <div className="text-6xl mb-4">{slides[currentSlide].emoji}</div>
-            <h2 className="text-2xl font-bold text-foreground mb-2">{slides[currentSlide].titleHe}</h2>
-            <p className="text-muted-foreground max-w-xs">{slides[currentSlide].descHe}</p>
+          <div className="text-center mb-4 shrink-0">
+            <div className="text-4xl mb-2">{slides[currentSlide].emoji}</div>
+            <h2 className="text-xl font-bold text-foreground mb-1">{slides[currentSlide].titleHe}</h2>
+            <p className="text-muted-foreground text-sm max-w-xs">{slides[currentSlide].descHe}</p>
           </div>
-          <div className="flex gap-2 mb-8">
+          <div className="flex gap-2 mb-4 shrink-0">
             {slides.map((_, index) => (
               <button key={index} onClick={() => setCurrentSlide(index)}
                 className={`w-3 h-3 rounded-full transition-all ${index === currentSlide ? 'bg-primary w-8' : 'bg-gray-300 hover:bg-gray-400'}`} />
             ))}
           </div>
-          <div className="flex gap-4">
+          <div className="flex gap-4 shrink-0">
             {currentSlide > 0 && (
-              <button onClick={handlePrev} className="w-14 h-14 bg-white rounded-full shadow-md flex items-center justify-center hover:bg-gray-50 transition-colors">
-                <ChevronRight size={28} className="text-gray-600" />
+              <button onClick={handlePrev} className="w-12 h-12 bg-white rounded-full shadow-md flex items-center justify-center hover:bg-gray-50 transition-colors">
+                <ChevronRight size={24} className="text-gray-600" />
               </button>
             )}
-            <button onClick={handleNext} className="px-8 py-4 bg-primary text-black rounded-full shadow-lg font-bold text-lg hover:bg-green-600 transition-colors flex items-center gap-2">
+            <button onClick={handleNext} className="px-6 py-3 bg-primary text-black rounded-full shadow-lg font-bold hover:bg-green-600 transition-colors flex items-center gap-2">
               {currentSlide < slides.length - 1 ? (
-                <><span>הבא</span><ChevronLeft size={24} /></>
+                <><span>הבא</span><ChevronLeft size={20} /></>
               ) : (
-                <><span>בואו נתחיל!</span><span className="text-2xl">🚀</span></>
+                <><span>בואו נתחיל!</span><span className="text-xl">🚀</span></>
               )}
             </button>
           </div>
