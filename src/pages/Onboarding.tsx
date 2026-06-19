@@ -95,7 +95,7 @@ export default function Onboarding() {
               {currentSlide < slides.length - 1 ? (
                 <><span>הבא</span><ChevronLeft size={20} /></>
               ) : (
-                <><span>בואו נתחיל!</span><span className="text-xl">🚀</span></>
+                <><span>בואו נתחיל!</span><span className="text-xl"></span></>
               )}
             </button>
           </div>

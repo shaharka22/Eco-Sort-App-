@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
-import { User, BookOpen, Gamepad2 } from 'lucide-react';
+import { User, BookOpen, Gamepad2, ArrowRight } from 'lucide-react';
 import { Logo } from '@/components/Logo';
 import { useApp } from '@/context/AppContext';
 import { PasswordModal } from '@/pages/PasswordEntry';
@@ -14,6 +14,11 @@ export default function Splash() {
   const [studentName, setStudentName] = useState('');
 
   const handleStudentClick = () => { setShowNameModal(true); };
+
+  const handleNameModalClose = () => {
+    setShowNameModal(false);
+    setStudentName('');
+  };
 
 const handleNameSubmit = async () => {
   if (!studentName.trim()) return;
@@ -58,7 +63,14 @@ const handleNameSubmit = async () => {
       <PasswordModal isOpen={showPasswordModal} onClose={() => setShowPasswordModal(false)} onSuccess={handlePasswordSuccess} />
       {showNameModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl">
+          <div className="bg-white rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl relative">
+            <button
+              onClick={handleNameModalClose}
+              className="absolute top-4 right-4 w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
+              aria-label="חזרה"
+            >
+              <ArrowRight size={20} className="text-gray-600" />
+            </button>
             <div className="text-5xl mb-4">👤</div>
             <h2 className="text-2xl font-black text-foreground mb-6">מה השם שלך?</h2>
             <input
