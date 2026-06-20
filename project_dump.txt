@@ -1,0 +1,2489 @@
+﻿===== C:\Users\shaha\OneDrive\Desktop\AI.DOC\EcoSort\VS-ECOSORTAPP\Eco Sort App Code\src\components\EmergencyStop.tsx =====
+import { Octagon, Hand } from 'lucide-react';
+import { robotAPI } from '@/utils/MockRobotAPI';
+
+interface EmergencyStopProps {
+  onStop?: () => void;
+}
+
+export function EmergencyStop({ onStop }: EmergencyStopProps) {
+  const handleStop = () => {
+    robotAPI.emergencyStop();
+    onStop?.();
+  };
+
+  return (
+    <button
+      onClick={handleStop}
+      className="
+        w-full py-6 px-8
+        bg-gradient-to-b from-destructive to-destructive-dark
+        from-red-600 hover:to-red-700
+        active:from-red-700 active:to-red-800
+        rounded-2xl shadow-lg
+        flex items-center justify-center gap-4
+        transition-all duration-150
+        active:scale-95
+        border-4 border-red-300
+      ">
+      <div className="relative">
+        <Octagon size={48} className="text-white" fill="currentColor" />
+        <Hand size={24} className="text-destructive absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
+      </div>
+      <span className="text-white text-2xl font-black tracking-wide">STOP</span>
+    </button>
+  );
+}
+
+===== C:\Users\shaha\OneDrive\Desktop\AI.DOC\EcoSort\VS-ECOSORTAPP\Eco Sort App Code\src\components\GrowingTree.tsx =====
+interface GrowingTreeProps {
+  score: number;
+  animated?: boolean;
+}
+
+export function GrowingTree({ score: _score, animated: _animated = true }: GrowingTreeProps) {
+  return null;
+}
+
+===== C:\Users\shaha\OneDrive\Desktop\AI.DOC\EcoSort\VS-ECOSORTAPP\Eco Sort App Code\src\components\Logo.tsx =====
+import ecosortLogo from '@/assets/uploads/ecosort-logo.png';
+
+interface LogoProps {
+  size?: 'sm' | 'md' | 'lg';
+  showText?: boolean;
+  animated?: boolean;
+}
+
+export function Logo({ size = 'md' }: LogoProps) {
+  const sizeClasses = {
+    sm: 'h-10',
+    md: 'h-16',
+    lg: 'h-24',
+  };
+
+  return (
+    <div className="flex items-center justify-center">
+      <img
+        src={ecosortLogo}
+        alt="EcoSort Logo"
+        className={`${sizeClasses[size]} w-auto`}
+      />
+    </div>
+  );
+}
+
+===== C:\Users\shaha\OneDrive\Desktop\AI.DOC\EcoSort\VS-ECOSORTAPP\Eco Sort App Code\src\components\ScanAnimation.tsx =====
+import { useEffect, useState } from 'react';
+import { Scan } from 'lucide-react';
+
+interface ScanAnimationProps {
+  imageSrc: string;
+  onComplete?: () => void;
+  duration?: number;
+}
+
+export function ScanAnimation({ imageSrc, onComplete, duration = 3000 }: ScanAnimationProps) {
+  const [scanProgress, setScanProgress] = useState(0);
+  const [isComplete, setIsComplete] = useState(false);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setScanProgress((prev) => {
+        if (prev >= 100) {
+          clearInterval(interval);
+          setIsComplete(true);
+          onComplete?.();
+          return 100;
+        }
+        return prev + 100 / (duration / 50);
+      });
+    }, 50);
+    return () => clearInterval(interval);
+  }, [duration, onComplete]);
+
+  return (
+    <div className="relative w-full max-w-sm mx-auto overflow-hidden rounded-2xl shadow-xl">
+      <img src={imageSrc} alt="׳₪׳¨׳™׳˜ ׳׳¡׳¨׳™׳§׳”" className="w-full aspect-square object-cover" />
+      {!isComplete && (
+        <>
+          <div className="absolute inset-0 bg-black/40 transition-all duration-100" style={{ height: `${scanProgress}%` }} />
+          <div className="absolute left-0 right-0 h-1 bg-gradient-to-r from-transparent via-primary to-transparent" style={{ top: `${scanProgress}%` }}>
+            <div className="absolute inset-0 bg-primary blur-md" />
+          </div>
+          <div className="absolute inset-4 pointer-events-none">
+            <div className="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-primary rounded-tl-lg" />
+            <div className="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-primary rounded-tr-lg" />
+            <div className="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-primary rounded-bl-lg" />
+            <div className="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-primary rounded-br-lg" />
+          </div>
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+            <Scan size={64} className="text-primary animate-pulse" />
+          </div>
+        </>
+      )}
+      {isComplete && (
+        <div className="absolute inset-0 bg-primary/20 flex items-center justify-center">
+          <div className="bg-white rounded-full p-4 shadow-xl animate-bounce">
+            <span className="text-4xl">ג…</span>
+          </div>
+        </div>
+      )}
+      <div className="absolute bottom-0 left-0 right-0 h-2 bg-black/30">
+        <div className="h-full bg-primary transition-all duration-100" style={{ width: `${scanProgress}%` }} />
+      </div>
+    </div>
+  );
+}
+
+===== C:\Users\shaha\OneDrive\Desktop\AI.DOC\EcoSort\VS-ECOSORTAPP\Eco Sort App Code\src\components\StarCounter.tsx =====
+export function StarCounter() {
+  return null;
+}
+
+===== C:\Users\shaha\OneDrive\Desktop\AI.DOC\EcoSort\VS-ECOSORTAPP\Eco Sort App Code\src\components\VirtualJoystick.tsx =====
+import { useState, useRef } from 'react';
+import { ArrowUp, ArrowDown, ArrowLeft, ArrowRight, Grip } from 'lucide-react';
+import { robotAPI } from '@/utils/MockRobotAPI';
+
+interface VirtualJoystickProps {
+  disabled?: boolean;
+}
+
+export function VirtualJoystick({ disabled = false }: VirtualJoystickProps) {
+  const [activeDirection, setActiveDirection] = useState<string | null>(null);
+  const intervalRef = useRef<number | null>(null);
+
+  const handleDirectionStart = (direction: 'up' | 'down' | 'right' | 'left') => {
+    if (disabled) return;
+    setActiveDirection(direction);
+    robotAPI.moveArm(direction);
+    intervalRef.current = window.setInterval(() => {
+      robotAPI.moveArm(direction);
+    }, 200);
+  };
+
+  const handleDirectionEnd = () => {
+    setActiveDirection(null);
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+  };
+
+  const DirectionButton = ({ direction, icon: Icon }: { direction: 'up' | 'down' | 'left' | 'right'; icon: typeof ArrowUp }) => (
+    <button
+      onMouseDown={() => handleDirectionStart(direction)}
+      onMouseUp={handleDirectionEnd}
+      onMouseLeave={handleDirectionEnd}
+      onTouchStart={() => handleDirectionStart(direction)}
+      onTouchEnd={handleDirectionEnd}
+      disabled={disabled}
+      className={`w-14 h-14 rounded-xl flex items-center justify-center transition-all duration-100
+        ${activeDirection === direction ? 'bg-primary text-white scale-95' : 'bg-gray-200 text-gray-600 hover:bg-gray-300'}
+        ${disabled ? 'opacity-50 cursor-not-allowed' : 'active:scale-90'}`}>
+      <Icon size={28} />
+    </button>
+  );
+
+  return (
+    <div className="flex flex-col items-center gap-2 p-4 bg-white/80 backdrop-blur rounded-2xl shadow-lg">
+      <DirectionButton direction="up" icon={ArrowUp} />
+      <div className="flex gap-2">
+        <DirectionButton direction="left" icon={ArrowLeft} />
+        <div className="w-14 h-14 rounded-xl bg-gray-300 flex items-center justify-center">
+          <Grip size={24} className="text-gray-500" />
+        </div>
+        <DirectionButton direction="right" icon={ArrowRight} />
+      </div>
+      <DirectionButton direction="down" icon={ArrowDown} />
+    </div>
+  );
+}
+
+===== C:\Users\shaha\OneDrive\Desktop\AI.DOC\EcoSort\VS-ECOSORTAPP\Eco Sort App Code\src\context\AppContext.tsx =====
+import { createContext, useContext, useState, useCallback, type ReactNode } from 'react';
+import type { UserLevel, WasteCategory, SessionStats, SortingResult, SortingSession } from '@/types';
+import { supabase } from '@/supabaseClient';
+
+interface AppContextType {
+  userLevel: UserLevel | null;
+  setUserLevel: (level: UserLevel | null) => void;
+  score: number;
+  addScore: (points: number) => void;
+  currentImage: string | null;
+  setCurrentImage: (image: string | null) => void;
+  sortingSession: SortingSession;
+  setIdentifiedCategory: (category: WasteCategory) => void;
+  confirmIdentification: () => void;
+  selectBin: (category: WasteCategory) => boolean;
+  startRobotAction: () => WasteCategory | null;
+  completeRobotAction: (success: boolean) => void;
+  validateFullSuccess: () => boolean;
+  sessionStats: SessionStats;
+  sortingHistory: SortingResult[];
+  recordSuccessfulSort: () => void;
+  resetSortingSession: () => void;
+  resetSession: () => void;
+  soundEnabled: boolean;
+  toggleSound: () => void;
+  studentId: number | null;
+  setStudentId: (id: number | null) => void;
+}
+
+const initialStats: SessionStats = {
+  totalItems: 0, successfulSorts: 0,
+  plasticCount: 0, paperCount: 0, glassCount: 0, organicCount: 0,
+};
+
+const initialSortingSession: SortingSession = {
+  identifiedCategory: null, identificationConfirmed: false,
+  selectedBinCategory: null, binSelectionCorrect: false,
+  robotTargetBin: null, robotActionCompleted: false, isFullSuccess: false,
+};
+
+const AppContext = createContext<AppContextType | null>(null);
+
+export function AppProvider({ children }: { children: ReactNode }) {
+  const [userLevel, setUserLevel] = useState<UserLevel | null>(null);
+  const [score, setScore] = useState(0);
+  const [currentImage, setCurrentImage] = useState<string | null>(null);
+  const [sortingSession, setSortingSession] = useState<SortingSession>(initialSortingSession);
+  const [sessionStats, setSessionStats] = useState<SessionStats>(initialStats);
+  const [sortingHistory, setSortingHistory] = useState<SortingResult[]>([]);
+  const [soundEnabled, setSoundEnabled] = useState(true);
+  const [studentId, setStudentId] = useState<number | null>(null);
+
+  const addScore = useCallback((points: number) => setScore(prev => prev + points), []);
+
+  const setIdentifiedCategory = useCallback((category: WasteCategory) => {
+    setSortingSession(prev => ({ ...prev, identifiedCategory: category, identificationConfirmed: false, selectedBinCategory: null, binSelectionCorrect: false, robotTargetBin: null, robotActionCompleted: false, isFullSuccess: false }));
+  }, []);
+
+  const confirmIdentification = useCallback(() => {
+    setSortingSession(prev => ({ ...prev, identificationConfirmed: true }));
+  }, []);
+
+  const selectBin = useCallback((category: WasteCategory): boolean => {
+    const isCorrect = category === sortingSession.identifiedCategory;
+    setSortingSession(prev => ({ ...prev, selectedBinCategory: category, binSelectionCorrect: isCorrect }));
+    return isCorrect;
+  }, [sortingSession.identifiedCategory]);
+
+  const startRobotAction = useCallback((): WasteCategory | null => {
+    if (!sortingSession.binSelectionCorrect || !sortingSession.selectedBinCategory) return null;
+    const targetBin = sortingSession.selectedBinCategory;
+    setSortingSession(prev => ({ ...prev, robotTargetBin: targetBin }));
+    return targetBin;
+  }, [sortingSession.binSelectionCorrect, sortingSession.selectedBinCategory]);
+
+  const completeRobotAction = useCallback((success: boolean) => {
+    setSortingSession(prev => {
+      const isFullSuccess = success && prev.identificationConfirmed && prev.binSelectionCorrect && prev.robotTargetBin === prev.identifiedCategory;
+      return { ...prev, robotActionCompleted: success, isFullSuccess };
+    });
+  }, []);
+
+  const validateFullSuccess = useCallback((): boolean => {
+    const { identifiedCategory, identificationConfirmed, selectedBinCategory, binSelectionCorrect, robotTargetBin, robotActionCompleted } = sortingSession;
+    return identifiedCategory !== null && identificationConfirmed && selectedBinCategory !== null && binSelectionCorrect && robotTargetBin !== null && robotActionCompleted && identifiedCategory === selectedBinCategory && selectedBinCategory === robotTargetBin;
+  }, [sortingSession]);
+
+const recordSuccessfulSort = useCallback(() => {
+  console.log('studentId:', studentId);
+  if (!sortingSession.isFullSuccess || !sortingSession.identifiedCategory) return;
+  const category = sortingSession.identifiedCategory;
+
+  setSessionStats(prev => {
+    const newStats = {
+      ...prev,
+      totalItems: prev.totalItems + 1,
+      successfulSorts: prev.successfulSorts + 1,
+      [`${category}Count`]: (prev as unknown as Record<string, number>)[`${category}Count`] + 1,
+    };
+    if (studentId) {
+      setScore(prevScore => {
+        const newScore = prevScore + 10;
+        supabase.from('students')
+          .update({ total_score: newScore, total_items: newStats.totalItems })
+          .eq('id', studentId)
+          .then();
+        return newScore;
+      });
+    } else {
+      setScore(prev => prev + 10);
+    }
+    return newStats;
+  });
+
+  setSortingHistory(prev => [...prev, { category, timestamp: new Date(), success: true }]);
+}, [sortingSession, studentId]);
+
+  const resetSortingSession = useCallback(() => { setSortingSession(initialSortingSession); setCurrentImage(null); }, []);
+  const resetSession = useCallback(() => { setScore(0); setSessionStats(initialStats); setSortingHistory([]); setSortingSession(initialSortingSession); setCurrentImage(null); setStudentId(null); }, []);
+  const toggleSound = useCallback(() => setSoundEnabled(prev => !prev), []);
+
+  const value: AppContextType = {
+    userLevel, setUserLevel, score, addScore, currentImage, setCurrentImage,
+    sortingSession, setIdentifiedCategory, confirmIdentification, selectBin,
+    startRobotAction, completeRobotAction, validateFullSuccess,
+    sessionStats, sortingHistory, recordSuccessfulSort,
+    resetSortingSession, resetSession, soundEnabled, toggleSound,
+    studentId, setStudentId,
+  };
+
+  return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
+}
+
+export function useApp() {
+  const context = useContext(AppContext);
+  if (!context) throw new Error('useApp must be used within AppProvider');
+  return context;
+}
+
+===== C:\Users\shaha\OneDrive\Desktop\AI.DOC\EcoSort\VS-ECOSORTAPP\Eco Sort App Code\src\lib\identifyWaste.ts =====
+// src/lib/identifyWaste.ts
+//
+// ׳₪׳•׳ ׳§׳¦׳™׳™׳× ׳¢׳–׳¨ ׳‘-React ׳©׳§׳•׳¨׳׳× ׳-Edge Function ׳‘-Supabase ׳›׳“׳™ ׳׳–׳”׳•׳× ׳§׳˜׳’׳•׳¨׳™׳™׳× ׳₪׳¡׳•׳׳× ׳׳×׳׳•׳ ׳”.
+// ׳׳ ׳¦׳¨׳™׳ ׳׳₪׳×׳— API ׳›׳׳ ׳‘׳›׳׳ - ׳”׳׳₪׳×׳— ׳—׳™ ׳¨׳§ ׳‘׳¦׳“ ׳”׳©׳¨׳×.
+
+import { supabase } from '@/supabaseClient';
+import type { WasteCategory } from '@/types';
+
+export interface IdentifyWasteResult {
+  category: WasteCategory | null;
+  confidence: 'high' | 'medium' | 'low';
+}
+
+/**
+ * ׳©׳•׳׳— ׳×׳׳•׳ ׳” (data URL ׳›׳׳• ׳©׳™׳•׳¦׳ ׳-canvas.toDataURL) ׳-Edge Function ׳׳–׳™׳”׳•׳™.
+ * ׳׳—׳–׳™׳¨ category=null ׳׳ ׳”׳–׳™׳”׳•׳™ ׳ ׳›׳©׳ ׳׳• ׳©׳”-AI ׳׳ ׳”׳™׳” ׳‘׳˜׳•׳—.
+ */
+export async function identifyWaste(imageDataUrl: string): Promise<IdentifyWasteResult> {
+  try {
+    // imageDataUrl ׳ ׳¨׳׳” ׳›׳: "data:image/jpeg;base64,/9j/4AAQSkZJRg..."
+    // ׳¦׳¨׳™׳ ׳׳”׳₪׳¨׳™׳“ ׳׳× ׳”-media type ׳׳”-base64 ׳”׳ ׳§׳™
+    const match = imageDataUrl.match(/^data:(image\/\w+);base64,(.+)$/);
+    if (!match) {
+      console.error('identifyWaste: unexpected image data URL format');
+      return { category: null, confidence: 'low' };
+    }
+    const [, mediaType, imageBase64] = match;
+
+    const { data, error } = await supabase.functions.invoke('identify-waste', {
+      body: { imageBase64, mediaType },
+    });
+
+    if (error) {
+      console.error('identifyWaste: edge function error', error);
+      return { category: null, confidence: 'low' };
+    }
+
+    return {
+      category: data?.category ?? null,
+      confidence: data?.confidence ?? 'low',
+    };
+  } catch (err) {
+    console.error('identifyWaste: unexpected error', err);
+    return { category: null, confidence: 'low' };
+  }
+}
+
+===== C:\Users\shaha\OneDrive\Desktop\AI.DOC\EcoSort\VS-ECOSORTAPP\Eco Sort App Code\src\pages\Analysis.tsx =====
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router';
+import { ArrowRight, Camera, AlertCircle, Check, X, Trash2 } from 'lucide-react';
+import { ScanAnimation } from '@/components/ScanAnimation';
+import { StarCounter } from '@/components/StarCounter';
+import { useApp } from '@/context/AppContext';
+import { WASTE_BINS, type WasteCategory } from '@/types';
+import { supabase } from '@/supabaseClient';
+
+type AnalysisStep = 'scanning' | 'confirm_identification' | 'select_bin' | 'not_identified';
+
+export default function Analysis() {
+  const navigate = useNavigate();
+  const { currentImage, sortingSession, setIdentifiedCategory, confirmIdentification, selectBin, setCurrentImage } = useApp();
+  const [step, setStep] = useState<AnalysisStep>('scanning');
+  const [selectedBinLocal, setSelectedBinLocal] = useState<WasteCategory | null>(null);
+  const [showBinError, setShowBinError] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+
+  useEffect(() => { if (!currentImage) navigate('/camera'); }, [currentImage, navigate]);
+
+  const generateRandomCategory = (): WasteCategory => {
+    const categories: WasteCategory[] = ['plastic', 'paper', 'glass', 'organic'];
+    return categories[Math.floor(Math.random() * categories.length)];
+  };
+
+  const handleScanComplete = () => {
+    if (Math.random() < 0.1) { setStep('not_identified'); }
+    else { const category = generateRandomCategory(); setIdentifiedCategory(category); setStep('confirm_identification'); }
+  };
+
+  const handleConfirmIdentification = (isCorrect: boolean) => {
+    if (isCorrect) { confirmIdentification(); setStep('select_bin'); }
+    else {
+      setStep('scanning');
+      setTimeout(() => { const category = generateRandomCategory(); setIdentifiedCategory(category); setStep('confirm_identification'); }, 2000);
+    }
+  };
+
+  const handleBinSelect = async (category: WasteCategory) => {
+  if (isSuccess || showBinError) return;
+  setSelectedBinLocal(category);
+  const isCorrect = selectBin(category);
+  if (isCorrect) {
+    setIsSuccess(true);
+    await supabase.from('sort_events').insert({
+      item_name: identifiedBin?.labelHe,
+      correct_bin: sortingSession.identifiedCategory,
+      chosen_bin: category,
+      is_correct: true,
+    });
+    setTimeout(() => navigate('/robot'), 1500);
+  } else {
+    setShowBinError(true);
+    setTimeout(() => { setSelectedBinLocal(null); setShowBinError(false); }, 1500);
+  }
+};
+  const identifiedBin = sortingSession.identifiedCategory ? WASTE_BINS.find((b) => b.category === sortingSession.identifiedCategory) : null;
+
+  if (!currentImage) return null;
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-green-50 to-blue-50 flex flex-col">
+      <div className="p-4 flex items-center justify-between">
+        <button onClick={() => navigate('/camera')} className="w-12 h-12 bg-white rounded-full shadow-md flex items-center justify-center hover:bg-gray-50 transition-colors">
+          <ArrowRight size={24} className="text-gray-600" />
+        </button>
+        <StarCounter />
+      </div>
+      <div className="flex-1 flex flex-col items-center justify-center p-6 gap-6">
+        {step === 'scanning' && (
+          <>
+            <div className="text-center mb-4">
+              <h2 className="text-2xl font-bold text-foreground">׳¡׳•׳¨׳§ ׳׳× ׳”׳₪׳¨׳™׳˜...</h2>
+              <p className="text-muted-foreground">׳”-AI ׳׳•׳׳“ ׳׳–׳”׳•׳× ׳׳× ׳”׳₪׳¨׳™׳˜</p>
+            </div>
+            <ScanAnimation imageSrc={currentImage} onComplete={handleScanComplete} duration={3000} />
+            <div className="flex gap-2 mt-4">
+              <div className="w-4 h-4 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0s' }} />
+              <div className="w-4 h-4 bg-secondary rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
+              <div className="w-4 h-4 bg-accent rounded-full animate-bounce" style={{ animationDelay: '0.4s' }} />
+            </div>
+          </>
+        )}
+        {step === 'not_identified' && (
+          <div className="w-full max-w-sm">
+            <div className="relative rounded-2xl overflow-hidden shadow-xl mb-6">
+              <img src={currentImage} alt="׳₪׳¨׳™׳˜ ׳©׳¦׳•׳׳" className="w-full aspect-square object-cover" />
+              <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+                <div className="bg-white rounded-full p-4"><AlertCircle size={48} className="text-yellow-500" /></div>
+              </div>
+            </div>
+            <div className="bg-yellow-50 border-2 border-yellow-300 rounded-2xl p-6 text-center mb-6">
+              <div className="text-5xl mb-4">נ₪”</div>
+              <h3 className="text-xl font-bold text-yellow-800 mb-2">׳׳ ׳”׳¦׳׳—׳×׳™ ׳׳–׳”׳•׳× ׳׳× ׳”׳׳•׳‘׳™׳™׳§׳˜</h3>
+              <p className="text-yellow-700">׳ ׳¡׳• ׳׳¦׳׳ ׳©׳•׳‘ ׳׳–׳•׳•׳™׳× ׳׳—׳¨׳×</p>
+            </div>
+            <button onClick={() => { setCurrentImage(null); navigate('/camera'); }}
+              className="w-full flex items-center justify-center border-2 border-black-300 gap-3 bg-primary text-black font-bold py-5 px-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 active:scale-95">
+              <Camera size={28} /><span>׳¦׳׳ ׳©׳•׳‘</span>
+            </button>
+          </div>
+        )}
+        {step === 'confirm_identification' && identifiedBin && (
+          <div className="w-full max-w-sm">
+            <div className="relative rounded-2xl overflow-hidden shadow-xl mb-6">
+              <img src={currentImage} alt="׳₪׳¨׳™׳˜ ׳©׳¦׳•׳׳" className="w-full aspect-square object-cover" />
+              <div className="absolute top-4 right-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full">
+                <span className="text-sm font-medium text-primary">ג… ׳ ׳¡׳¨׳§!</span>
+              </div>
+            </div>
+            <div className="bg-white rounded-2xl p-6 shadow-lg mb-6">
+              <p className="text-muted-foreground text-center mb-3">׳–׳™׳”׳™׳×׳™ ׳׳× ׳”׳₪׳¨׳™׳˜:</p>
+              <div className="flex items-center justify-center gap-4 p-4 rounded-xl" style={{ backgroundColor: identifiedBin.bgColor }}>
+                <span className="text-5xl">{identifiedBin.icon}</span>
+                <span className="text-3xl font-bold" style={{ color: identifiedBin.color }}>{identifiedBin.labelHe}</span>
+              </div>
+            </div>
+            <div className="text-center mb-4">
+              <h3 className="text-xl font-bold text-foreground">׳”׳׳ ׳”׳–׳™׳”׳•׳™ ׳ ׳›׳•׳?</h3>
+            </div>
+            <div className="flex gap-4">
+              <button onClick={() => handleConfirmIdentification(true)}
+                className="flex-1 flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white font-bold text-xl py-5 px-6 rounded-2xl shadow-lg transition-all duration-300 hover:scale-105 active:scale-95">
+                <Check size={28} /><span>׳›׳</span>
+              </button>
+              <button onClick={() => handleConfirmIdentification(false)}
+                className="flex-1 flex items-center justify-center gap-2 bg-red-500 hover:bg-red-600 text-white font-bold text-xl py-5 px-6 rounded-2xl shadow-lg transition-all duration-300 hover:scale-105 active:scale-95">
+                <X size={28} /><span>׳׳</span>
+              </button>
+            </div>
+          </div>
+        )}
+        {step === 'select_bin' && identifiedBin && (
+          <div className="w-full max-w-sm">
+            {isSuccess && (
+              <div className="fixed inset-0 z-50 bg-green-500/90 flex items-center justify-center">
+                <div className="text-center text-white">
+                  <div className="text-8xl mb-4 animate-bounce">נ‰</div>
+                  <h2 className="text-3xl font-black">׳׳¢׳•׳׳”!</h2>
+                  <p className="text-xl mt-2">׳¢׳•׳‘׳¨׳™׳ ׳׳¨׳•׳‘׳•׳˜...</p>
+                </div>
+              </div>
+            )}
+            <div className="flex items-center gap-4 bg-white rounded-2xl p-4 shadow-md mb-6">
+              <img src={currentImage} alt="׳₪׳¨׳™׳˜" className="w-20 h-20 rounded-xl object-cover" />
+              <div>
+                <p className="text-sm text-muted-foreground">׳–׳•׳”׳”:</p>
+                <div className="flex items-center gap-2">
+                  <span className="text-2xl">{identifiedBin.icon}</span>
+                  <span className="font-bold text-lg" style={{ color: identifiedBin.color }}>{identifiedBin.labelHe}</span>
+                </div>
+              </div>
+            </div>
+            <div className="text-center mb-6">
+              <h3 className="text-2xl font-bold text-foreground mb-2">׳׳׳™׳–׳” ׳₪׳— ׳©׳•׳׳—׳™׳ ׳׳× ׳”׳₪׳¨׳™׳˜?</h3>
+              <p className="text-muted-foreground">׳‘׳—׳¨׳• ׳׳× ׳¦׳‘׳¢ ׳”׳₪׳— ׳”׳ ׳›׳•׳</p>
+            </div>
+            {showBinError && (
+              <div className="bg-red-100 border-2 border-red-300 rounded-xl p-4 mb-4 text-center">
+                <p className="text-red-700 font-bold">׳׳•׳₪׳¡! ׳–׳” ׳׳ ׳”׳¦׳‘׳¢ ׳”׳ ׳›׳•׳</p>
+                <p className="text-red-600 text-sm">׳ ׳¡׳• ׳©׳•׳‘</p>
+              </div>
+            )}
+            <div className="grid grid-cols-2 gap-4">
+              {WASTE_BINS.map((bin) => {
+                const isSelected = selectedBinLocal === bin.category;
+                const isWrong = isSelected && showBinError;
+                const isCorrectAnswer = isSelected && isSuccess;
+                return (
+                  <button key={bin.category} onClick={() => handleBinSelect(bin.category)} disabled={isSuccess || showBinError}
+                    className={`relative p-5 rounded-2xl transition-all duration-300 flex items-center justify-center border-4 ${isWrong ? 'border-red-500 bg-red-100' : ''} ${isCorrectAnswer ? 'border-green-500 bg-green-100 scale-110' : ''} ${!isSelected ? 'hover:scale-105 active:scale-95' : ''}`}
+                    style={{ backgroundColor: !isWrong && !isCorrectAnswer ? bin.bgColor : undefined, borderColor: !isWrong && !isCorrectAnswer ? bin.color : undefined }}>
+                    <div className="w-20 h-20 rounded-xl flex items-center justify-center" style={{ backgroundColor: bin.color }}>
+                      <Trash2 size={44} className="text-white" />
+                    </div>
+                    {isWrong && <div className="absolute -top-2 -right-2 w-10 h-10 rounded-full bg-red-500 flex items-center justify-center"><X size={24} className="text-white" /></div>}
+                    {isCorrectAnswer && <div className="absolute -top-2 -right-2 w-10 h-10 rounded-full bg-green-500 flex items-center justify-center"><Check size={24} className="text-white" /></div>}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+      </div>
+      <style>{`@keyframes shake { 0%, 100% { transform: translateX(0) rotate(0deg); } 10%, 30%, 50%, 70%, 90% { transform: translateX(-4px) rotate(-1deg); } 20%, 40%, 60%, 80% { transform: translateX(4px) rotate(1deg); } } .animate-shake { animation: shake 0.5s ease-in-out; }`}</style>
+    </div>
+  );
+}
+
+===== C:\Users\shaha\OneDrive\Desktop\AI.DOC\EcoSort\VS-ECOSORTAPP\Eco Sort App Code\src\pages\Camera.tsx =====
+import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router';
+import { Camera as CameraIcon, Home, Volume2, VolumeX, RefreshCw, AlertTriangle, ImageOff, ExternalLink, Image } from 'lucide-react';
+import { useApp } from '@/context/AppContext';
+
+const SAMPLE_IMAGES = [
+  'https://images.unsplash.com/photo-1605600659908-0ef719419d41?w=400&h=400&fit=crop',
+  'https://images.unsplash.com/photo-1589939705384-5185137a7f0f?w=400&h=400&fit=crop',
+  'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=400&fit=crop',
+  'https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=400&h=400&fit=crop',
+];
+
+type CameraState = 'loading' | 'ready' | 'permission' | 'iframe' | 'error';
+
+export default function Camera() {
+  const navigate = useNavigate();
+  const { soundEnabled, toggleSound, setCurrentImage } = useApp();
+  const [isCapturing, setIsCapturing] = useState(false);
+  const [cameraState, setCameraState] = useState<CameraState>('loading');
+  const [facingMode, setFacingMode] = useState<'user' | 'environment'>('environment');
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+
+  const isInIframe = () => { try { return window.self !== window.top; } catch (e) { return true; } };
+
+  const startCamera = async () => {
+    setCameraState('loading');
+    if (isInIframe()) { setCameraState('iframe'); return; }
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { setCameraState('error'); return; }
+    if (streamRef.current) streamRef.current.getTracks().forEach((track) => track.stop());
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode, width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false });
+      streamRef.current = stream;
+      if (videoRef.current) { videoRef.current.srcObject = stream; await videoRef.current.play(); }
+      setCameraState('ready');
+    } catch (err) {
+      if (err instanceof DOMException && (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError')) setCameraState('permission');
+      else setCameraState('error');
+    }
+  };
+
+  useEffect(() => {
+    startCamera();
+    return () => { if (streamRef.current) streamRef.current.getTracks().forEach((track) => track.stop()); };
+  }, [facingMode]);
+
+  const handleCapture = () => {
+    if (!videoRef.current || !canvasRef.current) return;
+    setIsCapturing(true);
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    ctx.drawImage(video, 0, 0);
+    const imageDataUrl = canvas.toDataURL('image/jpeg', 0.8);
+    setTimeout(() => { setCurrentImage(imageDataUrl); navigate('/analysis'); }, 300);
+  };
+
+  const handleUseSampleImage = () => {
+    setIsCapturing(true);
+    const randomImage = SAMPLE_IMAGES[Math.floor(Math.random() * SAMPLE_IMAGES.length)];
+    setTimeout(() => { setCurrentImage(randomImage); navigate('/analysis'); }, 300);
+  };
+
+  return (
+    <div className="min-h-screen bg-black flex flex-col relative">
+      <canvas ref={canvasRef} className="hidden" />
+      <div className="absolute top-0 left-0 right-0 z-10 p-4 flex items-center justify-between">
+        <button onClick={() => navigate('/')} className="w-12 h-12 bg-white/20 backdrop-blur rounded-full flex items-center justify-center hover:bg-white/30 transition-colors">
+          <Home size={24} className="text-white" />
+        </button>
+        <button onClick={toggleSound} className="w-12 h-12 bg-white/20 backdrop-blur rounded-full flex items-center justify-center hover:bg-white/30 transition-colors">
+          {soundEnabled ? <Volume2 size={24} className="text-white" /> : <VolumeX size={24} className="text-white" />}
+        </button>
+      </div>
+      <div className="flex-1 relative overflow-hidden">
+        <video ref={videoRef} autoPlay playsInline muted className={`absolute inset-0 w-full h-full object-cover ${cameraState !== 'ready' ? 'hidden' : ''}`} />
+        {cameraState === 'loading' && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black">
+            <div className="text-center px-6">
+              <RefreshCw size={48} className="text-white animate-spin mx-auto mb-4" />
+              <p className="text-white text-xl font-bold mb-2">׳׳₪׳¢׳™׳ ׳׳¦׳׳׳”...</p>
+              <p className="text-white/70 text-sm">׳׳ ׳׳•׳₪׳™׳¢׳” ׳‘׳§׳©׳× ׳”׳¨׳©׳׳” - ׳™׳© ׳׳׳—׳•׳¥ "׳׳₪׳©׳¨"</p>
+            </div>
+          </div>
+        )}
+        {cameraState === 'ready' && (
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <div className="w-64 h-64 relative">
+              <div className="absolute top-0 left-0 w-12 h-12 border-t-4 border-l-4 border-primary rounded-tl-2xl" />
+              <div className="absolute top-0 right-0 w-12 h-12 border-t-4 border-r-4 border-primary rounded-tr-2xl" />
+              <div className="absolute bottom-0 left-0 w-12 h-12 border-b-4 border-l-4 border-primary rounded-bl-2xl" />
+              <div className="absolute bottom-0 right-0 w-12 h-12 border-b-4 border-r-4 border-primary rounded-br-2xl" />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="w-4 h-4 bg-primary rounded-full animate-ping" />
+                <div className="absolute w-2 h-2 bg-primary rounded-full" />
+              </div>
+            </div>
+          </div>
+        )}
+        {cameraState === 'ready' && (
+          <div className="absolute top-1/4 left-0 right-0 text-center pointer-events-none">
+            <p className="text-white/80 text-lg bg-black/30 backdrop-blur-sm inline-block px-4 py-2 rounded-full">׳׳§׳׳• ׳׳× ׳”׳₪׳¨׳™׳˜ ׳‘׳׳¨׳›׳– ׳”׳׳¡׳’׳¨׳×</p>
+          </div>
+        )}
+        {isCapturing && <div className="absolute inset-0 bg-white animate-pulse" />}
+      </div>
+      {cameraState === 'ready' && (
+        <div className="absolute bottom-0 left-0 right-0 p-6 pb-10">
+          <div className="flex items-center justify-center gap-6">
+            <div className="w-14 h-14" />
+            <button onClick={handleCapture} disabled={isCapturing}
+              className={`w-24 h-24 rounded-full bg-gradient-to-b from-white to-gray-200 border-4 border-primary flex items-center justify-center shadow-lg shadow-primary/30 transition-all duration-200 ${isCapturing ? 'scale-90 opacity-50' : 'hover:scale-105 active:scale-95'}`}>
+              <div className={`w-16 h-16 rounded-full bg-primary flex items-center justify-center ${!isCapturing && 'animate-pulse'}`}>
+                <CameraIcon size={32} className="text-black" />
+              </div>
+            </button>
+            <button onClick={() => setFacingMode((prev) => prev === 'user' ? 'environment' : 'user')}
+              className="w-14 h-14 bg-white/20 backdrop-blur rounded-xl flex items-center justify-center hover:bg-white/30 transition-colors">
+              <RefreshCw size={24} className="text-white" />
+            </button>
+          </div>
+        </div>
+      )}
+      {cameraState === 'iframe' && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black p-4">
+          <div className="bg-white rounded-3xl p-6 max-w-sm text-center shadow-2xl">
+            <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <CameraIcon size={40} className="text-blue-600" />
+            </div>
+            <h3 className="text-xl font-bold text-foreground mb-2">׳”׳׳¦׳׳׳” ׳׳ ׳¢׳•׳‘׳“׳× ׳‘׳×׳¦׳•׳’׳” ׳”׳׳§׳“׳™׳׳”</h3>
+            <p className="text-muted-foreground mb-6">׳›׳“׳™ ׳׳”׳©׳×׳׳© ׳‘׳׳¦׳׳׳” ׳”׳׳׳™׳×׳™׳×, ׳₪׳×׳—׳• ׳׳× ׳”׳׳₪׳׳™׳§׳¦׳™׳” ׳‘׳›׳¨׳˜׳™׳¡׳™׳™׳” ׳—׳“׳©׳”</p>
+            <div className="flex flex-col gap-3">
+              <button onClick={() => window.open(window.location.href, '_blank')}
+                className="w-full py-4 bg-primary text-white rounded-xl font-bold text-lg hover:bg-primary-dark transition-colors flex items-center justify-center gap-2">
+                <ExternalLink size={20} /><span>׳₪׳×׳— ׳‘׳›׳¨׳˜׳™׳¡׳™׳™׳” ׳—׳“׳©׳”</span>
+              </button>
+              <button onClick={handleUseSampleImage} className="w-full py-4 bg-gray-100 text-foreground rounded-xl font-bold text-lg hover:bg-gray-200 transition-colors flex items-center justify-center gap-2">
+                <Image size={20} /><span>׳”׳׳©׳ ׳¢׳ ׳×׳׳•׳ ׳” ׳׳“׳•׳’׳׳”</span>
+              </button>
+              <button onClick={() => navigate('/')} className="w-full py-3 text-muted-foreground hover:text-foreground transition-colors">׳—׳–׳¨׳” ׳”׳‘׳™׳×׳”</button>
+            </div>
+          </div>
+        </div>
+      )}
+      {(cameraState === 'permission' || cameraState === 'error') && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-3xl p-6 max-w-sm text-center shadow-2xl">
+            <div className="w-20 h-20 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              {cameraState === 'permission' ? <AlertTriangle size={40} className="text-yellow-600" /> : <ImageOff size={40} className="text-yellow-600" />}
+            </div>
+            <h3 className="text-xl font-bold text-foreground mb-2">{cameraState === 'permission' ? '׳¦׳¨׳™׳ ׳׳™׳©׳•׳¨ ׳׳׳¦׳׳׳”' : '׳׳ ׳”׳¦׳׳—׳ ׳• ׳׳”׳₪׳¢׳™׳ ׳׳× ׳”׳׳¦׳׳׳”'}</h3>
+            <p className="text-muted-foreground mb-4">{cameraState === 'permission' ? '׳׳—׳¦׳• ׳¢׳ ׳›׳₪׳×׳•׳¨ "׳ ׳¡׳” ׳©׳•׳‘" ׳•׳׳– ׳׳©׳¨׳• ׳׳× ׳”׳’׳™׳©׳” ׳׳׳¦׳׳׳”' : '׳‘׳•׳׳• ׳ ׳ ׳¡׳” ׳©׳•׳‘'}</p>
+            <div className="flex flex-col gap-3">
+              <button onClick={startCamera} className="w-full py-4 bg-primary text-white rounded-xl font-bold text-lg hover:bg-primary-dark transition-colors">׳ ׳¡׳” ׳©׳•׳‘</button>
+              <button onClick={handleUseSampleImage} className="w-full py-3 bg-gray-100 text-foreground rounded-xl font-medium hover:bg-gray-200 transition-colors flex items-center justify-center gap-2">
+                <Image size={18} /><span>׳”׳׳©׳ ׳¢׳ ׳×׳׳•׳ ׳” ׳׳“׳•׳’׳׳”</span>
+              </button>
+              <button onClick={() => navigate('/')} className="w-full py-3 text-muted-foreground hover:text-foreground transition-colors">׳—׳–׳¨׳” ׳”׳‘׳™׳×׳”</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+===== C:\Users\shaha\OneDrive\Desktop\AI.DOC\EcoSort\VS-ECOSORTAPP\Eco Sort App Code\src\pages\Game.tsx =====
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { useNavigate } from 'react-router';
+import { Home, Play, RotateCcw, Pause, Trophy, X, Check, Volume2, VolumeX } from 'lucide-react';
+import { Logo } from '@/components/Logo';
+import { WASTE_BINS, WasteCategory } from '@/types';
+import { supabase } from '@/supabaseClient';
+
+import binOrange from '@/assets/uploads/bin-orange.svg';
+import binBlue from '@/assets/uploads/bin-blue.svg';
+import binPurple from '@/assets/uploads/bin-purple.svg';
+import binBrown from '@/assets/uploads/bin-brown.svg';
+
+import plasticDetergentOrange from '@/assets/uploads/plastic-detergent-orange.svg';
+import plasticBagGreen from '@/assets/uploads/plastic-bag-green.svg';
+import plasticDetergentBlue from '@/assets/uploads/plastic-detergent-blue.svg';
+import plasticCupSmall from '@/assets/uploads/plastic-cup-small.svg';
+import plasticCupTall from '@/assets/uploads/plastic-cup-tall.svg';
+import plasticBagBlue from '@/assets/uploads/plastic-bag-blue.svg';
+import plasticChipsBag from '@/assets/uploads/plastic-chips-bag.svg';
+import plasticCupClear from '@/assets/uploads/plastic-cup-clear.svg';
+import plasticShampooYellow from '@/assets/uploads/plastic-shampoo-yellow.svg';
+
+import paperNotebook from '@/assets/uploads/paper-notebook.svg';
+import paperBag from '@/assets/uploads/paper-bag.svg';
+import paperCardboardFlat from '@/assets/uploads/paper-cardboard-flat.svg';
+import paperNewspaper from '@/assets/uploads/paper-newspaper.svg';
+import paperCardboardBox from '@/assets/uploads/paper-cardboard-box.svg';
+import paperFolder from '@/assets/uploads/paper-folder.svg';
+
+import organicEggshells from '@/assets/uploads/organic-eggshells.svg';
+import organicTomato from '@/assets/uploads/organic-tomato.svg';
+import organicBananaPeel from '@/assets/uploads/organic-banana-peel.svg';
+import organicFishBones from '@/assets/uploads/organic-fish-bones.svg';
+import organicCucumber from '@/assets/uploads/organic-cucumber.svg';
+
+import glassPerfume from '@/assets/uploads/glass-perfume.svg';
+import glassPickles from '@/assets/uploads/glass-pickles.svg';
+import glassJam from '@/assets/uploads/glass-jam.svg';
+import glassSoapBottle from '@/assets/uploads/glass-soap-bottle.svg';
+import ecosortLogo from '@/assets/uploads/ecosort-logo.png';
+
+const BIN_IMAGES: Record<WasteCategory, string> = { plastic: binOrange, paper: binBlue, glass: binPurple, organic: binBrown };
+
+const GAME_DURATION = 90;
+const MAX_MISSES = 3;
+const INITIAL_FALL_SPEED = 0.8;
+const SPEED_INCREMENT = 0.15;
+const SPEED_INCREASE_INTERVAL = 30;
+const INITIAL_SPAWN_INTERVAL = 5000;
+const MIN_SPAWN_INTERVAL = 3000;
+const BIN_WIDTH = 100;
+const ITEM_SIZE = 90;
+
+const WASTE_ITEMS = [
+  { id: 'detergent-orange', category: 'plastic' as WasteCategory, name: '׳׳™׳›׳ ׳—׳•׳׳¨ ׳ ׳™׳§׳•׳™', image: plasticDetergentOrange },
+  { id: 'bag-green', category: 'plastic' as WasteCategory, name: '׳©׳§׳™׳× ׳ ׳™׳™׳׳•׳', image: plasticBagGreen },
+  { id: 'detergent-blue', category: 'plastic' as WasteCategory, name: '׳‘׳§׳‘׳•׳§ ׳—׳•׳׳¨ ׳ ׳™׳§׳•׳™', image: plasticDetergentBlue },
+  { id: 'cup-small', category: 'plastic' as WasteCategory, name: '׳›׳•׳¡ ׳₪׳׳¡׳˜׳™׳§', image: plasticCupSmall },
+  { id: 'cup-tall', category: 'plastic' as WasteCategory, name: '׳›׳•׳¡ ׳’׳‘׳•׳”׳”', image: plasticCupTall },
+  { id: 'bag-blue', category: 'plastic' as WasteCategory, name: '׳©׳§׳™׳× ׳›׳—׳•׳׳”', image: plasticBagBlue },
+  { id: 'chips-bag', category: 'plastic' as WasteCategory, name: '׳©׳§׳™׳× ׳—׳˜׳™׳₪׳™׳', image: plasticChipsBag },
+  { id: 'cup-clear', category: 'plastic' as WasteCategory, name: '׳›׳•׳¡ ׳©׳§׳•׳₪׳”', image: plasticCupClear },
+  { id: 'shampoo-yellow', category: 'plastic' as WasteCategory, name: '׳‘׳§׳‘׳•׳§ ׳©׳׳₪׳•', image: plasticShampooYellow },
+  { id: 'perfume-bottle', category: 'glass' as WasteCategory, name: '׳‘׳§׳‘׳•׳§ ׳‘׳•׳©׳', image: glassPerfume },
+  { id: 'pickle-jar', category: 'glass' as WasteCategory, name: '׳¦׳ ׳¦׳ ׳× ׳—׳׳•׳¦׳™׳', image: glassPickles },
+  { id: 'jam-jar', category: 'glass' as WasteCategory, name: '׳¦׳ ׳¦׳ ׳× ׳¨׳™׳‘׳”', image: glassJam },
+  { id: 'soap-bottle', category: 'glass' as WasteCategory, name: '׳‘׳§׳‘׳•׳§ ׳¡׳‘׳•׳', image: glassSoapBottle },
+  { id: 'eggshells', category: 'organic' as WasteCategory, name: '׳§׳׳™׳₪׳•׳× ׳‘׳™׳¦׳™׳', image: organicEggshells },
+  { id: 'tomato', category: 'organic' as WasteCategory, name: '׳¢׳’׳‘׳ ׳™׳™׳”', image: organicTomato },
+  { id: 'banana-peel', category: 'organic' as WasteCategory, name: '׳§׳׳™׳₪׳× ׳‘׳ ׳ ׳”', image: organicBananaPeel },
+  { id: 'fish-bones', category: 'organic' as WasteCategory, name: '׳¢׳¦׳׳•׳× ׳“׳’', image: organicFishBones },
+  { id: 'cucumber', category: 'organic' as WasteCategory, name: '׳׳׳₪׳₪׳•׳', image: organicCucumber },
+  { id: 'notebook', category: 'paper' as WasteCategory, name: '׳׳—׳‘׳¨׳×', image: paperNotebook },
+  { id: 'paper-bag', category: 'paper' as WasteCategory, name: '׳©׳§׳™׳× ׳ ׳™׳™׳¨', image: paperBag },
+  { id: 'cardboard-flat', category: 'paper' as WasteCategory, name: '׳§׳¨׳˜׳•׳ ׳©׳˜׳•׳—', image: paperCardboardFlat },
+  { id: 'newspaper', category: 'paper' as WasteCategory, name: '׳¢׳™׳×׳•׳', image: paperNewspaper },
+  { id: 'cardboard-box', category: 'paper' as WasteCategory, name: '׳§׳•׳₪׳¡׳× ׳§׳¨׳˜׳•׳', image: paperCardboardBox },
+  { id: 'folder', category: 'paper' as WasteCategory, name: '׳×׳™׳§׳™׳™׳”', image: paperFolder },
+];
+
+interface FallingItem { id: number; itemType: typeof WASTE_ITEMS[number]; x: number; y: number; speed: number; }
+interface GameFeedback { type: 'success' | 'wrong' | 'miss'; x: number; y: number; id: number; }
+type GameState = 'start' | 'playing' | 'paused' | 'gameover';
+
+export default function Game() {
+  const navigate = useNavigate();
+  const gameAreaRef = useRef<HTMLDivElement>(null);
+  const animationFrameRef = useRef<number | undefined>(undefined);
+  const lastSpawnTimeRef = useRef<number>(0);
+  const itemIdCounterRef = useRef<number>(0);
+  const feedbackIdRef = useRef<number>(0);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  const [gameState, setGameState] = useState<GameState>('start');
+  const [score, setScore] = useState(0);
+  const [timeLeft, setTimeLeft] = useState(GAME_DURATION);
+  const [misses, setMisses] = useState(0);
+  const [correctCatches, setCorrectCatches] = useState(0);
+  const [wrongCatches, setWrongCatches] = useState(0);
+  const [selectedBin, setSelectedBin] = useState<WasteCategory>('plastic');
+  const [binX, setBinX] = useState(50);
+  const [fallingItems, setFallingItems] = useState<FallingItem[]>([]);
+  const [feedbacks, setFeedbacks] = useState<GameFeedback[]>([]);
+  const [soundEnabled, setSoundEnabled] = useState(true);
+  const [fallSpeed, setFallSpeed] = useState(INITIAL_FALL_SPEED);
+  const gameOverCalledRef = useRef(false);
+  const [spawnInterval, setSpawnInterval] = useState(INITIAL_SPAWN_INTERVAL);
+
+  useEffect(() => {
+    if (!audioRef.current) {
+      audioRef.current = new Audio('/music.m4a');
+      audioRef.current.volume = 0.3;
+    }
+    const audio = audioRef.current;
+    if (gameState === 'playing' && soundEnabled) audio.play().catch(() => {});
+    else audio.pause();
+    return () => { audio.pause(); };
+  }, [gameState, soundEnabled]);
+
+  useEffect(() => {
+    return () => { if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; } };
+  }, []);
+
+  const getGameAreaDimensions = useCallback(() => {
+    if (!gameAreaRef.current) return { width: 400, height: 600 };
+    return { width: gameAreaRef.current.clientWidth, height: gameAreaRef.current.clientHeight };
+  }, []);
+
+  const spawnItem = useCallback(() => {
+    const { width } = getGameAreaDimensions();
+    const randomItem = WASTE_ITEMS[Math.floor(Math.random() * WASTE_ITEMS.length)];
+    const padding = ITEM_SIZE;
+    const x = padding + Math.random() * (width - padding * 2);
+    setFallingItems((prev) => [...prev, { id: itemIdCounterRef.current++, itemType: randomItem, x, y: -ITEM_SIZE, speed: fallSpeed + Math.random() * 0.5 }]);
+  }, [fallSpeed, getGameAreaDimensions]);
+
+  const checkCollision = useCallback((item: FallingItem): boolean => {
+    const { width, height } = getGameAreaDimensions();
+    const binXPixels = binX / 100 * width;
+    const binY = height - 200;
+    if (item.y + ITEM_SIZE >= binY && item.y <= binY + 60) {
+      const itemCenter = item.x + ITEM_SIZE / 2;
+      return itemCenter >= binXPixels - BIN_WIDTH / 2 && itemCenter <= binXPixels + BIN_WIDTH / 2;
+    }
+    return false;
+  }, [binX, getGameAreaDimensions]);
+
+  const addFeedback = useCallback((type: 'success' | 'wrong' | 'miss', x: number, y: number) => {
+    const feedback: GameFeedback = { type, x, y, id: feedbackIdRef.current++ };
+    setFeedbacks((prev) => [...prev, feedback]);
+    setTimeout(() => { setFeedbacks((prev) => prev.filter((f) => f.id !== feedback.id)); }, 1000);
+  }, []);
+
+  const getStars = useCallback((correct: number, wrong: number, missCount: number) => {
+    const accuracy = correct + wrong > 0 ? correct / (correct + wrong) * 100 : 0;
+    if (accuracy >= 90 && missCount === 0) return 3;
+    if (accuracy >= 70) return 2;
+    if (accuracy >= 50) return 1;
+    return 0;
+  }, []);
+
+const handleGameOver = useCallback(async (finalScore: number, correct: number, wrong: number, missCount: number) => {
+  if (gameOverCalledRef.current) return;
+  gameOverCalledRef.current = true;
+  setGameState('gameover');
+  await supabase.from('game_scores').insert({
+    score: finalScore,
+    correct_catches: correct,
+    wrong_catches: wrong,
+    misses: missCount,
+    stars: getStars(correct, wrong, missCount),
+  });
+}, [getStars]);
+
+  useEffect(() => {
+    if (gameState !== 'playing') return;
+    let lastTime = performance.now();
+    const gameLoop = (currentTime: number) => {
+      const deltaTime = (currentTime - lastTime) / 16.67;
+      lastTime = currentTime;
+      const { height } = getGameAreaDimensions();
+      if (currentTime - lastSpawnTimeRef.current > spawnInterval) { spawnItem(); lastSpawnTimeRef.current = currentTime; }
+      setFallingItems((prev) => {
+        const updated: FallingItem[] = [];
+        for (const item of prev) {
+          const newY = item.y + item.speed * deltaTime;
+          if (checkCollision({ ...item, y: newY })) {
+            if (item.itemType.category === selectedBin) { setScore((s) => s + 10); setCorrectCatches((c) => c + 1); addFeedback('success', item.x, newY); }
+            else { setScore((s) => Math.max(0, s - 5)); setWrongCatches((c) => c + 1); addFeedback('wrong', item.x, newY); }
+            continue;
+          }
+          if (newY > height) {
+            setMisses((m) => {
+              const newMisses = m + 1;
+              if (newMisses >= MAX_MISSES) {
+                setScore((s) => {
+                  setCorrectCatches((c) => {
+                    setWrongCatches((w) => {
+                      handleGameOver(Math.max(0, s - 2), c, w, newMisses);
+                      return w;
+                    });
+                    return c;
+                  });
+                  return s;
+                });
+              }
+              return newMisses;
+            });
+            setScore((s) => Math.max(0, s - 2));
+            addFeedback('miss', item.x, height - 50);
+            continue;
+          }
+          updated.push({ ...item, y: newY });
+        }
+        return updated;
+      });
+      animationFrameRef.current = requestAnimationFrame(gameLoop);
+    };
+    animationFrameRef.current = requestAnimationFrame(gameLoop);
+    return () => { if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current); };
+  }, [gameState, selectedBin, spawnInterval, spawnItem, checkCollision, addFeedback, getGameAreaDimensions, handleGameOver]);
+
+  useEffect(() => {
+    if (gameState !== 'playing') return;
+    const timer = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          setScore((s) => {
+            setCorrectCatches((c) => {
+              setWrongCatches((w) => {
+                setMisses((m) => {
+                  handleGameOver(s, c, w, m);
+                  return m;
+                });
+                return w;
+              });
+              return c;
+            });
+            return s;
+          });
+          return 0;
+        }
+        const elapsed = GAME_DURATION - prev + 1;
+        if (elapsed % SPEED_INCREASE_INTERVAL === 0) { setFallSpeed((s) => s + SPEED_INCREMENT); setSpawnInterval((i) => Math.max(MIN_SPAWN_INTERVAL, i - 200)); }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [gameState, handleGameOver]);
+
+  useEffect(() => {
+    if (gameState !== 'playing') return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      switch (e.key) {
+        case 'ArrowLeft': setBinX((x) => Math.max(10, x - 5)); break;
+        case 'ArrowRight': setBinX((x) => Math.min(90, x + 5)); break;
+        case '1': setSelectedBin('plastic'); break;
+        case '2': setSelectedBin('paper'); break;
+        case '3': setSelectedBin('glass'); break;
+        case '4': setSelectedBin('organic'); break;
+        case 'Escape': setGameState('paused'); break;
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [gameState]);
+
+  const lastMoveTime = useRef(0);
+  const handlePointerMove = useCallback((e: React.PointerEvent) => {
+    if (gameState !== 'playing') return;
+    const now = Date.now();
+    if (now - lastMoveTime.current < 16) return;
+    lastMoveTime.current = now;
+    const rect = gameAreaRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    setBinX(Math.max(10, Math.min(90, (e.clientX - rect.left) / rect.width * 100)));
+  }, [gameState]);
+
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    if (gameState !== 'playing') return;
+    e.preventDefault();
+    const touch = e.touches[0];
+    const rect = gameAreaRef.current?.getBoundingClientRect();
+    if (!rect || !touch) return;
+    setBinX(Math.max(10, Math.min(90, (touch.clientX - rect.left) / rect.width * 100)));
+  }, [gameState]);
+
+  const startGame = () => {
+    gameOverCalledRef.current = false;
+    setGameState('playing'); setScore(0); setTimeLeft(GAME_DURATION); setMisses(0);
+    setCorrectCatches(0); setWrongCatches(0); setFallingItems([]); setFallSpeed(INITIAL_FALL_SPEED);
+    setSpawnInterval(INITIAL_SPAWN_INTERVAL); setBinX(50); lastSpawnTimeRef.current = 0;
+  };
+
+  const currentBin = WASTE_BINS.find((b) => b.category === selectedBin)!;
+  const stars = getStars(correctCatches, wrongCatches, misses);
+
+  return (
+    <div className="h-dvh bg-gradient-to-b from-sky-200 via-sky-100 to-green-100 flex flex-col">
+      {gameState === 'start' && (
+        <div className="h-dvh flex-1 flex flex-col items-center justify-center p-6 gap-8">
+          <div className="text-center">
+            <h1 className="text-4xl font-black text-primary mb-2">׳×׳₪׳•׳¡ ׳׳× ׳”׳₪׳¡׳•׳׳× נ® </h1>
+            <p className="text-lg text-muted-foreground">׳×׳₪׳¡׳• ׳׳× ׳”׳₪׳¨׳™׳˜׳™׳ ׳”׳ ׳•׳₪׳׳™׳ ׳¢׳ ׳”׳₪׳— ׳”׳ ׳›׳•׳</p>
+          </div>
+          <div className="bg-white rounded-2xl p-6 shadow-lg max-w-sm w-full">
+            <h3 className="font-bold text-lg mb-4 text-center">׳׳™׳ ׳׳©׳—׳§׳™׳?</h3>
+            <div className="flex flex-col gap-3 text-sm">
+              <div className="flex items-center gap-3"><span className="text-2xl">נ‘†</span><span>׳”׳–׳™׳–׳• ׳׳× ׳”׳₪׳— ׳™׳׳™׳ ׳” ׳•׳©׳׳׳׳”</span></div>
+              <div className="flex items-center gap-3"><span className="text-2xl">נ”„</span><span>׳”׳—׳׳™׳₪׳• ׳₪׳— ׳‘׳׳—׳™׳¦׳” ׳¢׳ ׳”׳¦׳‘׳¢</span></div>
+              <div className="flex items-center gap-3"><span className="text-2xl">ג…</span><span>׳×׳₪׳¡׳• ׳₪׳¨׳™׳˜ ׳‘׳₪׳— ׳”׳ ׳›׳•׳ = +10 ׳ ׳§׳•׳“׳•׳×</span></div>
+              <div className="flex items-center gap-3"><span className="text-2xl">ג</span><span>3 ׳₪׳¡׳₪׳•׳¡׳™׳ = ׳¡׳•׳£ ׳”׳׳©׳—׳§</span></div>
+            </div>
+          </div>
+          <div className="flex gap-4">
+            {WASTE_BINS.map((bin) => (
+              <div key={bin.category} className="flex flex-col items-center gap-1">
+                <img src={BIN_IMAGES[bin.category]} alt={bin.labelHe} className="w-14 h-16 object-contain" />
+                <span className="text-xs font-medium">{bin.labelHe}</span>
+              </div>
+            ))}
+          </div>
+          <button onClick={startGame} className="flex items-center gap-3 bg-gradient-to-r color from-green-300 to-green-500 from-primary-light-500 to-primary-dark-600 text-white text-2xl font-bold py-5 px-10 rounded-2xl shadow-lg hover:scale-105 active:scale-95 transition-transform">
+            <Play size={32} fill="white" /><span>׳”׳×׳—׳ ׳׳©׳—׳§ !</span>
+          </button>
+          <button onClick={() => navigate('/')} className="hover:scale-105 text-muted-foreground hover:text-foreground transition-colors">׳—׳–׳¨׳” ׳׳×׳₪׳¨׳™׳˜</button>
+        </div>
+      )}
+
+      {(gameState === 'playing' || gameState === 'paused') && (
+        <>
+          <div className="p-4 flex items-center justify-between bg-white/80 backdrop-blur-sm shadow-sm">
+            <button onClick={() => setGameState('paused')} className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center"><Pause size={20} /></button>
+            <div className="flex items-center gap-6">
+              <div className="text-center"><p className="text-2xl font-black text-primary">{score}</p><p className="text-xs text-muted-foreground">׳ ׳§׳•׳“׳•׳×</p></div>
+              <div className="text-center">
+                <p className={`text-2xl font-black ${timeLeft <= 10 ? 'text-red-500 animate-pulse' : 'text-foreground'}`}>
+                  {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}
+                </p>
+                <p className="text-xs text-muted-foreground">׳–׳׳</p>
+              </div>
+              <div className="flex gap-1">
+                {[...Array(MAX_MISSES)].map((_, i) => (
+                  <div key={i} className={`w-6 h-6 rounded-full ${i < MAX_MISSES - misses ? 'bg-red-500' : 'bg-gray-300'}`} />
+                ))}
+              </div>
+            </div>
+            <button onClick={() => setSoundEnabled(!soundEnabled)} className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
+              {soundEnabled ? <Volume2 size={20} /> : <VolumeX size={20} />}
+            </button>
+          </div>
+
+          <div ref={gameAreaRef} className="flex-1 relative overflow-hidden cursor-none" onPointerMove={handlePointerMove} onTouchMove={handleTouchMove} style={{ touchAction: 'none' }}>
+            <img src={ecosortLogo} alt="EcoSort" className="absolute inset-0 m-auto w-64 opacity-10 pointer-events-none select-none z-0" />
+            {fallingItems.map((item) => (
+              <div key={item.id} className="absolute transition-none" style={{ left: item.x, top: item.y, width: ITEM_SIZE, height: ITEM_SIZE }}>
+                <div className="w-full h-full bg-white rounded-2xl shadow-lg flex items-center justify-center overflow-hidden">
+                  <img src={item.itemType.image} alt={item.itemType.name} className="w-20 h-20 object-contain" />
+                </div>
+              </div>
+            ))}
+            {feedbacks.map((fb) => (
+              <div key={fb.id} className="absolute pointer-events-none animate-ping" style={{ left: fb.x, top: fb.y }}>
+                {fb.type === 'success' && <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center"><Check size={32} className="text-white" /></div>}
+                {fb.type === 'wrong' && <div className="w-16 h-16 bg-red-500 rounded-full flex items-center justify-center"><X size={32} className="text-white" /></div>}
+                {fb.type === 'miss' && <div className="w-12 h-12 bg-yellow-500 rounded-full flex items-center justify-center text-white font-bold">-2</div>}
+              </div>
+            ))}
+            <div className="absolute bottom-24" style={{ left: `${binX}%`, transform: 'translateX(-50%)' }}>
+              <img src={BIN_IMAGES[selectedBin]} alt={currentBin.labelHe} className="w-24 h-28 object-contain drop-shadow-2xl" />
+            </div>
+            <div className="absolute bottom-0 left-0 right-0 p-3 bg-white/90 backdrop-blur-sm">
+              <div className="flex justify-center gap-3">
+                {WASTE_BINS.map((bin, index) => (
+                  <button key={bin.category} onClick={() => setSelectedBin(bin.category)}
+                    className={`relative w-16 h-20 rounded-xl flex items-center justify-center transition-all ${selectedBin === bin.category ? 'scale-110 ring-4 ring-offset-2 ring-primary' : 'opacity-60 hover:opacity-100'}`}>
+                    <img src={BIN_IMAGES[bin.category]} alt={bin.labelHe} className="w-14 object-contain" />
+                    <span className="absolute -top-2 -right-2 w-6 h-6 bg-gray-800 text-white text-xs rounded-full flex items-center justify-center font-bold">{index + 1}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {gameState === 'paused' && (
+            <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+              <div className="bg-white rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl">
+                <h2 className="text-3xl font-black text-foreground mb-6">ג¸ן¸ ׳”׳₪׳¡׳§ ׳׳©׳—׳§</h2>
+                <div className="flex flex-col gap-3">
+                  <button onClick={() => setGameState('playing')} className="w-full hover:scale-105 bg-gray-200 py-4 bg-primary text rounded-xl font-bold text-lg hover:bg-primary-dark transition-colors flex items-center justify-center gap-2">
+                    <Play size={24} />׳”׳׳©׳ ׳׳©׳—׳§
+                  </button>
+                  <button onClick={startGame} className="w-full hover:scale-105 py-4 bg-gray-200 text-foreground rounded-xl font-bold text-lg hover:bg-gray-200 transition-colors flex items-center justify-center gap-2 from-primary-light to-primary-dark">
+                    <RotateCcw size={24} />׳”׳×׳—׳ ׳׳—׳“׳©
+                  </button>
+                  <button onClick={() => navigate('/')} className="w-full hover:scale-105 py-3 text-muted-foreground hover:text-foreground transition-colors">׳™׳¦׳™׳׳” ׳׳×׳₪׳¨׳™׳˜</button>
+                </div>
+              </div>
+            </div>
+          )}
+        </>
+      )}
+
+      {gameState === 'gameover' && (
+        <div className="flex-1 flex flex-col items-center justify-center p-6 gap-6">
+          <div className="text-center">
+            <div className="text-6xl mb-4">{stars === 3 ? 'נ†' : stars >= 1 ? 'ג­' : 'נ˜¢'}</div>
+            <h1 className="text-4xl font-black text-foreground mb-2">{misses >= MAX_MISSES ? '׳ ׳’׳׳¨׳• ׳”׳ ׳™׳¡׳™׳•׳ ׳•׳×!' : '׳ ׳’׳׳¨ ׳”׳–׳׳!'}</h1>
+          </div>
+          <div className="flex gap-2">
+            {[1, 2, 3].map((star) => (
+              <div key={star} className={`text-5xl transition-all duration-500 ${star <= stars ? 'scale-100' : 'scale-75 opacity-30'}`}>ג­</div>
+            ))}
+          </div>
+          <div className="bg-white rounded-2xl p-6 shadow-lg max-w-sm w-full">
+            <div className="flex items-center justify-center gap-3 mb-4">
+              <Trophy size={32} className="text-yellow-500" />
+              <p className="text-4xl font-black text-primary">{score}</p>
+              <span className="text-lg text-muted-foreground">׳ ׳§׳•׳“׳•׳×</span>
+            </div>
+            <div className="grid grid-cols-3 gap-4 text-center">
+              <div><p className="text-2xl font-bold text-green-600">{correctCatches}</p><p className="text-xs text-muted-foreground">׳×׳₪׳™׳¡׳•׳× ׳ ׳›׳•׳ ׳•׳×</p></div>
+              <div><p className="text-2xl font-bold text-red-500">{wrongCatches}</p><p className="text-xs text-muted-foreground">׳˜׳¢׳•׳™׳•׳×</p></div>
+              <div><p className="text-2xl font-bold text-yellow-600">{misses}</p><p className="text-xs text-muted-foreground">׳₪׳¡׳₪׳•׳¡׳™׳</p></div>
+            </div>
+          </div>
+          <div className="flex flex-col gap-3 w-full max-w-sm">
+            <button onClick={startGame} className="flex items-center justify-center gap-3 bg-gradient-to-r border-2 border-gray-200 from-primary to-primary-dark text-black text-xl font-bold py-5 px-8 rounded-2xl shadow-lg hover:scale-105 active:scale-95 transition-transform">
+              <RotateCcw size={28} /><span>׳©׳—׳§ ׳©׳•׳‘</span>
+            </button>
+            <button onClick={() => navigate('/')} className="flex items-center justify-center gap-3 bg-white border-2 border-gray-200 text-foreground text-lg font-medium py-4 px-8 rounded-2xl shadow-md hover:border-primary transition-colors">
+              <Home size={24} /><span>׳—׳–׳¨׳” ׳׳×׳₪׳¨׳™׳˜</span>
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+===== C:\Users\shaha\OneDrive\Desktop\AI.DOC\EcoSort\VS-ECOSORTAPP\Eco Sort App Code\src\pages\Impact.tsx =====
+import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router';
+import { Home, RotateCcw, LogOut, AlertTriangle, Trash2 } from 'lucide-react';
+import { GrowingTree } from '@/components/GrowingTree';
+import { useApp } from '@/context/AppContext';
+import { WASTE_BINS, MOTIVATION_MESSAGES } from '@/types';
+
+export default function Impact() {
+  const navigate = useNavigate();
+  const { score, sessionStats, sortingSession, validateFullSuccess, recordSuccessfulSort, resetSortingSession } = useApp();
+  const [showConfetti, setShowConfetti] = useState(false);
+  const [isFullSuccess, setIsFullSuccess] = useState(false);
+  const hasRecorded = useRef(false);
+
+  useEffect(() => {
+    if (hasRecorded.current) return;
+    const success = validateFullSuccess();
+    setIsFullSuccess(success);
+    if (success) {
+      hasRecorded.current = true;
+      recordSuccessfulSort();
+      setShowConfetti(true);
+      const timer = setTimeout(() => setShowConfetti(false), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, []);
+
+  const handleSortAnother = () => { resetSortingSession(); navigate('/camera'); };
+  const handleFinish = () => navigate('/');
+  const handleRetry = () => { resetSortingSession(); navigate('/camera'); };
+
+  const sortedCategory = sortingSession.identifiedCategory;
+  const sortedBin = sortedCategory ? WASTE_BINS.find((b) => b.category === sortedCategory) : null;
+  const motivationMessage = sortedCategory ? MOTIVATION_MESSAGES[sortedCategory] : '';
+
+  if (!isFullSuccess && !hasRecorded.current) {
+    const success = validateFullSuccess();
+    if (!success) {
+      return (
+        <div className=" bg-gradient-to-b from-yellow-100 to-orange-100 flex flex-col items-center justify-center p-6">
+          <div className="bg-white rounded-3xl p-8 max-w-sm text-center shadow-xl">
+            <div className="w-24 h-24 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <AlertTriangle size={48} className="text-yellow-600" />
+            </div>
+            <h2 className="text-2xl font-bold text-foreground mb-2">׳׳™׳¨׳¢׳” ׳©׳’׳™׳׳” ׳‘׳×׳”׳׳™׳</h2>
+            <p className="text-muted-foreground mb-6">׳׳©׳”׳• ׳”׳©׳×׳‘׳© ׳‘׳“׳¨׳. ׳‘׳•׳׳• ׳ ׳ ׳¡׳” ׳©׳•׳‘!</p>
+            <button onClick={handleRetry} className="w-full flex items-center justify-center gap-3 bg-primary text-white font-bold py-4 px-8 rounded-xl hover:bg-primary-dark transition-colors">
+              <RotateCcw size={24} /><span>׳ ׳¡׳” ׳©׳•׳‘</span>
+            </button>
+          </div>
+        </div>
+      );
+    }
+  }
+
+  return (
+    <div className=" bg-gradient-to-b from-green-100 via-emerald-50 to-white flex flex-col">
+      {showConfetti && (
+        <div className="fixed inset-0 pointer-events-none overflow-hidden z-10">
+          {[...Array(20)].map((_, i) => (
+            <div key={i} className="absolute animate-bounce"
+              style={{ left: `${Math.random() * 100}%`, top: `${Math.random() * 50}%`, animationDelay: `${Math.random() * 2}s`, animationDuration: `${2 + Math.random() * 2}s`, fontSize: `${16 + Math.random() * 16}px`, opacity: 0.6 }}>
+              {['ג­', 'נ', 'ג¨', 'נ‰', 'נ±', 'ג™»ן¸', 'נ'][i % 7]}
+            </div>
+          ))}
+        </div>
+      )}
+      <div className="p-4 flex items-center justify-between">
+        <button onClick={() => navigate('/')} className="w-12 h-12 bg-white rounded-full shadow-md flex items-center justify-center hover:bg-gray-50 transition-colors">
+          <Home size={24} className="text-gray-600" />
+        </button>
+        <div className="bg-white/90 backdrop-blur-sm px-4 py-2 rounded-full shadow-md flex items-center gap-2">
+          <span className="text-lg font-bold text-primary">{score}</span>
+          <span className="text-sm text-muted-foreground">׳ ׳§׳•׳“׳•׳×</span>
+        </div>
+      </div>
+      <div className="flex-1 flex flex-col items-center justify-center p-6 gap-6 relative z-20">
+        <div className="text-center mb-4">
+          <div className="text-6xl mb-4 animate-bounce">נ‰</div>
+          <h1 className="text-4xl font-black text-primary mb-2">׳›׳ ׳”׳›׳‘׳•׳“!</h1>
+        </div>
+        <GrowingTree score={score} animated />
+        {sortedBin && (
+          <div className="w-full max-w-sm p-6 rounded-2xl text-center shadow-lg" style={{ backgroundColor: sortedBin.bgColor }}>
+            <div className="flex items-center justify-center gap-3 mb-4">
+              <div className="w-14 h-14 rounded-xl flex items-center justify-center" style={{ backgroundColor: sortedBin.color }}>
+                <Trash2 size={28} className="text-white" />
+              </div>
+              <div className="text-right">
+                <p className="text-sm text-muted-foreground">׳׳™׳™׳ ׳× ׳‘׳”׳¦׳׳—׳”:</p>
+                <p className="text-2xl font-bold" style={{ color: sortedBin.color }}>{sortedBin.icon} {sortedBin.labelHe}</p>
+              </div>
+            </div>
+            <div className="bg-white/60 rounded-xl p-4">
+              <p className="text-foreground font-medium leading-relaxed">נ’ {motivationMessage}</p>
+            </div>
+          </div>
+        )}
+        <div className="w-full max-w-sm bg-white rounded-xl p-4 shadow-md">
+          <h3 className="font-bold text-foreground mb-3 text-center">׳”׳¡׳˜׳˜׳™׳¡׳˜׳™׳§׳” ׳©׳׳™</h3>
+          <div className="bg-gray-50 rounded-lg p-4 text-center mb-4">
+            <p className="text-4xl font-bold text-primary">{sessionStats.totalItems}</p>
+            <p className="text-sm text-muted-foreground">׳₪׳¨׳™׳˜׳™׳ ׳׳•׳™׳ ׳•</p>
+          </div>
+          <div className="flex justify-center gap-4">
+            {WASTE_BINS.map((bin) => {
+              const count = sessionStats[`${bin.category}Count` as keyof typeof sessionStats] as number;
+              return (
+                <div key={bin.category} className="flex flex-col items-center">
+                  <div className="w-10 h-10 rounded-lg flex items-center justify-center mb-1" style={{ backgroundColor: bin.bgColor }}>
+                    <span className="text-lg">{bin.icon}</span>
+                  </div>
+                  <span className="text-sm font-bold" style={{ color: bin.color }}>{count}</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+        <div className="flex flex-col gap-3 w-full max-w-sm mt-4">
+          <button onClick={handleSortAnother} className="flex items-center justify-center gap-3 bg-white border-2 border-gray-200 text-foreground text-lg font-medium py-4 px-8 rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 hover:border-primary">
+            <RotateCcw size={28} /><span>׳׳™׳™׳ ׳¢׳•׳“ ׳₪׳¨׳™׳˜</span>
+          </button>
+          <button onClick={handleFinish} className="flex items-center justify-center gap-3 bg-white border-2 border-gray-200 text-foreground text-lg font-medium py-4 px-8 rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 hover:border-primary">
+            <LogOut size={24} /><span>׳¡׳™׳™׳׳×׳™ ׳׳׳™׳™׳</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+===== C:\Users\shaha\OneDrive\Desktop\AI.DOC\EcoSort\VS-ECOSORTAPP\Eco Sort App Code\src\pages\Onboarding.tsx =====
+import { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router';
+import { Play, SkipForward, Home } from 'lucide-react';
+import binOrange from '../assets/uploads/bin-orange.svg';
+import binBlue from '../assets/uploads/bin-blue.svg';
+import binPurple from '../assets/uploads/bin-purple.svg';
+import binBrown from '../assets/uploads/bin-brown.svg';
+
+const slides = [
+  { emoji: '', titleHe: '׳”׳›׳™׳¨׳• ׳׳× ׳”׳¨׳•׳‘׳•׳˜!', descHe: '׳”׳¨׳•׳‘׳•׳˜ ׳©׳׳ ׳• ׳¢׳•׳–׳¨ ׳׳׳™׳™׳ ׳׳©׳₪׳” ׳׳₪׳—׳™׳ ׳”׳ ׳›׳•׳ ׳™׳', video: '/1rd onboarding video.mp4' },
+  { emoji: '', titleHe: '׳¦׳׳׳• ׳₪׳¨׳™׳˜', descHe: '׳¦׳׳׳• ׳׳× ׳”׳׳©׳₪׳” ׳•׳”׳׳₪׳׳™׳§׳¦׳™׳” ׳×׳–׳”׳” ׳׳׳ ׳”׳™׳ ׳©׳™׳™׳›׳×', video: '/2rd onboarding video.mp4' },
+  { emoji: '', titleHe: '׳׳©׳¨׳• ׳׳× ׳”׳׳™׳•׳', descHe: '׳‘׳“׳§׳• ׳©׳”׳׳₪׳׳™׳§׳¦׳™׳” ׳¦׳“׳§׳” ׳•׳׳—׳¦׳• ׳¢׳ ׳”׳₪׳— ׳”׳ ׳›׳•׳', video: '/3rd onboarding video.mp4' },
+  { emoji: '', titleHe: '׳©׳׳¨׳• ׳¢׳ ׳”׳¢׳•׳׳!', descHe: '׳›׳ ׳׳™׳•׳ ׳ ׳›׳•׳ ׳¢׳•׳–׳¨ ׳׳©׳׳•׳¨ ׳¢׳ ׳›׳“׳•׳¨ ׳”׳׳¨׳¥', video: '/4rd onboarding video.mp4' },
+];
+
+// 4 ׳¡׳¨׳˜׳•׳ ׳™ ׳“׳•׳’׳׳׳•׳× ׳׳™׳•׳ - ׳”׳§׳‘׳¦׳™׳ ׳ ׳׳¦׳׳™׳ ׳‘׳×׳™׳§׳™׳™׳× public/ ׳¢׳ ׳¨׳•׳•׳—׳™׳ ׳‘׳©׳ (׳‘׳“׳™׳•׳§ ׳›׳׳• ׳©׳׳¨ ׳¡׳¨׳˜׳•׳ ׳™ ׳”׳׳•׳ ׳‘׳•׳¨׳“׳™׳ ׳’)
+const wasteExamples = [
+  { id: 'plastic-bottle', titleHe: '׳‘׳§׳‘׳•׳§ ׳₪׳׳¡׳˜׳™׳§', descHe: '׳‘׳§׳‘׳•׳§ ׳₪׳׳¡׳˜׳™׳§ ׳©׳™׳™׳ ׳׳₪׳— ׳”׳›׳×׳•׳', icon: binOrange, video: '/1rd grid video orange bin.mp4' },
+  { id: 'paper', titleHe: '׳ ׳™׳™׳¨', descHe: '׳ ׳™׳™׳¨ ׳©׳™׳™׳ ׳׳₪׳— ׳”׳›׳—׳•׳', icon: binBlue, video: '/2rd grid video blue bin.mp4' },
+  { id: 'glass-jar', titleHe: '׳¦׳ ׳¦׳ ׳× ׳–׳›׳•׳›׳™׳×', descHe: '׳¦׳ ׳¦׳ ׳× ׳–׳›׳•׳›׳™׳× ׳©׳™׳™׳›׳× ׳׳₪׳— ׳”׳¡׳’׳•׳', icon: binPurple, video: '/3rd grid video purple bin.mp4' },
+  { id: 'banana-peel', titleHe: '׳§׳׳™׳₪׳× ׳‘׳ ׳ ׳”', descHe: '׳§׳׳™׳₪׳× ׳‘׳ ׳ ׳” ׳©׳™׳™׳›׳× ׳׳₪׳— ׳”׳—׳•׳', icon: binBrown, video: '/4rd gris video brown bin.mp4' },
+];
+
+export default function Onboarding() {
+  const navigate = useNavigate();
+  const [started, setStarted] = useState(false); // ׳”׳׳ ׳”׳׳©׳×׳׳© ׳›׳‘׳¨ ׳׳—׳¥ "׳”׳×׳—׳" ׳•׳¢׳‘׳¨ ׳׳× ׳׳¡׳ ׳”׳₪׳×׳™׳—׳”
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [showWasteGrid, setShowWasteGrid] = useState(false); // ׳©׳§׳£ ׳’׳¨׳™׳“ ׳“׳•׳’׳׳׳•׳× ׳”׳׳™׳•׳ - ׳׳•׳₪׳™׳¢ ׳™׳©׳™׳¨׳•׳× ׳׳—׳¨׳™ ׳”׳¡׳¨׳˜׳•׳ ׳”׳¨׳‘׳™׳¢׳™
+  const [openVideoIndex, setOpenVideoIndex] = useState<number | null>(null); // ׳׳™׳–׳” ׳›׳¨׳˜׳™׳¡ ׳‘׳’׳¨׳™׳“ ׳₪׳×׳•׳— ׳›׳¨׳’׳¢ ׳‘׳׳•׳“׳׳ ׳׳•׳’׳“׳
+  const [isVisible, setIsVisible] = useState(true); // ׳׳׳ ׳™׳׳¦׳™׳™׳× fade ׳‘׳™׳ ׳¡׳׳™׳™׳“׳™׳
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const transitionTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const TRANSITION_MS = 800;
+
+  // ׳›׳©׳¢׳•׳‘׳¨׳™׳ ׳׳¡׳׳™׳™׳“ ׳—׳“׳© (׳׳—׳¨׳™ ׳©׳”׳×׳—׳™׳׳•) - ׳׳˜׳¢׳•׳ ׳׳× ׳”׳•׳™׳“׳׳•, ׳׳”׳¨׳™׳¥ fade-in, ׳•׳׳ ׳’׳ ׳׳•׳×׳• ׳׳•׳˜׳•׳׳˜׳™׳× ׳¢׳ ׳§׳•׳
+  useEffect(() => {
+    if (!started || showWasteGrid) return;
+    const videoEl = videoRef.current;
+    if (!videoEl) return;
+
+    videoEl.muted = false;
+    videoEl.load();
+    videoEl.play().catch(() => {}); // ׳׳ ׳”׳“׳₪׳“׳₪׳ ׳—׳•׳¡׳, ׳₪׳©׳•׳˜ ׳ ׳©׳׳¨ ׳¢׳ ׳”׳₪׳¨׳™׳™׳ ׳”׳¨׳׳©׳•׳
+
+    // ׳׳׳—׳¨ ׳©׳”׳׳§׳•׳¨ ׳”׳•׳—׳׳£, ׳׳¦׳™׳’׳™׳ ׳‘׳”׳“׳¨׳’׳” (fade-in)
+    const fadeInTimeout = setTimeout(() => setIsVisible(true), 30);
+    return () => clearTimeout(fadeInTimeout);
+  }, [currentSlide, started, showWasteGrid]);
+
+  // ׳›׳ ׳™׳¡׳” ׳׳©׳§׳£ ׳”׳’׳¨׳™׳“ - ׳’׳ ׳›׳׳ ׳¦׳¨׳™׳ fade-in (׳׳™׳ ׳•׳™׳“׳׳• ׳©׳׳₪׳¢׳™׳ ׳׳•׳×׳•)
+  useEffect(() => {
+    if (!showWasteGrid) return;
+    const fadeInTimeout = setTimeout(() => setIsVisible(true), 30);
+    return () => clearTimeout(fadeInTimeout);
+  }, [showWasteGrid]);
+
+  useEffect(() => {
+    return () => {
+      if (transitionTimeoutRef.current) clearTimeout(transitionTimeoutRef.current);
+    };
+  }, []);
+
+  // ׳׳¢׳‘׳¨ ׳¨׳: ׳§׳•׳“׳ ׳“׳•׳”׳™׳ (fade-out), ׳•׳¨׳§ ׳׳׳—׳¨ ׳׳›׳ ׳׳—׳׳™׳₪׳™׳ ׳׳× ׳”׳¡׳׳™׳™׳“ ׳‘׳₪׳•׳¢׳
+  const goToSlide = (index: number) => {
+    if (index === currentSlide && !showWasteGrid) return;
+    setIsVisible(false);
+    if (transitionTimeoutRef.current) clearTimeout(transitionTimeoutRef.current);
+    transitionTimeoutRef.current = setTimeout(() => {
+      setShowWasteGrid(false);
+      setCurrentSlide(index);
+    }, TRANSITION_MS);
+  };
+
+  // ׳׳¢׳‘׳¨ ׳¨׳ ׳׳ ׳©׳§׳£ ׳’׳¨׳™׳“ ׳“׳•׳’׳׳׳•׳× ׳”׳׳™׳•׳ (׳™׳©׳™׳¨׳•׳× ׳׳—׳¨׳™ ׳”׳¡׳¨׳˜׳•׳ ׳”׳¨׳‘׳™׳¢׳™, ׳׳• ׳“׳¨׳ "׳“׳׳’")
+  const goToWasteGrid = () => {
+    if (showWasteGrid) return;
+    setIsVisible(false);
+    if (transitionTimeoutRef.current) clearTimeout(transitionTimeoutRef.current);
+    transitionTimeoutRef.current = setTimeout(() => {
+      setShowWasteGrid(true);
+    }, TRANSITION_MS);
+  };
+
+  const handleStart = () => {
+    setStarted(true);
+  };
+
+  // "׳“׳׳’" ׳׳•׳‘׳™׳ ׳™׳©׳™׳¨׳•׳× ׳׳’׳¨׳™׳“ ׳“׳•׳’׳׳׳•׳× ׳”׳׳™׳•׳
+  const handleSkip = () => {
+    if (!started) setStarted(true);
+    goToWasteGrid();
+  };
+
+  // ׳›׳₪׳×׳•׳¨ ׳§׳‘׳•׳¢: ׳—׳–׳¨׳” ׳׳“׳£ ׳”׳¨׳׳©׳™ ׳©׳ ׳”׳׳₪׳׳™׳§׳¦׳™׳”, ׳–׳׳™׳ ׳‘׳›׳ ׳׳¡׳›׳™ ׳”׳׳•׳ ׳‘׳•׳¨׳“׳™׳ ׳’
+  const handleGoHome = () => navigate('/home');
+
+  // ׳›׳©׳”׳•׳™׳“׳׳• ׳׳¡׳™׳™׳ ׳׳ ׳’׳ - ׳׳¢׳‘׳¨ ׳׳•׳˜׳•׳׳˜׳™ ׳׳¡׳׳™׳™׳“ ׳”׳‘׳, ׳•׳‘׳¡׳¨׳˜׳•׳ ׳”׳׳—׳¨׳•׳ ׳׳¢׳‘׳¨ ׳™׳©׳™׳¨ ׳׳’׳¨׳™׳“
+  const handleVideoEnded = () => {
+    if (currentSlide < slides.length - 1) {
+      goToSlide(currentSlide + 1);
+    } else {
+      goToWasteGrid();
+    }
+  };
+
+  const handleOpenWasteVideo = (index: number) => setOpenVideoIndex(index);
+  const handleCloseWasteVideo = () => setOpenVideoIndex(null);
+  const handleWasteVideoEnded = () => setOpenVideoIndex(null);
+
+  // ׳›׳₪׳×׳•׳¨ ׳§׳‘׳•׳¢ ׳‘׳×׳—׳×׳™׳× ׳”׳’׳¨׳™׳“ - ׳׳׳©׳™׳ ׳׳׳₪׳׳™׳§׳¦׳™׳” ׳¢׳¦׳׳”, ׳׳ ׳×׳׳•׳™ ׳‘׳¦׳₪׳™׳™׳” ׳‘׳׳£ ׳¡׳¨׳˜׳•׳
+  const handleGridContinue = () => navigate('/camera');
+
+  return (
+    <div className="h-dvh bg-gradient-to-b from-green-50 to-blue-50 flex flex-col">
+      <div className="p-4 flex justify-between items-center">
+        <button onClick={handleGoHome} className="flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur rounded-full shadow-md hover:bg-white transition-colors">
+          <Home size={20} className="text-muted-foreground" />
+          <span className="text-muted-foreground">׳“׳£ ׳¨׳׳©׳™</span>
+        </button>
+        <button onClick={handleSkip} className="flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur rounded-full shadow-md hover:bg-white transition-colors">
+          <span className="text-muted-foreground">׳“׳׳’</span>
+          <SkipForward size={20} className="text-muted-foreground" />
+        </button>
+      </div>
+
+      {!started ? (
+        // ׳׳¡׳ ׳₪׳×׳™׳—׳” - ׳׳ ׳•׳™׳“׳׳•, ׳¨׳§ ׳›׳₪׳×׳•׳¨ ׳”׳×׳—׳
+        <div className="flex-1 flex flex-col items-center justify-center p-6 text-center">
+          <div className="text-7xl mb-6">נ₪–ג™»ן¸</div>
+          <h1 className="text-3xl font-bold text-foreground mb-3">׳‘׳¨׳•׳›׳™׳ ׳”׳‘׳׳™׳!</h1>
+          <p className="text-muted-foreground max-w-xs mb-10">
+            ׳‘׳•׳׳• ׳ ׳¨׳׳” ׳׳›׳ ׳׳™׳ ׳”׳׳₪׳׳™׳§׳¦׳™׳” ׳¢׳•׳–׳¨׳× ׳׳›׳ ׳׳׳™׳™׳ ׳׳©׳₪׳” ׳‘׳§׳׳•׳×
+          </p>
+          <button
+            onClick={handleStart}
+            className="px-10 py-5 bg-primary text-black rounded-full shadow-lg font-bold text-xl hover:bg-green-600 transition-colors flex items-center gap-3"
+          >
+            <Play size={28} fill="currentColor" />
+            <span>׳”׳×׳—׳</span>
+          </button>
+        </div>
+      ) : showWasteGrid ? (
+        // ׳©׳§׳£ ׳’׳¨׳™׳“ ׳“׳•׳’׳׳׳•׳× ׳׳™׳•׳ - ׳™׳©׳™׳¨׳•׳× ׳׳—׳¨׳™ ׳”׳¡׳¨׳˜׳•׳ ׳”׳¨׳‘׳™׳¢׳™
+        <div
+          className={`flex-1 flex flex-col items-center p-6 min-h-0 overflow-y-auto transition-all duration-[600ms] ease-in-out ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
+        >
+          <div className="text-center mb-6 shrink-0">
+            <h2 className="text-xl font-bold text-foreground mb-1">׳“׳•׳’׳׳׳•׳× ׳׳׳™׳•׳ ׳₪׳¡׳•׳׳×</h2>
+            <p className="text-muted-foreground text-sm max-w-xs">׳׳—׳¦׳• ׳¢׳ ׳›׳ ׳›׳¨׳˜׳™׳¡ ׳›׳“׳™ ׳׳¦׳₪׳•׳× ׳‘׳“׳•׳’׳׳”</p>
+          </div>
+          <div className="grid grid-cols-2 gap-4 w-full max-w-md mb-6">
+            {wasteExamples.map((item, index) => (
+              <button
+                key={item.id}
+                onClick={() => handleOpenWasteVideo(index)}
+                className="flex flex-col items-center justify-center gap-2 p-4 bg-white rounded-3xl shadow-md hover:shadow-lg hover:scale-105 transition-all"
+              >
+                <img src={item.icon} alt={item.titleHe} className="w-20 h-20 object-contain" />
+              </button>
+            ))}
+          </div>
+          <button
+            onClick={handleGridContinue}
+            className="px-8 py-4 bg-primary text-black rounded-full shadow-lg font-bold text-lg hover:bg-green-600 transition-colors flex items-center gap-2 shrink-0"
+          >
+            <span>׳‘׳•׳׳• ׳ ׳×׳—׳™׳ ׳׳׳™׳™׳!</span><span className="text-xl"></span>
+          </button>
+        </div>
+      ) : (
+        <div className="flex-1 flex flex-col items-center p-6 min-h-0 overflow-hidden">
+          <div
+            className={`w-full max-w-lg flex-1 min-h-0 flex items-center justify-center mb-4 transition-all duration-[600ms] ease-in-out ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
+          >
+            <video
+              ref={videoRef}
+              className="max-w-full max-h-full w-auto h-auto rounded-3xl shadow-lg"
+              playsInline
+              autoPlay
+              onEnded={handleVideoEnded}
+            >
+              <source src={slides[currentSlide].video} type="video/mp4" />
+            </video>
+          </div>
+          <div className={`text-center mb-4 shrink-0 transition-all duration-[600ms] ease-in-out ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}`}>
+            <div className="text-4xl mb-2">{slides[currentSlide].emoji}</div>
+            <h2 className="text-xl font-bold text-foreground mb-1">{slides[currentSlide].titleHe}</h2>
+            <p className="text-muted-foreground text-sm max-w-xs">{slides[currentSlide].descHe}</p>
+          </div>
+          <div className="flex gap-2 mb-4 shrink-0">
+            {slides.map((_, index) => (
+              <button key={index} onClick={() => goToSlide(index)}
+                className={`w-3 h-3 rounded-full transition-all ${index === currentSlide ? 'bg-primary w-8' : 'bg-gray-300 hover:bg-gray-400'}`} />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {openVideoIndex !== null && (
+        // ׳׳•׳“׳׳ ׳׳•׳’׳“׳ ׳׳¦׳₪׳™׳™׳” ׳‘׳¡׳¨׳˜׳•׳ ׳“׳•׳’׳׳” - ׳׳—׳™׳¦׳” ׳¢׳ ׳”׳¨׳§׳¢ ׳¡׳•׳’׳¨׳× ׳׳•׳×׳•, ׳•׳’׳ ׳¡׳™׳•׳ ׳”׳¡׳¨׳˜׳•׳ ׳¡׳•׳’׳¨ ׳׳•׳×׳•
+        <div
+          className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-6"
+          onClick={handleCloseWasteVideo}
+        >
+          <div className="relative w-full max-w-2xl" onClick={(e) => e.stopPropagation()}>
+            <video
+              key={wasteExamples[openVideoIndex].id}
+              className="max-w-full max-h-[80vh] w-auto h-auto rounded-3xl shadow-lg mx-auto"
+              playsInline
+              autoPlay
+              onEnded={handleWasteVideoEnded}
+            >
+              <source src={wasteExamples[openVideoIndex].video} type="video/mp4" />
+            </video>
+            <div className="text-center mt-4">
+              <p className="text-white font-bold text-lg">{wasteExamples[openVideoIndex].titleHe}</p>
+              <p className="text-white/80 text-sm">{wasteExamples[openVideoIndex].descHe}</p>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+===== C:\Users\shaha\OneDrive\Desktop\AI.DOC\EcoSort\VS-ECOSORTAPP\Eco Sort App Code\src\pages\PasswordEntry.tsx =====
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router';
+import { ArrowRight, Lock, Eye, EyeOff, AlertCircle, X } from 'lucide-react';
+import { Logo } from '@/components/Logo';
+import { useApp } from '@/context/AppContext';
+
+const TEACHER_PASSWORD = '1234';
+
+interface PasswordModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSuccess: () => void;
+}
+
+export function PasswordModal({ isOpen, onClose, onSuccess }: PasswordModalProps) {
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState(false);
+  const [isShaking, setIsShaking] = useState(false);
+  const [attempts, setAttempts] = useState(0);
+
+  useEffect(() => {
+    if (isOpen) { setPassword(''); setError(false); setAttempts(0); }
+  }, [isOpen]);
+  useEffect(() => {
+  if (!isOpen) return;
+  const handleKeyDown = (e: KeyboardEvent) => {
+    if (e.key >= '0' && e.key <= '9') handleDigitClick(e.key);
+    else if (e.key === 'Backspace') handleDelete();
+    else if (e.key === 'Enter' && password.length === 4) handleSubmit(e as unknown as React.FormEvent);
+  };
+  window.addEventListener('keydown', handleKeyDown);
+  return () => window.removeEventListener('keydown', handleKeyDown);
+}, [isOpen, password]);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (password === TEACHER_PASSWORD) { onSuccess(); }
+    else {
+      setError(true); setIsShaking(true); setAttempts((prev) => prev + 1);
+      setTimeout(() => setIsShaking(false), 600); setPassword('');
+    }
+  };
+
+  const handleDigitClick = (digit: string) => {
+    if (password.length < 4) { setPassword((prev) => prev + digit); setError(false); }
+  };
+
+  const handleDelete = () => { setPassword((prev) => prev.slice(0, -1)); setError(false); };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+      <div className={`bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl ${isShaking ? 'animate-shake' : ''}`}>
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-2">
+            <Lock size={24} className="text-secondary" />
+            <h2 className="text-xl font-bold text-foreground">׳׳–׳•׳¨ ׳׳•׳¨׳”</h2>
+          </div>
+          <button onClick={onClose} className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors">
+            <X size={20} className="text-gray-600" />
+          </button>
+        </div>
+        <div className="flex gap-3 justify-center mb-4">
+          {[0, 1, 2, 3].map((i) => (
+            <div key={i} className={`w-14 h-14 rounded-xl border-4 flex items-center justify-center transition-all duration-200 ${password.length > i ? 'bg-secondary border-secondary' : error ? 'border-destructive bg-red-50' : 'border-gray-300 bg-white'}`}>
+              {password.length > i && (showPassword ? <span className="text-2xl font-bold text-white">{password[i]}</span> : <div className="w-4 h-4 rounded-full bg-white" />)}
+            </div>
+          ))}
+        </div>
+        {error && <div className="flex items-center justify-center gap-2 text-destructive mb-4 animate-pulse"><AlertCircle size={20} /><span className="font-medium">׳¡׳™׳¡׳׳” ׳©׳’׳•׳™׳”, ׳ ׳¡׳• ׳©׳•׳‘</span></div>}
+        {attempts >= 3 && <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-3 mb-4 text-center"><span className="text-yellow-700 text-sm">נ’¡ ׳¨׳׳–: ׳”׳§׳•׳“ ׳׳׳‘-׳˜׳™׳₪׳•׳¡ ׳”׳•׳ 1234</span></div>}
+        <button onClick={() => setShowPassword(!showPassword)} className="flex items-center justify-center gap-2 text-muted-foreground mb-4 w-full hover:text-foreground transition-colors">
+          {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+          <span className="text-sm">{showPassword ? '׳”׳¡׳×׳¨' : '׳”׳¦׳’'}</span>
+        </button>
+        <form onSubmit={handleSubmit}>
+          <div className="grid grid-cols-3 gap-2 mb-3">
+            {['1','2','3','4','5','6','7','8','9'].map((digit) => (
+              <button key={digit} type="button" onClick={() => handleDigitClick(digit)}
+                className="h-14 rounded-xl bg-gray-50 border-2 border-gray-200 text-2xl font-bold text-foreground hover:bg-gray-100 active:bg-gray-200 transition-colors">
+                {digit}
+              </button>
+            ))}
+            <button type="button" onClick={handleDelete} className="hover:scale-105 h-14 rounded-xl bg-gray-100 border-2 border-gray-200 text-base font-medium text-gray-600 hover:bg-gray-200 transition-colors">׳׳—׳§</button>
+            <button type="button" onClick={() => handleDigitClick('0')} className="h-14 rounded-xl bg-gray-50 border-2 border-gray-200 text-2xl font-bold text-foreground hover:bg-gray-100 transition-colors">0</button>
+            <button type="submit" disabled={password.length !== 4} className="h-14 rounded-xl bg-secondary text-white text-base font-bold bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors hover:scale-105">׳׳™׳©׳•׳¨</button>
+          </div>
+        </form>
+      </div>
+      <style>{`@keyframes shake { 0%, 100% { transform: translateX(0); } 10%, 30%, 50%, 70%, 90% { transform: translateX(-8px); } 20%, 40%, 60%, 80% { transform: translateX(8px); } } .animate-shake { animation: shake 0.6s ease-in-out; }`}</style>
+    </div>
+  );
+}
+
+export default function PasswordEntry() {
+  const navigate = useNavigate();
+  const { setUserLevel } = useApp();
+  const handleSuccess = () => { setUserLevel('teacher'); navigate('/dashboard'); };
+  return (
+    <div className="h-dvh bg-gradient-to-b from-blue-50 to-white flex flex-col items-center p-6">
+      <button onClick={() => navigate('/')} className="absolute top-6 right-6 w-12 h-12 bg-white rounded-full shadow-md flex items-center justify-center hover:bg-gray-50 transition-colors">
+        <ArrowRight size={24} className="text-gray-600" />
+      </button>
+      <div className="mt-12 mb-8"><Logo size="sm" /></div>
+      <PasswordModal isOpen={true} onClose={() => navigate('/')} onSuccess={handleSuccess} />
+    </div>
+  );
+}
+
+===== C:\Users\shaha\OneDrive\Desktop\AI.DOC\EcoSort\VS-ECOSORTAPP\Eco Sort App Code\src\pages\RobotControl.tsx =====
+import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router';
+import { Play, ArrowRight, Loader2, WifiOff, RefreshCw, AlertTriangle } from 'lucide-react';
+import { EmergencyStop } from '@/components/EmergencyStop';
+import { VirtualJoystick } from '@/components/VirtualJoystick';
+import { StarCounter } from '@/components/StarCounter';
+import { useApp } from '@/context/AppContext';
+import { robotAPI } from '@/utils/MockRobotAPI';
+import { WASTE_BINS } from '@/types';
+
+type RobotState = 'idle' | 'executing' | 'complete' | 'stopped' | 'disconnected' | 'emergency' | 'error';
+
+export default function RobotControl() {
+  const navigate = useNavigate();
+  const { currentImage, sortingSession, startRobotAction, completeRobotAction } = useApp();
+  const [robotStatus, setRobotStatus] = useState<string>('idle');
+  const [robotState, setRobotState] = useState<RobotState>('idle');
+  const [progress, setProgress] = useState(0);
+  const progressInterval = useRef<number | null>(null);
+
+  const targetBin = sortingSession.selectedBinCategory;
+  const selectedBin = targetBin ? WASTE_BINS.find((b) => b.category === targetBin) : null;
+
+  useEffect(() => {
+    const unsubscribe = robotAPI.subscribe((status) => setRobotStatus(status));
+    return () => { unsubscribe(); if (progressInterval.current) clearInterval(progressInterval.current); };
+  }, []);
+
+  useEffect(() => {
+    if (!currentImage || !sortingSession.binSelectionCorrect || !targetBin) navigate('/camera');
+  }, [currentImage, sortingSession, targetBin, navigate]);
+
+  const handleLaunch = async () => {
+    const robotTargetBin = startRobotAction();
+    if (!robotTargetBin) { setRobotState('error'); return; }
+    setRobotState('executing'); setProgress(0);
+    progressInterval.current = window.setInterval(() => {
+      setProgress((prev) => { if (prev >= 95) return prev; return prev + Math.random() * 15; });
+    }, 300);
+    if (Math.random() < 0.1) {
+      setTimeout(() => { if (progressInterval.current) clearInterval(progressInterval.current); completeRobotAction(false); setRobotState('disconnected'); }, 1500);
+      return;
+    }
+    const success = await robotAPI.executeFullSequence(robotTargetBin);
+    if (progressInterval.current) clearInterval(progressInterval.current);
+    if (success && robotState !== 'emergency') { setProgress(100); completeRobotAction(true); setRobotState('complete'); setTimeout(() => navigate('/impact'), 1500); }
+  };
+
+  const handleEmergencyStop = () => {
+    if (progressInterval.current) clearInterval(progressInterval.current);
+    completeRobotAction(false); setRobotState('emergency'); setRobotStatus('EMERGENCY_STOP');
+  };
+
+  if (!targetBin || !selectedBin) return null;
+
+  if (robotState === 'error') return (
+    <div className="h-dvh bg-gradient-to-b from-yellow-100 to-orange-100 flex flex-col items-center justify-center p-6">
+      <div className="bg-white rounded-3xl p-8 max-w-sm text-center shadow-xl">
+        <div className="w-24 h-24 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-6"><AlertTriangle size={48} className="text-yellow-600" /></div>
+        <h2 className="text-2xl font-bold text-foreground mb-2">׳׳™׳¨׳¢׳” ׳©׳’׳™׳׳” ׳‘׳×׳”׳׳™׳</h2>
+        <p className="text-muted-foreground mb-6">׳ ׳¡׳• ׳©׳•׳‘ ׳׳”׳”׳×׳—׳׳”</p>
+        <button onClick={() => navigate('/camera')} className="w-full flex items-center justify-center gap-3 bg-primary text-white font-bold py-4 px-8 rounded-xl hover:bg-primary-dark transition-colors">
+          <RefreshCw size={24} /><span>׳ ׳¡׳” ׳©׳•׳‘</span>
+        </button>
+      </div>
+    </div>
+  );
+
+  if (robotState === 'emergency') return (
+    <div className="h-dvh bg-red-600 flex flex-col items-center justify-center p-6">
+      <div className="text-center text-white">
+        <AlertTriangle size={80} className="mx-auto mb-6 animate-pulse" />
+        <h1 className="text-4xl font-black mb-4">׳¢׳¦׳™׳¨׳× ׳—׳™׳¨׳•׳!</h1>
+        <p className="text-xl mb-8 opacity-90">׳”׳¨׳•׳‘׳•׳˜ ׳ ׳¢׳¦׳¨</p>
+        <div className="bg-white/20 backdrop-blur rounded-2xl p-6 mb-8">
+          <div className="text-6xl mb-4">נ‘©ג€נ«</div>
+          <p className="text-lg">׳׳§׳¨׳•׳ ׳׳׳•׳¨׳” ׳׳׳™׳₪׳•׳¡</p>
+        </div>
+        <button onClick={() => navigate('/')} className="bg-white text-red-600 font-bold py-4 px-8 rounded-xl hover:bg-gray-100 transition-colors">׳—׳–׳¨׳” ׳׳׳¡׳ ׳”׳¨׳׳©׳™</button>
+      </div>
+    </div>
+  );
+
+  if (robotState === 'disconnected') return (
+    <div className="h-dvh bg-gradient-to-b from-gray-100 to-gray-200 flex flex-col items-center justify-center p-6">
+      <div className="bg-white rounded-3xl p-8 max-w-sm text-center shadow-xl">
+        <div className="w-24 h-24 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-6"><WifiOff size={48} className="text-orange-500" /></div>
+        <h2 className="text-2xl font-bold text-foreground mb-2">׳”׳§׳©׳¨ ׳¢׳ ׳”׳¨׳•׳‘׳•׳˜ ׳ ׳•׳×׳§</h2>
+        <p className="text-muted-foreground mb-6">׳‘׳•׳׳• ׳ ׳ ׳¡׳” ׳׳”׳×׳—׳‘׳¨ ׳©׳•׳‘</p>
+        <button onClick={() => { setRobotState('idle'); setProgress(0); }} className="w-full flex items-center justify-center gap-3 bg-primary text-white font-bold py-4 px-8 rounded-xl hover:bg-primary-dark transition-colors">
+          <RefreshCw size={24} /><span>׳ ׳¡׳” ׳׳”׳×׳—׳‘׳¨ ׳©׳•׳‘</span>
+        </button>
+        <button onClick={() => navigate('/camera')} className="w-full py-3 mt-3 text-muted-foreground hover:text-foreground transition-colors">׳—׳–׳¨׳” ׳׳׳¦׳׳׳”</button>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="h-dvh bg-gradient-to-b from-gray-100 to-gray-200 flex flex-col">
+      <div className="p-4 flex items-center justify-between">
+        <button onClick={() => navigate('/analysis')} disabled={robotState === 'executing'} className="w-12 h-12 bg-white rounded-full shadow-md flex items-center justify-center hover:bg-gray-50 transition-colors disabled:opacity-50">
+          <ArrowRight size={24} className="text-gray-600" />
+        </button>
+        <StarCounter />
+      </div>
+      <div className="flex-1 flex flex-col p-6 gap-6">
+        <div className="relative w-full max-w-sm mx-auto aspect-video bg-gray-800 rounded-2xl overflow-hidden shadow-lg">
+          <div className="absolute inset-0 bg-gradient-to-br from-gray-700 to-gray-900 flex items-center justify-center">
+            <div className="text-center"><span className="text-6xl">נ₪–</span><p className="text-white/60 text-sm mt-2">׳×׳¦׳•׳’׳× ׳¨׳•׳‘׳•׳˜</p></div>
+          </div>
+          <div className="absolute top-3 right-3">
+            <div className={`w-3 h-3 rounded-full ${robotState === 'executing' ? 'bg-green-500 animate-pulse' : robotState === 'complete' ? 'bg-green-500' : 'bg-yellow-500'}`} />
+          </div>
+          <div className="absolute bottom-3 left-3 right-3 py-2 px-4 rounded-xl flex items-center justify-center gap-2" style={{ backgroundColor: selectedBin.bgColor }}>
+            <span className="text-2xl">{selectedBin.icon}</span>
+            <span className="font-bold" style={{ color: selectedBin.color }}>׳™׳¢׳“: {selectedBin.labelHe}</span>
+          </div>
+        </div>
+        {robotState === 'executing' && (
+          <div className="w-full max-w-sm mx-auto">
+            <div className="h-4 bg-gray-300 rounded-full overflow-hidden">
+              <div className="h-full bg-gradient-to-r from-primary to-green-400 transition-all duration-300 rounded-full" style={{ width: `${progress}%` }} />
+            </div>
+            <p className="text-center text-sm text-muted-foreground mt-2">
+              {progress < 30 ? '׳×׳•׳₪׳¡ ׳׳× ׳”׳₪׳¨׳™׳˜...' : progress < 70 ? '׳–׳– ׳׳₪׳—...' : '׳׳©׳—׳¨׳¨...'}
+            </p>
+          </div>
+        )}
+        {robotState !== 'executing' && (
+          <div className="text-center">
+            <p className="text-sm text-muted-foreground">׳¡׳˜׳˜׳•׳¡ ׳¨׳•׳‘׳•׳˜:</p>
+            <p className="font-mono text-lg font-bold text-foreground">{robotStatus === 'idle' ? '׳׳•׳›׳' : robotStatus}</p>
+          </div>
+        )}
+        <div className="flex-1 flex flex-col items-center justify-center gap-6">
+          {robotState === 'complete' ? (
+            <div className="text-center"><div className="text-6xl mb-4 animate-bounce">נ‰</div><p className="text-xl font-bold text-primary">׳׳¢׳•׳׳”! ׳”׳₪׳¨׳™׳˜ ׳׳•׳™׳!</p></div>
+          ) : robotState === 'idle' || robotState === 'stopped' ? (
+            <button onClick={handleLaunch} className="w-48 h-48 rounded-full flex flex-col items-center justify-center gap-2 shadow-2xl bg-gradient-to-b from-primary to-primary-dark hover:scale-105 active:scale-95 transition-all duration-300 border-2">
+              <Play size={64} className="text-black" fill="black " />
+              <span className="text-black font-bold text-lg">׳©׳’׳¨!</span>
+            </button>
+          ) : robotState === 'executing' ? (
+            <div className="w-48 h-48 rounded-full bg-gray-400 flex items-center justify-center"><Loader2 size={64} className="text-white animate-spin" /></div>
+          ) : null}
+          {robotState === 'idle' && (
+            <div className="mt-4">
+              <p className="text-center text-sm text-muted-foreground mb-2">׳©׳׳™׳˜׳” ׳™׳“׳ ׳™׳×</p>
+              <VirtualJoystick disabled={false} />
+            </div>
+          )}
+        </div>
+      </div>
+      <div className="p-4 pb-8"><EmergencyStop onStop={handleEmergencyStop} /></div>
+    </div>
+  );
+}
+
+===== C:\Users\shaha\OneDrive\Desktop\AI.DOC\EcoSort\VS-ECOSORTAPP\Eco Sort App Code\src\pages\Splash.tsx =====
+import { useState } from 'react';
+import { useNavigate } from 'react-router';
+import { User, BookOpen, Gamepad2, ArrowRight } from 'lucide-react';
+import { Logo } from '@/components/Logo';
+import { useApp } from '@/context/AppContext';
+import { PasswordModal } from '@/pages/PasswordEntry';
+import { supabase } from '@/supabaseClient';
+
+export default function Splash() {
+  const navigate = useNavigate();
+  const { resetSession, setUserLevel, setStudentId } = useApp();
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [showNameModal, setShowNameModal] = useState(false);
+  const [studentName, setStudentName] = useState('');
+
+  const handleStudentClick = () => { setShowNameModal(true); };
+
+  const handleNameModalClose = () => {
+    setShowNameModal(false);
+    setStudentName('');
+  };
+
+const handleNameSubmit = async () => {
+  if (!studentName.trim()) return;
+  const { data } = await supabase.from('students').insert({ name: studentName.trim() }).select().single();
+  resetSession();
+  setUserLevel('elementary');
+  if (data) setStudentId(data.id);
+  navigate('/onboarding');
+};
+
+  const handlePasswordSuccess = () => { setShowPasswordModal(false); setUserLevel('teacher'); navigate('/dashboard'); };
+
+  return (
+    <div className="h-dvh bg-gradient-to-b from-green-50 via-blue-50 to-white flex flex-col items-center justify-center p-6">
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-10 left-10 text-6xl opacity-20 animate-bounce" style={{ animationDuration: '3s' }}>נ¿</div>
+        <div className="absolute top-20 right-10 text-5xl opacity-20 animate-bounce" style={{ animationDuration: '4s', animationDelay: '1s' }}>נ</div>
+        <div className="absolute bottom-20 left-20 text-5xl opacity-20 animate-bounce" style={{ animationDuration: '3.5s', animationDelay: '0.5s' }}>ג™»ן¸</div>
+        <div className="absolute bottom-10 right-20 text-6xl opacity-20 animate-bounce" style={{ animationDuration: '4.5s', animationDelay: '1.5s' }}>נ±</div>
+      </div>
+      <div className="relative z-10 flex flex-col items-center gap-12">
+        <Logo size="lg" />
+        <p className="text-xl text-muted-foreground text-center max-w-xs">
+          ׳‘׳•׳׳• ׳ ׳׳׳“ ׳׳׳™׳™׳ ׳׳©׳₪׳” ׳•׳׳©׳׳•׳¨ ׳¢׳ ׳›׳“׳•׳¨ ׳”׳׳¨׳¥!
+        </p>
+        <div className="flex flex-col gap-4 w-full max-w-xs">
+          <button onClick={handleStudentClick} className="flex items-center justify-between bg-gradient-to-r from-green-300 to-green-500 text-white text-xl font-bold py-6 px-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 active:scale-95">
+            <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center"><User size={36} /></div>
+            <span className="ml-20">׳×׳׳׳™׳“</span>
+          </button>
+          <button onClick={() => navigate('/game')} className="flex items-center justify-between bg-gradient-to-r from-purple-300 to-pink-500 text-white text-xl font-bold py-6 px-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 active:scale-95">
+            <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center"><Gamepad2 size={36} /></div>
+            <span className="ml-10">׳׳׳©׳—׳§ ׳×׳¨׳’׳•׳</span>
+          </button>
+          <button onClick={() => setShowPasswordModal(true)} className="flex items-center justify-between bg-gradient-to-r from-blue-300 to-blue-600 text-white text-xl font-bold py-6 px-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 active:scale-95">
+            <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center"><BookOpen size={36} /></div>
+            <span className="ml-20">׳׳•׳¨׳”</span>
+          </button>
+        </div>
+      </div>
+      <div className="absolute bottom-6 text-sm text-muted-foreground">EcoSort v1.0 - ׳׳׳¢׳ ׳¢׳×׳™׳“ ׳™׳¨׳•׳§ ׳™׳•׳×׳¨ נ</div>
+      <PasswordModal isOpen={showPasswordModal} onClose={() => setShowPasswordModal(false)} onSuccess={handlePasswordSuccess} />
+      {showNameModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl relative">
+            <button
+              onClick={handleNameModalClose}
+              className="absolute top-4 right-4 w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
+              aria-label="׳—׳–׳¨׳”"
+            >
+              <ArrowRight size={20} className="text-gray-600" />
+            </button>
+            <div className="text-5xl mb-4">נ‘₪</div>
+            <h2 className="text-2xl font-black text-foreground mb-6">׳׳” ׳”׳©׳ ׳©׳׳?</h2>
+            <input
+              type="text"
+              value={studentName}
+              onChange={(e) => setStudentName(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleNameSubmit()}
+              placeholder="׳›׳×׳•׳‘ ׳׳× ׳©׳׳ ׳›׳׳"
+              className="w-full text-center text-xl border-2 border-gray-200 rounded-xl py-4 px-6 mb-6 focus:outline-none focus:border-primary"
+              autoFocus
+            />
+            <button
+              onClick={handleNameSubmit}
+              className="w-full bg-green-500 text-white text-xl font-bold py-4 rounded-2xl hover:bg-green-600 transition-colors">
+              ׳‘׳•׳׳• ׳ ׳×׳—׳™׳! נ¿
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+===== C:\Users\shaha\OneDrive\Desktop\AI.DOC\EcoSort\VS-ECOSORTAPP\Eco Sort App Code\src\pages\Summary.tsx =====
+import { useNavigate } from 'react-router';
+import { Home, RotateCcw, Trophy, TreeDeciduous, Trash2 } from 'lucide-react';
+import { Logo } from '@/components/Logo';
+import { useApp } from '@/context/AppContext';
+import { WASTE_BINS } from '@/types';
+
+export default function Summary() {
+  const navigate = useNavigate();
+  const { score, sessionStats, resetSession } = useApp();
+  const handleNewSession = () => { resetSession(); navigate('/'); };
+  const handleContinue = () => navigate('/camera');
+
+  return (
+    <div className="h-dvh bg-gradient-to-b from-blue-50 via-green-50 to-white flex flex-col">
+      <div className="p-6 text-center"><Logo size="sm" /></div>
+      <div className="flex-1 flex flex-col items-center p-6 gap-6">
+        <div className="text-center">
+          <div className="text-6xl mb-4">נ†</div>
+          <h1 className="text-3xl font-black text-foreground mb-2">׳¡׳™׳›׳•׳ ׳”׳׳™׳•׳</h1>
+          <p className="text-muted-foreground">׳›׳ ׳”׳›׳‘׳•׳“ ׳¢׳ ׳”׳¢׳‘׳•׳“׳”!</p>
+        </div>
+        <div className="w-full max-w-sm bg-gradient-to-br from-yellow-100 to-orange-100 rounded-2xl p-6 shadow-lg">
+          <div className="flex items-center justify-center gap-4">
+            <Trophy size={48} className="text-yellow-600" />
+            <div className="text-center">
+              <p className="text-sm text-yellow-700">׳”׳ ׳™׳§׳•׳“ ׳©׳׳</p>
+              <p className="text-5xl font-black text-yellow-600">{score}</p>
+              <p className="text-yellow-700">׳ ׳§׳•׳“׳•׳×</p>
+            </div>
+          </div>
+        </div>
+        <div className="w-full max-w-sm bg-white rounded-xl p-6 shadow-md text-center">
+          <Trash2 size={36} className="mx-auto text-primary mb-3" />
+          <p className="text-4xl font-bold text-foreground">{sessionStats.totalItems}</p>
+          <p className="text-muted-foreground">׳₪׳¨׳™׳˜׳™׳ ׳׳•׳™׳ ׳•</p>
+        </div>
+        <div className="w-full max-w-sm bg-white rounded-xl p-5 shadow-md">
+          <h3 className="font-bold text-foreground mb-4 text-center">׳₪׳™׳¨׳•׳˜ ׳׳₪׳™ ׳¡׳•׳’׳™׳</h3>
+          <div className="flex flex-col gap-3">
+            {WASTE_BINS.map((bin) => {
+              const count = sessionStats[`${bin.category}Count` as keyof typeof sessionStats] as number;
+              const percentage = sessionStats.totalItems > 0 ? Math.round(count / sessionStats.totalItems * 100) : 0;
+              return (
+                <div key={bin.category} className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ backgroundColor: bin.color }}>
+                    <Trash2 size={24} className="text-white" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex justify-between mb-1">
+                      <span className="font-medium text-foreground">{bin.labelHe}</span>
+                      <span className="font-bold" style={{ color: bin.color }}>{count}</span>
+                    </div>
+                    <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                      <div className="h-full rounded-full transition-all duration-500" style={{ width: `${percentage}%`, backgroundColor: bin.color }} />
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+        <div className="w-full max-w-sm bg-gradient-to-br from-green-100 to-emerald-100 rounded-xl p-5 shadow-md">
+          <div className="flex items-center gap-3 mb-3">
+            <TreeDeciduous size={32} className="text-green-600" />
+            <h3 className="font-bold text-green-800">׳”׳”׳©׳₪׳¢׳” ׳©׳׳ ׳¢׳ ׳”׳¡׳‘׳™׳‘׳”</h3>
+          </div>
+          <p className="text-green-700 leading-relaxed">נ ׳”׳׳™׳•׳ ׳©׳׳ ׳¢׳–׳¨ ׳׳©׳׳•׳¨ ׳¢׳ ׳›׳“׳•׳¨ ׳”׳׳¨׳¥! ׳›׳ ׳₪׳¨׳™׳˜ ׳©׳׳׳•׳™׳ ׳™׳ ׳ ׳›׳•׳ ׳׳₪׳—׳™׳× ׳–׳™׳”׳•׳ ׳•׳¢׳•׳–׳¨ ׳׳™׳¦׳•׳¨ ׳׳•׳¦׳¨׳™׳ ׳—׳“׳©׳™׳.</p>
+        </div>
+        <div className="flex flex-col gap-3 w-full max-w-sm mt-4">
+          <button onClick={handleContinue} className="flex items-center justify-center gap-3 bg-gradient-to-r from-primary to-primary-dark text-white text-xl font-bold py-5 px-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 active:scale-95">
+            <RotateCcw size={28} /><span>׳”׳׳©׳ ׳׳׳™׳™׳</span>
+          </button>
+          <button onClick={handleNewSession} className="flex items-center justify-center gap-3 bg-white border-2 border-gray-200 text-foreground text-lg font-medium py-4 px-8 rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 hover:border-primary">
+            <Home size={24} /><span>׳¡׳™׳•׳ ׳•׳”׳×׳—׳׳” ׳׳—׳“׳©</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+===== C:\Users\shaha\OneDrive\Desktop\AI.DOC\EcoSort\VS-ECOSORTAPP\Eco Sort App Code\src\pages\TeacherDashboard.tsx =====
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router';
+import { LogOut, Settings, Users, BarChart3, Sliders, RefreshCw, Check, AlertTriangle, Loader2, Gamepad2, Trophy, Star } from 'lucide-react';
+import { Logo } from '@/components/Logo';
+import { useApp } from '@/context/AppContext';
+import { WASTE_BINS } from '@/types';
+import { supabase } from '@/supabaseClient';
+
+type CalibrationStatus = 'idle' | 'calibrating' | 'success' | 'error';
+type MotorError = { motor: number; message: string } | null;
+
+interface Student { name: string; total_score: number; total_items: number; }
+interface SortEvent { correct_bin: string; is_correct: boolean; }
+interface GameScore { score: number; correct_catches: number; wrong_catches: number; misses: number; stars: number; played_at: string; }
+interface DashboardStats { totalStudents: number; totalItemsSorted: number; accuracy: number; }
+interface GameStats { totalGames: number; avgScore: number; avgStars: number; topScore: number; }
+
+export default function TeacherDashboard() {
+  const navigate = useNavigate();
+  const { setUserLevel, resetSession } = useApp();
+  const [activeTab, setActiveTab] = useState<'stats' | 'game' | 'settings'>('stats');
+  const [robotCalibration, setRobotCalibration] = useState({ speed: 50, precision: 75, gripForce: 60 });
+  const [calibrationStatus, setCalibrationStatus] = useState<CalibrationStatus>('idle');
+  const [motorError, setMotorError] = useState<MotorError>(null);
+  const [sessionResetConfirm, setSessionResetConfirm] = useState(false);
+  const [stats, setStats] = useState<DashboardStats>({ totalStudents: 0, totalItemsSorted: 0, accuracy: 0 });
+  const [leaderboard, setLeaderboard] = useState<Student[]>([]);
+  const [binStats, setBinStats] = useState<Record<string, number>>({});
+  const [gameStats, setGameStats] = useState<GameStats>({ totalGames: 0, avgScore: 0, avgStars: 0, topScore: 0 });
+  const [gameScores, setGameScores] = useState<GameScore[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => { fetchData(); }, []);
+
+  const fetchData = async () => {
+    setLoading(true);
+    const { data: students } = await supabase.from('students').select('name, total_score, total_items');
+    const { data: sortEvents } = await supabase.from('sort_events').select('correct_bin, is_correct');
+    const { data: scores } = await supabase.from('game_scores').select('*').order('played_at', { ascending: false });
+
+    if (students) {
+      const sorted = [...students].sort((a, b) => b.total_score - a.total_score);
+      setLeaderboard(sorted.slice(0, 5));
+      setStats(prev => ({ ...prev, totalStudents: students.length }));
+    }
+
+    if (sortEvents) {
+      const total = sortEvents.length;
+      const correct = sortEvents.filter((e: SortEvent) => e.is_correct).length;
+      const accuracy = total > 0 ? Math.round(correct / total * 100) : 0;
+      const binCounts: Record<string, number> = {};
+      sortEvents.forEach((e: SortEvent) => { binCounts[e.correct_bin] = (binCounts[e.correct_bin] || 0) + 1; });
+      setStats(prev => ({ ...prev, totalItemsSorted: total, accuracy }));
+      setBinStats(binCounts);
+    }
+
+    if (scores && scores.length > 0) {
+      setGameScores(scores);
+      const avgScore = Math.round(scores.reduce((a: number, b: GameScore) => a + b.score, 0) / scores.length);
+      const avgStars = Math.round(scores.reduce((a: number, b: GameScore) => a + b.stars, 0) / scores.length * 10) / 10;
+      const topScore = Math.max(...scores.map((s: GameScore) => s.score));
+      setGameStats({ totalGames: scores.length, avgScore, avgStars, topScore });
+    }
+
+    setLoading(false);
+  };
+
+  const handleLogout = () => { setUserLevel(null); navigate('/'); };
+
+  const handleSaveCalibration = async () => {
+    setCalibrationStatus('calibrating'); setMotorError(null);
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+    if (Math.random() < 0.85) {
+      setCalibrationStatus('success');
+      setTimeout(() => setCalibrationStatus('idle'), 3000);
+    } else {
+      const motorNum = Math.floor(Math.random() * 4) + 1;
+      setMotorError({ motor: motorNum, message: `׳׳ ׳•׳¢ ${motorNum} ׳׳ ׳׳’׳™׳‘, ׳‘׳“׳§׳• ׳—׳™׳‘׳•׳¨׳™ ׳—׳©׳׳ ׳₪׳™׳–׳™׳™׳` });
+      setCalibrationStatus('error');
+    }
+  };
+
+  const handleSessionReset = () => {
+    if (!sessionResetConfirm) { setSessionResetConfirm(true); return; }
+    resetSession(); setSessionResetConfirm(false);
+  };
+
+  const totalBinEvents = Object.values(binStats).reduce((a, b) => a + b, 0);
+
+  return (
+    <div className="h-dvh bg-gray-50">
+      <div className="bg-white shadow-sm">
+        <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
+          <Logo size="sm" />
+          <h1 className="text-xl font-bold text-foreground">׳׳•׳— ׳‘׳§׳¨׳” - ׳׳•׳¨׳”</h1>
+          <button onClick={handleLogout} className="hover:scale-105 flex items-center gap-2 px-4 py-2 text-muted-foreground hover:text-foreground transition-colors">
+            <LogOut size={20} /><span>׳™׳¦׳™׳׳”</span>
+          </button>
+        </div>
+      </div>
+      <div className="max-w-4xl mx-auto px-4 mt-6">
+        <div className="flex gap-2 mb-6 flex-wrap">
+          <button onClick={() => setActiveTab('stats')} className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-colors border border-gray-1000 hover:bg-gray-100 ${activeTab === 'stats' ? 'bg-primary text-black' : 'border border-gray-300 bg-white text-muted-foreground hover:bg-gray-300'}`}>
+            <BarChart3 size={20} /><span>׳׳™׳•׳</span>
+          </button>
+          <button onClick={() => setActiveTab('game')} className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-colors border border-gray-1000 hover:bg-gray-100 ${activeTab === 'game' ? 'bg-primary text-black' : 'border border-gray-300 bg-white text-muted-foreground hover:bg-gray-300'}`}>
+            <Gamepad2 size={20} /><span>׳׳©׳—׳§</span>
+          </button>
+        </div>
+
+        {activeTab === 'stats' && (
+          <div className="flex flex-col gap-6">
+            {loading ? (
+              <div className="flex items-center justify-center py-20">
+                <Loader2 size={40} className="animate-spin text-primary" />
+              </div>
+            ) : (
+              <>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  <div className="bg-white rounded-xl p-4 shadow-sm">
+                    <div className="flex items-center gap-2 text-muted-foreground mb-2"><Users size={20} /><span className="text-sm">׳×׳׳׳™׳“׳™׳</span></div>
+                    <p className="text-3xl font-bold">{stats.totalStudents}</p>
+                  </div>
+                  <div className="bg-white rounded-xl p-4 shadow-sm">
+                    <div className="flex items-center gap-2 text-muted-foreground mb-2"><RefreshCw size={20} /><span className="text-sm">׳₪׳¨׳™׳˜׳™׳ ׳׳•׳™׳ ׳•</span></div>
+                    <p className="text-3xl font-bold text-primary">{stats.totalItemsSorted}</p>
+                  </div>
+                  <div className="bg-white rounded-xl p-4 shadow-sm">
+                    <div className="flex items-center gap-2 text-muted-foreground mb-2"><Check size={20} /><span className="text-sm">׳“׳™׳•׳§ ׳׳™׳•׳</span></div>
+                    <p className="text-3xl font-bold text-green-600">{stats.accuracy}%</p>
+                  </div>
+                </div>
+                <div className="bg-white rounded-xl p-6 shadow-sm">
+                  <h3 className="font-bold text-foreground mb-4">׳”׳×׳₪׳׳’׳•׳× ׳׳₪׳™ ׳§׳˜׳’׳•׳¨׳™׳”</h3>
+                  <div className="flex flex-col gap-3">
+                    {WASTE_BINS.map((bin) => {
+                      const count = binStats[bin.category] || 0;
+                      const percentage = totalBinEvents > 0 ? Math.round(count / totalBinEvents * 100) : 0;
+                      return (
+                        <div key={bin.category} className="flex items-center gap-3">
+                          <span className="text-2xl w-8">{bin.icon}</span>
+                          <span className="w-20 text-sm font-medium" style={{ color: bin.color }}>{bin.labelHe}</span>
+                          <div className="flex-1 h-6 bg-gray-100 rounded-full overflow-hidden">
+                            <div className="h-full rounded-full transition-all duration-500" style={{ width: `${percentage}%`, backgroundColor: bin.color }} />
+                          </div>
+                          <span className="text-sm font-bold text-muted-foreground w-12">{percentage}%</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+                <div className="bg-white rounded-xl p-6 shadow-sm">
+                  <h3 className="font-bold text-foreground mb-4">נ† ׳׳•׳— ׳׳•׳‘׳™׳׳™׳</h3>
+                  {leaderboard.length === 0 ? (
+                    <p className="text-muted-foreground text-center py-4">׳׳™׳ ׳ ׳×׳•׳ ׳™׳ ׳¢׳“׳™׳™׳</p>
+                  ) : (
+                    <div className="flex flex-col gap-2">
+                      {leaderboard.map((student, index) => (
+                        <div key={student.name} className={`flex items-center gap-4 p-3 rounded-lg ${index === 0 ? 'bg-yellow-50' : index === 1 ? 'bg-gray-50' : index === 2 ? 'bg-orange-50' : 'bg-white'}`}>
+                          <span className="text-2xl w-8 text-center">{index === 0 ? 'נ¥‡' : index === 1 ? 'נ¥ˆ' : index === 2 ? 'נ¥‰' : `${index + 1}.`}</span>
+                          <span className="flex-1 font-medium">{student.name}</span>
+                          <span className="text-sm text-muted-foreground">{student.total_items} ׳₪׳¨׳™׳˜׳™׳</span>
+                          <span className="font-bold text-primary">{student.total_score} ׳ ׳§׳•׳“׳•׳×</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
+          </div>
+        )}
+
+        {activeTab === 'game' && (
+          <div className="flex flex-col gap-6">
+            {loading ? (
+              <div className="flex items-center justify-center py-20">
+                <Loader2 size={40} className="animate-spin text-primary" />
+              </div>
+            ) : (
+              <>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="bg-white rounded-xl p-4 shadow-sm">
+                    <div className="flex items-center gap-2 text-muted-foreground mb-2"><Gamepad2 size={20} /><span className="text-sm">׳׳©׳—׳§׳™׳</span></div>
+                    <p className="text-3xl font-bold">{gameStats.totalGames}</p>
+                  </div>
+                  <div className="bg-white rounded-xl p-4 shadow-sm">
+                    <div className="flex items-center gap-2 text-muted-foreground mb-2"><BarChart3 size={20} /><span className="text-sm">׳׳׳•׳¦׳¢ ׳ ׳™׳§׳•׳“</span></div>
+                    <p className="text-3xl font-bold text-primary">{gameStats.avgScore}</p>
+                  </div>
+                  <div className="bg-white rounded-xl p-4 shadow-sm">
+                    <div className="flex items-center gap-2 text-muted-foreground mb-2"><Star size={20} /><span className="text-sm">׳׳׳•׳¦׳¢ ׳›׳•׳›׳‘׳™׳</span></div>
+                    <p className="text-3xl font-bold text-yellow-500">{gameStats.avgStars}ג­</p>
+                  </div>
+                  <div className="bg-white rounded-xl p-4 shadow-sm">
+                    <div className="flex items-center gap-2 text-muted-foreground mb-2"><Trophy size={20} /><span className="text-sm">׳©׳™׳</span></div>
+                    <p className="text-3xl font-bold text-green-600">{gameStats.topScore}</p>
+                  </div>
+                </div>
+                <div className="bg-white rounded-xl p-6 shadow-sm">
+                  <h3 className="font-bold text-foreground mb-4">׳×׳•׳¦׳׳•׳× ׳׳—׳¨׳•׳ ׳•׳×</h3>
+                  {gameScores.length === 0 ? (
+                    <p className="text-muted-foreground text-center py-4">׳׳™׳ ׳ ׳×׳•׳ ׳™׳ ׳¢׳“׳™׳™׳</p>
+                  ) : (
+                    <div className="flex flex-col gap-2">
+                      {gameScores.slice(0, 10).map((game, index) => (
+                        <div key={index} className="flex items-center gap-4 p-3 bg-gray-50 rounded-lg">
+                          <span className="text-lg">{[...Array(game.stars)].map((_, i) => <span key={i}>ג­</span>)}{[...Array(3 - game.stars)].map((_, i) => <span key={i}>ג˜†</span>)}</span>
+                          <span className="flex-1 font-bold text-primary">{game.score} ׳ ׳§׳•׳“׳•׳×</span>
+                          <span className="text-sm text-green-600">{game.correct_catches} ג“</span>
+                          <span className="text-sm text-red-500">{game.wrong_catches} ג—</span>
+                          <span className="text-sm text-muted-foreground">{new Date(game.played_at).toLocaleDateString('he-IL')}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
+          </div>
+        )}
+
+        {activeTab === 'settings' && (
+          <div className="flex flex-col gap-6">
+            <div className="bg-white rounded-xl p-6 shadow-sm">
+              <div className="flex items-center gap-2 mb-6"><Sliders size={24} className="text-primary" /><h3 className="font-bold text-foreground">׳›׳™׳•׳ ׳¨׳•׳‘׳•׳˜</h3></div>
+              {motorError && (
+                <div className="bg-red-50 border-2 border-red-200 rounded-xl p-4 mb-6">
+                  <div className="flex items-start gap-3">
+                    <AlertTriangle size={24} className="text-red-500 flex-shrink-0" />
+                    <div>
+                      <h4 className="font-bold text-red-700">׳©׳’׳™׳׳” ׳˜׳›׳ ׳™׳×</h4>
+                      <p className="text-red-600 mt-1">{motorError.message}</p>
+                      <button onClick={() => { setMotorError(null); setCalibrationStatus('idle'); }} className="mt-3 px-4 py-2 bg-red-100 text-red-700 rounded-lg font-medium hover:bg-red-200 transition-colors">׳ ׳¡׳” ׳©׳•׳‘</button>
+                    </div>
+                  </div>
+                </div>
+              )}
+              {calibrationStatus === 'success' && (
+                <div className="bg-green-50 border-2 border-green-200 rounded-xl p-4 mb-6">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center"><Check size={24} className="text-white" /></div>
+                    <div><h4 className="font-bold text-green-700">׳›׳™׳•׳ ׳”׳•׳©׳׳ ׳‘׳”׳¦׳׳—׳”!</h4><p className="text-green-600 text-sm">׳”׳¨׳•׳‘׳•׳˜ ׳׳•׳›׳ ׳׳₪׳¢׳•׳׳”</p></div>
+                  </div>
+                </div>
+              )}
+              <div className="flex flex-col gap-6">
+                {[{ key: 'speed', label: '׳׳”׳™׳¨׳•׳× ׳×׳ ׳•׳¢׳”', min: '׳׳™׳˜׳™', max: '׳׳”׳™׳¨' }, { key: 'precision', label: '׳“׳™׳•׳§ ׳׳™׳§׳•׳', min: '', max: '' }, { key: 'gripForce', label: '׳¢׳•׳¦׳׳× ׳׳—׳™׳–׳”', min: '׳¢׳“׳™׳', max: '׳—׳–׳§' }].map(({ key, label, min, max }) => (
+                  <div key={key}>
+                    <div className="flex justify-between mb-2">
+                      <label className="font-medium text-foreground">{label}</label>
+                      <span className="text-primary font-bold">{robotCalibration[key as keyof typeof robotCalibration]}%</span>
+                    </div>
+                    <input type="range" min="10" max="100" value={robotCalibration[key as keyof typeof robotCalibration]}
+                      onChange={(e) => setRobotCalibration(prev => ({ ...prev, [key]: Number(e.target.value) }))}
+                      disabled={calibrationStatus === 'calibrating'}
+                      className="w-full h-3 bg-gray-200 rounded-full appearance-none cursor-pointer accent-primary disabled:opacity-50" />
+                    {(min || max) && <div className="flex justify-between text-xs text-muted-foreground mt-1"><span>{min}</span><span>{max}</span></div>}
+                  </div>
+                ))}
+              </div>
+              <button onClick={handleSaveCalibration} disabled={calibrationStatus === 'calibrating' || calibrationStatus === 'success'}
+                className={`mt-6 w-full py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2 ${calibrationStatus === 'success' ? 'bg-green-500 text-white' : calibrationStatus === 'calibrating' ? 'bg-gray-300 text-gray-500 cursor-wait' : 'bg-primary text-white hover:bg-primary-dark'}`}>
+                {calibrationStatus === 'calibrating' ? <><Loader2 size={20} className="animate-spin" /><span>׳׳›׳™׳™׳...</span></> : calibrationStatus === 'success' ? <><Check size={20} /><span>׳ ׳©׳׳¨!</span></> : <span>׳©׳׳•׳¨ ׳”׳’׳“׳¨׳•׳×</span>}
+              </button>
+            </div>
+            <div className="bg-white rounded-xl p-6 shadow-sm">
+              <h3 className="font-bold text-foreground mb-4">׳׳₪׳©׳¨׳•׳™׳•׳× ׳ ׳•׳¡׳₪׳•׳×</h3>
+              {sessionResetConfirm && (
+                <div className="bg-yellow-50 border-2 border-yellow-200 rounded-xl p-4 mb-4">
+                  <p className="text-yellow-800 font-medium">ג ן¸ ׳”׳׳ ׳׳×׳ ׳‘׳˜׳•׳—׳™׳? ׳₪׳¢׳•׳׳” ׳–׳• ׳×׳׳—׳§ ׳׳× ׳›׳ ׳”׳ ׳×׳•׳ ׳™׳ ׳©׳ ׳”׳™׳•׳.</p>
+                </div>
+              )}
+              <div className="flex gap-3">
+                <button onClick={handleSessionReset} className={`flex-1 py-3 rounded-xl font-bold transition-colors ${sessionResetConfirm ? 'bg-destructive text-white hover:bg-red-600' : 'border-2 border-destructive text-destructive hover:bg-red-50'}`}>
+                  {sessionResetConfirm ? '׳׳₪׳¡ ׳¡׳•׳₪׳™׳×!' : '׳׳₪׳¡ ׳ ׳×׳•׳ ׳™ ׳”׳™׳•׳'}
+                </button>
+                {sessionResetConfirm && (
+                  <button onClick={() => setSessionResetConfirm(false)} className="flex-1 py-3 rounded-xl border-2 border-gray-300 text-gray-600 font-bold hover:bg-gray-50 transition-colors">׳‘׳™׳˜׳•׳</button>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+      <div className="text-center py-8 text-sm text-muted-foreground">EcoSort ׳’׳¨׳¡׳× ׳׳•׳¨׳” v1.0</div>
+    </div>
+  );
+}
+
+===== C:\Users\shaha\OneDrive\Desktop\AI.DOC\EcoSort\VS-ECOSORTAPP\Eco Sort App Code\src\types\index.ts =====
+export type UserLevel = 'kindergarten' | 'elementary' | 'teacher';
+
+export type WasteCategory = 'plastic' | 'paper' | 'glass' | 'organic';
+
+export interface WasteBin {
+  category: WasteCategory;
+  color: string;
+  bgColor: string;
+  icon: string;
+  labelHe: string;
+}
+
+export const WASTE_BINS: WasteBin[] = [
+  { category: 'plastic', color: '#F97316', bgColor: '#FED7AA', icon: 'נ§´', labelHe: '׳₪׳׳¡׳˜׳™׳§' },
+  { category: 'paper', color: '#3B82F6', bgColor: '#BFDBFE', icon: 'נ“„', labelHe: '׳ ׳™׳™׳¨' },
+  { category: 'glass', color: '#8B5CF6', bgColor: '#DDD6FE', icon: 'נ«™', labelHe: '׳–׳›׳•׳›׳™׳×' },
+  { category: 'organic', color: '#92400E', bgColor: '#FDE68A', icon: 'נ', labelHe: '׳׳•׳¨׳’׳ ׳™' },
+];
+
+export const MOTIVATION_MESSAGES: Record<WasteCategory, string> = {
+  paper: '׳׳—׳–׳•׳¨ ׳ ׳™׳™׳¨ ׳¢׳•׳–׳¨ ׳׳©׳׳•׳¨ ׳¢׳ ׳”׳™׳¢׳¨׳•׳× ׳•׳”׳˜׳‘׳¢',
+  plastic: '׳׳—׳–׳•׳¨ ׳₪׳׳¡׳˜׳™׳§ ׳׳₪׳—׳™׳× ׳–׳™׳”׳•׳ ׳•׳©׳•׳׳¨ ׳¢׳ ׳”׳¡׳‘׳™׳‘׳”',
+  glass: '׳׳—׳–׳•׳¨ ׳–׳›׳•׳›׳™׳× ׳—׳•׳¡׳ ׳׳ ׳¨׳’׳™׳” ׳•׳©׳•׳׳¨ ׳¢׳ ׳›׳“׳•׳¨ ׳”׳׳¨׳¥',
+  organic: '׳”׳₪׳¨׳“׳× ׳₪׳¡׳•׳׳× ׳׳•׳¨׳’׳ ׳™׳× ׳׳׳₪׳©׳¨׳× ׳™׳¦׳™׳¨׳× ׳§׳•׳׳₪׳•׳¡׳˜ ׳•׳©׳׳™׳¨׳” ׳¢׳ ׳”׳¡׳‘׳™׳‘׳”',
+};
+
+export interface SortingSession {
+  identifiedCategory: WasteCategory | null;
+  identificationConfirmed: boolean;
+  selectedBinCategory: WasteCategory | null;
+  binSelectionCorrect: boolean;
+  robotTargetBin: WasteCategory | null;
+  robotActionCompleted: boolean;
+  isFullSuccess: boolean;
+}
+
+export interface SortingResult {
+  category: WasteCategory;
+  timestamp: Date;
+  success: boolean;
+}
+
+export interface SessionStats {
+  totalItems: number;
+  successfulSorts: number;
+  plasticCount: number;
+  paperCount: number;
+  glassCount: number;
+  organicCount: number;
+}
+
+===== C:\Users\shaha\OneDrive\Desktop\AI.DOC\EcoSort\VS-ECOSORTAPP\Eco Sort App Code\src\utils\MockRobotAPI.ts =====
+import type { WasteCategory } from '@/types';
+
+const COLORS: Record<WasteCategory, string> = {
+  plastic: 'ORANGE',
+  paper: 'BLUE',
+  glass: 'PURPLE',
+  organic: 'GREEN',
+};
+
+class MockRobotAPI {
+  private isMoving = false;
+  private listeners: ((status: string) => void)[] = [];
+
+  private log(command: string) {
+    console.log(`%cנ₪– ROBOT COMMAND: ${command}`, 'color: #22C55E; font-weight: bold; font-size: 14px;');
+    this.notifyListeners(command);
+  }
+
+  subscribe(callback: (status: string) => void) {
+    this.listeners.push(callback);
+    return () => {
+      this.listeners = this.listeners.filter(l => l !== callback);
+    };
+  }
+
+  private notifyListeners(status: string) {
+    this.listeners.forEach(l => l(status));
+  }
+
+  async scanItem(): Promise<void> {
+    this.log('SCAN_ITEM');
+    await this.delay(500);
+  }
+
+  async moveToBin(category: WasteCategory): Promise<void> {
+    if (this.isMoving) { console.warn('Robot is already moving!'); return; }
+    this.isMoving = true;
+    this.log(`MOVE_TO_BIN_${COLORS[category]}`);
+    await this.delay(2000);
+    this.isMoving = false;
+  }
+
+  async gripItem(): Promise<void> {
+    this.log('GRIP_ITEM');
+    await this.delay(800);
+  }
+
+  async releaseGripper(): Promise<void> {
+    this.log('RELEASE_GRIPPER');
+    await this.delay(500);
+  }
+
+  emergencyStop(): void {
+    this.log('ג ן¸ EMERGENCY_STOP ג ן¸');
+    this.isMoving = false;
+  }
+
+  async executeFullSequence(category: WasteCategory): Promise<boolean> {
+    try {
+      this.log('SEQUENCE_START');
+      await this.gripItem();
+      await this.moveToBin(category);
+      await this.releaseGripper();
+      this.log('SEQUENCE_COMPLETE');
+      return true;
+    } catch (error) {
+      this.log('SEQUENCE_ERROR');
+      return false;
+    }
+  }
+
+  moveArm(direction: 'up' | 'down' | 'left' | 'right'): void {
+    this.log(`MANUAL_MOVE_${direction.toUpperCase()}`);
+  }
+
+  private delay(ms: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+}
+
+export const robotAPI = new MockRobotAPI();
+
+===== C:\Users\shaha\OneDrive\Desktop\AI.DOC\EcoSort\VS-ECOSORTAPP\Eco Sort App Code\src\App.tsx =====
+import { Routes, Route } from 'react-router';
+import Splash from '@/pages/Splash';
+import Onboarding from '@/pages/Onboarding';
+import Camera from '@/pages/Camera';
+import Analysis from '@/pages/Analysis';
+import RobotControl from '@/pages/RobotControl';
+import Impact from '@/pages/Impact';
+
+import TeacherDashboard from '@/pages/TeacherDashboard';
+import Game from '@/pages/Game';
+
+export default function App() {
+  return (
+    <Routes>
+      <Route path="/" element={<Splash />} />
+      <Route path="/onboarding" element={<Onboarding />} />
+      <Route path="/camera" element={<Camera />} />
+      <Route path="/analysis" element={<Analysis />} />
+      <Route path="/robot" element={<RobotControl />} />
+      <Route path="/impact" element={<Impact />} />
+
+      <Route path="/game" element={<Game />} />
+      <Route path="/dashboard" element={<TeacherDashboard />} />
+    </Routes>
+  );
+}
+
+===== C:\Users\shaha\OneDrive\Desktop\AI.DOC\EcoSort\VS-ECOSORTAPP\Eco Sort App Code\src\main.tsx =====
+import { StrictMode } from 'react'
+import { createRoot } from 'react-dom/client'
+import { BrowserRouter } from 'react-router'
+import { AppProviders } from './providers'
+import App from './App'
+import './index.css'
+
+createRoot(document.getElementById('root')!).render(
+  <StrictMode>
+    <BrowserRouter>
+      <AppProviders>
+        <App />
+      </AppProviders>
+    </BrowserRouter>
+  </StrictMode>,
+)
+
+===== C:\Users\shaha\OneDrive\Desktop\AI.DOC\EcoSort\VS-ECOSORTAPP\Eco Sort App Code\src\providers.tsx =====
+import { type ReactNode } from 'react';
+import { AppProvider } from '@/context/AppContext';
+
+export function AppProviders({ children }: { children: ReactNode }) {
+  return <AppProvider>{children}</AppProvider>;
+}
+
+===== C:\Users\shaha\OneDrive\Desktop\AI.DOC\EcoSort\VS-ECOSORTAPP\Eco Sort App Code\src\supabaseClient.ts =====
+import { createClient } from '@supabase/supabase-js'
+
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
+const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+
+export const supabase = createClient(supabaseUrl, supabaseKey)
+

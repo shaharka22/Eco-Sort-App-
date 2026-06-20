@@ -43,17 +43,20 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    // הנחיה ל-Claude: לסווג בדיוק לאחת מ-4 הקטגוריות, או null אם לא בטוח
-    const systemPrompt = `אתה עוזר לאפליקציה חינוכית למיון אשפה לילדים. תפקידך לזהות את חומר הפסולת בתמונה ולמיין אותו לאחת מהקטגוריות הבאות בלבד:
+    // הנחיה ל-Claude: לסווג בדיוק לאחת מ-4 הקטגוריות, או null אם לא בטוח, ותמיד לתאר מה נראה בתמונה
+    const systemPrompt = `אתה עוזר לאפליקציה חינוכית למיון אשפה לילדים. תפקידך לזהות את הפריט בתמונה ולמיין אותו לאחת מהקטגוריות הבאות בלבד:
 - plastic (בקבוקי פלסטיק, אריזות פלסטיק, שקיות פלסטיק)
 - paper (נייר, קרטון, עיתונים)
 - glass (בקבוקי זכוכית, צנצנות זכוכית)
 - organic (שאריות מזון, קליפות פירות וירקות, עלים)
 
 החזר תשובה בפורמט JSON בלבד, ללא טקסט נוסף, בדיוק במבנה הזה:
-{"category": "plastic" | "paper" | "glass" | "organic" | null, "confidence": "high" | "medium" | "low"}
+{"category": "plastic" | "paper" | "glass" | "organic" | null, "confidence": "high" | "medium" | "low", "itemDescription": "string"}
 
-אם אינך בטוח מה רואה בתמונה, או שהפריט לא שייך לאף אחת מ-4 הקטגוריות, החזר category: null.`;
+itemDescription: תיאור קצר בעברית (2-4 מילים) של מה שאתה רואה בתמונה, גם אם זה לא שייך לאף קטגוריה. לדוגמה: "עציץ עם צמח", "בקבוק מים", "כלב", "שולחן עץ".
+
+אם הפריט לא שייך לאף אחת מ-4 הקטגוריות (כלומר זה לא פסולת לדוגמה: צמח, בעל חיים, רהיט, אדם), החזר category: null אך עדיין תאר מה ראית ב-itemDescription.
+אם אינך בטוח כלל מה אתה רואה בתמונה (תמונה מטושטשת, חשוכה, או לא ברורה), החזר category: null ו-itemDescription: "לא ברור מהתמונה".`;
 
     const anthropicResponse = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
@@ -103,14 +106,15 @@ Deno.serve(async (req: Request) => {
 
     // מנקה גדרות markdown (```json ... ```) למקרה ש-Claude מוסיף אותן בכל זאת
     const cleanText = rawText.replace(/```json|```/g, "").trim();
+    console.log("Claude raw response:", rawText);
 
-    let parsed: { category: WasteCategory | null; confidence?: string };
+    let parsed: { category: WasteCategory | null; confidence?: string; itemDescription?: string };
     try {
       parsed = JSON.parse(cleanText);
     } catch {
       console.error("Failed to parse Claude response as JSON:", rawText);
       return new Response(
-        JSON.stringify({ category: null, confidence: "low" }),
+        JSON.stringify({ category: null, confidence: "low", itemDescription: null }),
         { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -121,7 +125,11 @@ Deno.serve(async (req: Request) => {
       : null;
 
     return new Response(
-      JSON.stringify({ category, confidence: parsed.confidence ?? "medium" }),
+      JSON.stringify({
+        category,
+        confidence: parsed.confidence ?? "medium",
+        itemDescription: parsed.itemDescription ?? null,
+      }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (err) {

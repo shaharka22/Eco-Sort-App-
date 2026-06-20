@@ -6,6 +6,7 @@ import { StarCounter } from '@/components/StarCounter';
 import { useApp } from '@/context/AppContext';
 import { WASTE_BINS, type WasteCategory } from '@/types';
 import { supabase } from '@/supabaseClient';
+import { identifyWaste } from '@/lib/identifyWaste';
 
 type AnalysisStep = 'scanning' | 'confirm_identification' | 'select_bin' | 'not_identified';
 
@@ -16,45 +17,49 @@ export default function Analysis() {
   const [selectedBinLocal, setSelectedBinLocal] = useState<WasteCategory | null>(null);
   const [showBinError, setShowBinError] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [notIdentifiedDescription, setNotIdentifiedDescription] = useState<string | null>(null);
 
   useEffect(() => { if (!currentImage) navigate('/camera'); }, [currentImage, navigate]);
 
-  const generateRandomCategory = (): WasteCategory => {
-    const categories: WasteCategory[] = ['plastic', 'paper', 'glass', 'organic'];
-    return categories[Math.floor(Math.random() * categories.length)];
-  };
-
-  const handleScanComplete = () => {
-    if (Math.random() < 0.1) { setStep('not_identified'); }
-    else { const category = generateRandomCategory(); setIdentifiedCategory(category); setStep('confirm_identification'); }
+  const handleScanComplete = async () => {
+    if (!currentImage) return;
+    const result = await identifyWaste(currentImage);
+    if (!result.category) {
+      setNotIdentifiedDescription(result.itemDescription);
+      setStep('not_identified');
+    } else {
+      setIdentifiedCategory(result.category);
+      setStep('confirm_identification');
+    }
   };
 
   const handleConfirmIdentification = (isCorrect: boolean) => {
     if (isCorrect) { confirmIdentification(); setStep('select_bin'); }
     else {
       setStep('scanning');
-      setTimeout(() => { const category = generateRandomCategory(); setIdentifiedCategory(category); setStep('confirm_identification'); }, 2000);
+      setTimeout(() => { handleScanComplete(); }, 500);
     }
   };
 
   const handleBinSelect = async (category: WasteCategory) => {
-  if (isSuccess || showBinError) return;
-  setSelectedBinLocal(category);
-  const isCorrect = selectBin(category);
-  if (isCorrect) {
-    setIsSuccess(true);
-    await supabase.from('sort_events').insert({
-      item_name: identifiedBin?.labelHe,
-      correct_bin: sortingSession.identifiedCategory,
-      chosen_bin: category,
-      is_correct: true,
-    });
-    setTimeout(() => navigate('/robot'), 1500);
-  } else {
-    setShowBinError(true);
-    setTimeout(() => { setSelectedBinLocal(null); setShowBinError(false); }, 1500);
-  }
-};
+    if (isSuccess || showBinError) return;
+    setSelectedBinLocal(category);
+    const isCorrect = selectBin(category);
+    if (isCorrect) {
+      setIsSuccess(true);
+      await supabase.from('sort_events').insert({
+        item_name: identifiedBin?.labelHe,
+        correct_bin: sortingSession.identifiedCategory,
+        chosen_bin: category,
+        is_correct: true,
+      });
+      setTimeout(() => navigate('/robot'), 1500);
+    } else {
+      setShowBinError(true);
+      setTimeout(() => { setSelectedBinLocal(null); setShowBinError(false); }, 1500);
+    }
+  };
+
   const identifiedBin = sortingSession.identifiedCategory ? WASTE_BINS.find((b) => b.category === sortingSession.identifiedCategory) : null;
 
   if (!currentImage) return null;
@@ -92,8 +97,17 @@ export default function Analysis() {
             </div>
             <div className="bg-yellow-50 border-2 border-yellow-300 rounded-2xl p-6 text-center mb-6">
               <div className="text-5xl mb-4">🤔</div>
-              <h3 className="text-xl font-bold text-yellow-800 mb-2">לא הצלחתי לזהות את האובייקט</h3>
-              <p className="text-yellow-700">נסו לצלם שוב מזווית אחרת</p>
+              {notIdentifiedDescription && notIdentifiedDescription !== 'לא ברור מהתמונה' ? (
+                <>
+                  <h3 className="text-xl font-bold text-yellow-800 mb-2">זיהיתי {notIdentifiedDescription}</h3>
+                  <p className="text-yellow-700">זה לא נראה כמו פריט פסולת. נסו לצלם פריט אחר למיון</p>
+                </>
+              ) : (
+                <>
+                  <h3 className="text-xl font-bold text-yellow-800 mb-2">לא הצלחתי לזהות את האובייקט</h3>
+                  <p className="text-yellow-700">נסו לצלם שוב מזווית אחרת</p>
+                </>
+              )}
             </div>
             <button onClick={() => { setCurrentImage(null); navigate('/camera'); }}
               className="w-full flex items-center justify-center border-2 border-black-300 gap-3 bg-primary text-black font-bold py-5 px-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 active:scale-95">

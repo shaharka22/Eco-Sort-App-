@@ -9,11 +9,13 @@ import type { WasteCategory } from '@/types';
 export interface IdentifyWasteResult {
   category: WasteCategory | null;
   confidence: 'high' | 'medium' | 'low';
+  itemDescription: string | null;
 }
 
 /**
  * שולח תמונה (data URL כמו שיוצא מ-canvas.toDataURL) ל-Edge Function לזיהוי.
- * מחזיר category=null אם הזיהוי נכשל או שה-AI לא היה בטוח.
+ * מחזיר category=null אם הזיהוי נכשל, או אם הפריט שזוהה אינו אחת מ-4 קטגוריות הפסולת.
+ * במקרה הזה itemDescription מכיל תיאור קצר של מה שכן זוהה בתמונה.
  */
 export async function identifyWaste(imageDataUrl: string): Promise<IdentifyWasteResult> {
   try {
@@ -22,7 +24,7 @@ export async function identifyWaste(imageDataUrl: string): Promise<IdentifyWaste
     const match = imageDataUrl.match(/^data:(image\/\w+);base64,(.+)$/);
     if (!match) {
       console.error('identifyWaste: unexpected image data URL format');
-      return { category: null, confidence: 'low' };
+      return { category: null, confidence: 'low', itemDescription: null };
     }
     const [, mediaType, imageBase64] = match;
 
@@ -32,15 +34,16 @@ export async function identifyWaste(imageDataUrl: string): Promise<IdentifyWaste
 
     if (error) {
       console.error('identifyWaste: edge function error', error);
-      return { category: null, confidence: 'low' };
+      return { category: null, confidence: 'low', itemDescription: null };
     }
 
     return {
       category: data?.category ?? null,
       confidence: data?.confidence ?? 'low',
+      itemDescription: data?.itemDescription ?? null,
     };
   } catch (err) {
     console.error('identifyWaste: unexpected error', err);
-    return { category: null, confidence: 'low' };
+    return { category: null, confidence: 'low', itemDescription: null };
   }
 }
