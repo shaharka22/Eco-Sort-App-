@@ -3,10 +3,10 @@ import { useNavigate } from 'react-router';
 import { Play, SkipForward, ChevronLeft, ChevronRight, Home } from 'lucide-react';
 
 const slides = [
-  { titleHe: 'הכירו את הרובוט!', descHe: 'הרובוט שלנו עוזר למיין אשפה לפחים הנכונים', video: '/1rd onboarding video.mp4' },
-  { titleHe: 'צלמו פריט', descHe: 'צלמו את האשפה והאפליקציה תזהה לאן היא שייכת', video: '/2rd onboarding video.mp4' },
-  { titleHe: 'אשרו את המיון', descHe: 'בדקו שהאפליקציה צדקה ולחצו על הפח הנכון', video: '/3rd onboarding video.mp4' },
-  { titleHe: 'שמרו על העולם!', descHe: 'כל מיון נכון עוזר לשמור על כדור הארץ', video: '/4rd onboarding video.mp4' },
+  {emoji: '', titleHe: 'הכירו את הרובוט!', descHe: 'הרובוט שלנו עוזר למיין אשפה לפחים הנכונים', video: '/1rd onboarding video.mp4' },
+  {emoji: '', titleHe: 'צלמו פריט', descHe: 'צלמו את האשפה והאפליקציה תזהה לאן היא שייכת', video: '/2rd onboarding video.mp4' },
+  {emoji: '', titleHe: 'אשרו את המיון', descHe: 'בדקו שהאפליקציה צדקה ולחצו על הפח הנכון', video: '/3rd onboarding video.mp4' },
+  {emoji: '', titleHe: 'שמרו על העולם!', descHe: 'כל מיון נכון עוזר לשמור על כדור הארץ', video: '/4rd onboarding video.mp4' },
 ];
 
 export default function Onboarding() {
