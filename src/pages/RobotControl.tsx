@@ -111,57 +111,71 @@ export default function RobotControl() {
         </button>
         <StarCounter />
       </div>
-      <div className="flex-1 flex flex-col p-4 gap-3 min-h-0">
-        <div className="relative w-full max-w-sm mx-auto aspect-video bg-gray-800 rounded-2xl overflow-hidden shadow-lg shrink-0">
-          {povVideo ? (
-            <video
-              key={povVideo}
-              className="absolute inset-0 w-full h-full object-cover"
-              src={povVideo}
-              autoPlay
-              loop
-              muted
-              playsInline
-            />
-          ) : (
-            <div className="absolute inset-0 bg-gradient-to-br from-gray-700 to-gray-900 flex items-center justify-center">
-              <div className="text-center"><span className="text-6xl">🤖</span><p className="text-white/60 text-sm mt-2">תצוגת רובוט</p></div>
+
+      {robotState === 'complete' ? (
+        // מסך הצלחה - כרטיס מרכזי מעוצב במקום ריק עם justify-center
+        <div className="flex-1 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl shadow-2xl p-8 max-w-sm w-full text-center bg-gradient-to-b from-green-50 to-emerald-100 border-2 border-green-200">
+            <div className="text-8xl mb-4 animate-bounce">🎉</div>
+            <h2 className="text-3xl font-black text-primary mb-2">מעולה!</h2>
+            <p className="text-lg text-foreground font-medium">הפריט מוין בהצלחה</p>
+            <div className="mt-6 flex items-center justify-center gap-2 py-3 px-4 rounded-xl" style={{ backgroundColor: selectedBin.bgColor }}>
+              <span className="text-2xl">{selectedBin.icon}</span>
+              <span className="font-bold" style={{ color: selectedBin.color }}>{selectedBin.labelHe}</span>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="flex-1 flex flex-col p-4 gap-3 min-h-0">
+          <div className="relative w-full max-w-sm mx-auto aspect-video bg-gray-800 rounded-2xl overflow-hidden shadow-lg shrink-0">
+            {povVideo ? (
+              <video
+                key={povVideo}
+                className="absolute inset-0 w-full h-full object-cover"
+                src={povVideo}
+                autoPlay
+                loop
+                muted
+                playsInline
+              />
+            ) : (
+              <div className="absolute inset-0 bg-gradient-to-br from-gray-700 to-gray-900 flex items-center justify-center">
+                <div className="text-center"><span className="text-6xl">🤖</span><p className="text-white/60 text-sm mt-2">תצוגת רובוט</p></div>
+              </div>
+            )}
+            <div className="absolute top-3 right-3">
+              <div className={`w-3 h-3 rounded-full ${robotState === 'executing' ? 'bg-green-500 animate-pulse' : 'bg-yellow-500'}`} />
+            </div>
+          </div>
+          {robotState === 'executing' && (
+            <div className="w-full max-w-sm mx-auto shrink-0">
+              <div className="h-3 bg-gray-300 rounded-full overflow-hidden">
+                <div className="h-full bg-gradient-to-r from-primary to-green-400 transition-all duration-300 rounded-full" style={{ width: `${progress}%` }} />
+              </div>
+              <p className="text-center text-sm text-muted-foreground mt-1">
+                {progress < 30 ? 'תופס את הפריט...' : progress < 70 ? 'זז לפח...' : 'משחרר...'}
+              </p>
             </div>
           )}
-          <div className="absolute top-3 right-3">
-            <div className={`w-3 h-3 rounded-full ${robotState === 'executing' ? 'bg-green-500 animate-pulse' : robotState === 'complete' ? 'bg-green-500' : 'bg-yellow-500'}`} />
-          </div>
-        </div>
-        {robotState === 'executing' && (
-          <div className="w-full max-w-sm mx-auto shrink-0">
-            <div className="h-3 bg-gray-300 rounded-full overflow-hidden">
-              <div className="h-full bg-gradient-to-r from-primary to-green-400 transition-all duration-300 rounded-full" style={{ width: `${progress}%` }} />
+          {robotState !== 'executing' && (
+            <div className="text-center shrink-0">
+              <p className="text-sm text-muted-foreground">סטטוס רובוט:</p>
+              <p className="font-mono text-base font-bold text-foreground">{robotStatus === 'idle' ? 'מוכן' : robotStatus}</p>
             </div>
-            <p className="text-center text-sm text-muted-foreground mt-1">
-              {progress < 30 ? 'תופס את הפריט...' : progress < 70 ? 'זז לפח...' : 'משחרר...'}
-            </p>
+          )}
+          <div className="flex-1 flex flex-col items-center justify-center gap-3 min-h-0">
+            {robotState === 'idle' || robotState === 'stopped' ? (
+              <button onClick={handleLaunch} className="w-32 h-32 rounded-full flex flex-col items-center justify-center gap-1 shadow-2xl bg-gradient-to-b from-primary to-primary-dark hover:scale-105 active:scale-95 transition-all duration-300 border-2">
+                <Play size={48} className="text-black" fill="black " />
+                <span className="text-black font-bold text-base">שגר!</span>
+              </button>
+            ) : robotState === 'executing' ? (
+              <div className="w-32 h-32 rounded-full bg-gray-400 flex items-center justify-center"><Loader2 size={48} className="text-white animate-spin" /></div>
+            ) : null}
           </div>
-        )}
-        {robotState !== 'executing' && (
-          <div className="text-center shrink-0">
-            <p className="text-sm text-muted-foreground">סטטוס רובוט:</p>
-            <p className="font-mono text-base font-bold text-foreground">{robotStatus === 'idle' ? 'מוכן' : robotStatus}</p>
-          </div>
-        )}
-        <div className="flex-1 flex flex-col items-center justify-center gap-3 min-h-0">
-          {robotState === 'complete' ? (
-            <div className="text-center"><div className="text-5xl mb-2 animate-bounce">🎉</div><p className="text-lg font-bold text-primary">מעולה! הפריט מוין!</p></div>
-          ) : robotState === 'idle' || robotState === 'stopped' ? (
-            <button onClick={handleLaunch} className="w-32 h-32 rounded-full flex flex-col items-center justify-center gap-1 shadow-2xl bg-gradient-to-b from-primary to-primary-dark hover:scale-105 active:scale-95 transition-all duration-300 border-2">
-              <Play size={48} className="text-black" fill="black " />
-              <span className="text-black font-bold text-base">שגר!</span>
-            </button>
-          ) : robotState === 'executing' ? (
-            <div className="w-32 h-32 rounded-full bg-gray-400 flex items-center justify-center"><Loader2 size={48} className="text-white animate-spin" /></div>
-          ) : null}
+          <div className="max-w-sm mx-auto w-full shrink-0"><EmergencyStop onStop={handleEmergencyStop} /></div>
         </div>
-        <div className="max-w-sm mx-auto w-full shrink-0"><EmergencyStop onStop={handleEmergencyStop} /></div>
-      </div>
+      )}
     </div>
   );
 }

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
-import { ArrowRight, Camera, AlertCircle, Check, X, Trash2 } from 'lucide-react';
+import { ArrowRight, Camera, AlertCircle, Check, X, Trash2, ListChecks } from 'lucide-react';
 import { ScanAnimation } from '@/components/ScanAnimation';
 import { StarCounter } from '@/components/StarCounter';
 import { useApp } from '@/context/AppContext';
@@ -18,6 +18,7 @@ export default function Analysis() {
   const [showBinError, setShowBinError] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [notIdentifiedDescription, setNotIdentifiedDescription] = useState<string | null>(null);
+  const [showManualPicker, setShowManualPicker] = useState(false);
 
   useEffect(() => { if (!currentImage) navigate('/camera'); }, [currentImage, navigate]);
 
@@ -26,6 +27,7 @@ export default function Analysis() {
     const result = await identifyWaste(currentImage);
     if (!result.category) {
       setNotIdentifiedDescription(result.itemDescription);
+      setShowManualPicker(false);
       setStep('not_identified');
     } else {
       setIdentifiedCategory(result.category);
@@ -39,6 +41,13 @@ export default function Analysis() {
       setStep('scanning');
       setTimeout(() => { handleScanComplete(); }, 500);
     }
+  };
+
+  // בחירה ידנית של קטגוריה - למקרה שאין פריט פסולת אמיתי זמין לצילום, ממשיכים בדיוק כמו זיהוי אוטומטי
+  const handleManualCategorySelect = (category: WasteCategory) => {
+    setIdentifiedCategory(category);
+    setShowManualPicker(false);
+    setStep('confirm_identification');
   };
 
   const handleBinSelect = async (category: WasteCategory) => {
@@ -90,7 +99,7 @@ export default function Analysis() {
         {step === 'not_identified' && (
           <div className="w-full max-w-sm">
             <div className="relative rounded-2xl overflow-hidden shadow-xl mb-3">
-              <img src={currentImage} alt="פריט שצולם" className="w-full max-h-[50vh] aspect-square object-cover" />
+              <img src={currentImage} alt="פריט שצולם" className="w-full max-h-[40vh] aspect-square object-cover" />
               <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
                 <div className="bg-white rounded-full p-3"><AlertCircle size={36} className="text-yellow-500" /></div>
               </div>
@@ -109,10 +118,16 @@ export default function Analysis() {
                 </>
               )}
             </div>
-            <button onClick={() => { setCurrentImage(null); navigate('/camera'); }}
-              className="w-full flex items-center justify-center border-2 border-black-300 gap-2 bg-primary text-black font-bold py-3 px-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 active:scale-95">
-              <Camera size={20} /><span>צלם שוב</span>
-            </button>
+            <div className="flex flex-col gap-2">
+              <button onClick={() => { setCurrentImage(null); navigate('/camera'); }}
+                className="w-full flex items-center justify-center border-2 border-black-300 gap-2 bg-primary text-black font-bold py-3 px-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 active:scale-95">
+                <Camera size={20} /><span>צלם שוב</span>
+              </button>
+              <button onClick={() => setShowManualPicker(true)}
+                className="w-full flex items-center justify-center gap-2 bg-white border-2 border-gray-200 text-foreground font-medium py-3 px-6 rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 hover:border-primary">
+                <ListChecks size={20} /><span>לא מצאתי פריט? בחר קטגוריה</span>
+              </button>
+            </div>
           </div>
         )}
         {step === 'confirm_identification' && identifiedBin && (
@@ -197,6 +212,41 @@ export default function Analysis() {
           </div>
         )}
       </div>
+
+      {showManualPicker && (
+        // מודאל בחירת קטגוריה ידנית - צף מעל התוכן, לא תלוי במקום בעמוד
+        <div
+          className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
+          onClick={() => setShowManualPicker(false)}
+        >
+          <div
+            className="bg-white rounded-3xl p-5 w-full max-w-sm shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <p className="text-base font-bold text-foreground text-center mb-4">בחרו באיזו קטגוריה לתרגל:</p>
+            <div className="grid grid-cols-2 gap-3">
+              {WASTE_BINS.map((bin) => (
+                <button
+                  key={bin.category}
+                  onClick={() => handleManualCategorySelect(bin.category)}
+                  className="flex flex-col items-center justify-center gap-1 p-4 rounded-xl transition-all hover:scale-105 active:scale-95"
+                  style={{ backgroundColor: bin.bgColor }}
+                >
+                  <span className="text-3xl">{bin.icon}</span>
+                  <span className="text-sm font-bold" style={{ color: bin.color }}>{bin.labelHe}</span>
+                </button>
+              ))}
+            </div>
+            <button
+              onClick={() => setShowManualPicker(false)}
+              className="w-full mt-4 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              ביטול
+            </button>
+          </div>
+        </div>
+      )}
+
       <style>{`@keyframes shake { 0%, 100% { transform: translateX(0) rotate(0deg); } 10%, 30%, 50%, 70%, 90% { transform: translateX(-4px) rotate(-1deg); } 20%, 40%, 60%, 80% { transform: translateX(4px) rotate(1deg); } } .animate-shake { animation: shake 0.5s ease-in-out; }`}</style>
     </div>
   );
