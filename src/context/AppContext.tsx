@@ -25,6 +25,8 @@ interface AppContextType {
   toggleSound: () => void;
   studentId: number | null;
   setStudentId: (id: number | null) => void;
+  studentName: string | null;
+  setStudentName: (name: string | null) => void;
 }
 
 const initialStats: SessionStats = {
@@ -49,6 +51,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [sortingHistory, setSortingHistory] = useState<SortingResult[]>([]);
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [studentId, setStudentId] = useState<number | null>(null);
+  const [studentName, setStudentName] = useState<string | null>(null);
 
   const addScore = useCallback((points: number) => setScore(prev => prev + points), []);
 
@@ -116,7 +119,7 @@ const recordSuccessfulSort = useCallback(() => {
 }, [sortingSession, studentId]);
 
   const resetSortingSession = useCallback(() => { setSortingSession(initialSortingSession); setCurrentImage(null); }, []);
-  const resetSession = useCallback(() => { setScore(0); setSessionStats(initialStats); setSortingHistory([]); setSortingSession(initialSortingSession); setCurrentImage(null); setStudentId(null); }, []);
+  const resetSession = useCallback(() => { setScore(0); setSessionStats(initialStats); setSortingHistory([]); setSortingSession(initialSortingSession); setCurrentImage(null); setStudentId(null); setStudentName(null); }, []);
   const toggleSound = useCallback(() => setSoundEnabled(prev => !prev), []);
 
   const value: AppContextType = {
@@ -125,7 +128,7 @@ const recordSuccessfulSort = useCallback(() => {
     startRobotAction, completeRobotAction, validateFullSuccess,
     sessionStats, sortingHistory, recordSuccessfulSort,
     resetSortingSession, resetSession, soundEnabled, toggleSound,
-    studentId, setStudentId,
+    studentId, setStudentId, studentName, setStudentName,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

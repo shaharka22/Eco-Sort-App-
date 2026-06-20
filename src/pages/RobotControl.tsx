@@ -2,13 +2,20 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router';
 import { Play, ArrowRight, Loader2, WifiOff, RefreshCw, AlertTriangle } from 'lucide-react';
 import { EmergencyStop } from '@/components/EmergencyStop';
-import { VirtualJoystick } from '@/components/VirtualJoystick';
 import { StarCounter } from '@/components/StarCounter';
 import { useApp } from '@/context/AppContext';
 import { robotAPI } from '@/utils/MockRobotAPI';
-import { WASTE_BINS } from '@/types';
+import { WASTE_BINS, type WasteCategory } from '@/types';
 
 type RobotState = 'idle' | 'executing' | 'complete' | 'stopped' | 'disconnected' | 'emergency' | 'error';
+
+// וידאו מנקודת מבט הרובוט לכל קטגוריית פסולת - מציג את הרובוט תופס את הפריט ושם אותו בפח המתאים
+const ROBOT_POV_VIDEOS: Record<WasteCategory, string> = {
+  plastic: '/pov_orange.mp4',
+  paper: '/pov_blue.mp4',
+  glass: '/pov_purple.mp4',
+  organic: '/pov_brown.mp4',
+};
 
 export default function RobotControl() {
   const navigate = useNavigate();
@@ -20,6 +27,7 @@ export default function RobotControl() {
 
   const targetBin = sortingSession.selectedBinCategory;
   const selectedBin = targetBin ? WASTE_BINS.find((b) => b.category === targetBin) : null;
+  const povVideo = targetBin ? ROBOT_POV_VIDEOS[targetBin] : null;
 
   useEffect(() => {
     const unsubscribe = robotAPI.subscribe((status) => setRobotStatus(status));
@@ -96,57 +104,64 @@ export default function RobotControl() {
   );
 
   return (
-    <div className="h-dvh bg-gradient-to-b from-gray-100 to-gray-200 flex flex-col">
-      <div className="p-4 flex items-center justify-between">
-        <button onClick={() => navigate('/analysis')} disabled={robotState === 'executing'} className="w-12 h-12 bg-white rounded-full shadow-md flex items-center justify-center hover:bg-gray-50 transition-colors disabled:opacity-50">
-          <ArrowRight size={24} className="text-gray-600" />
+    <div className="h-dvh bg-gradient-to-b from-gray-100 to-gray-200 flex flex-col overflow-hidden">
+      <div className="p-3 flex items-center justify-between shrink-0">
+        <button onClick={() => navigate('/analysis')} disabled={robotState === 'executing'} className="w-10 h-10 bg-white rounded-full shadow-md flex items-center justify-center hover:bg-gray-50 transition-colors disabled:opacity-50">
+          <ArrowRight size={20} className="text-gray-600" />
         </button>
         <StarCounter />
       </div>
-      <div className="flex-1 flex flex-col p-6 gap-6">
-        <div className="relative w-full max-w-sm mx-auto aspect-video bg-gray-800 rounded-2xl overflow-hidden shadow-lg">
-          <div className="absolute inset-0 bg-gradient-to-br from-gray-700 to-gray-900 flex items-center justify-center">
-            <div className="text-center"><span className="text-6xl">🤖</span><p className="text-white/60 text-sm mt-2">תצוגת רובוט</p></div>
-          </div>
+      <div className="flex-1 flex flex-col p-4 gap-3 min-h-0">
+        <div className="relative w-full max-w-sm mx-auto aspect-video bg-gray-800 rounded-2xl overflow-hidden shadow-lg shrink-0">
+          {povVideo ? (
+            <video
+              key={povVideo}
+              className="absolute inset-0 w-full h-full object-cover"
+              src={povVideo}
+              autoPlay
+              loop
+              muted
+              playsInline
+            />
+          ) : (
+            <div className="absolute inset-0 bg-gradient-to-br from-gray-700 to-gray-900 flex items-center justify-center">
+              <div className="text-center"><span className="text-6xl">🤖</span><p className="text-white/60 text-sm mt-2">תצוגת רובוט</p></div>
+            </div>
+          )}
           <div className="absolute top-3 right-3">
             <div className={`w-3 h-3 rounded-full ${robotState === 'executing' ? 'bg-green-500 animate-pulse' : robotState === 'complete' ? 'bg-green-500' : 'bg-yellow-500'}`} />
           </div>
-          <div className="absolute bottom-3 left-3 right-3 py-2 px-4 rounded-xl flex items-center justify-center gap-2" style={{ backgroundColor: selectedBin.bgColor }}>
-            <span className="text-2xl">{selectedBin.icon}</span>
-            <span className="font-bold" style={{ color: selectedBin.color }}>יעד: {selectedBin.labelHe}</span>
-          </div>
         </div>
         {robotState === 'executing' && (
-          <div className="w-full max-w-sm mx-auto">
-            <div className="h-4 bg-gray-300 rounded-full overflow-hidden">
+          <div className="w-full max-w-sm mx-auto shrink-0">
+            <div className="h-3 bg-gray-300 rounded-full overflow-hidden">
               <div className="h-full bg-gradient-to-r from-primary to-green-400 transition-all duration-300 rounded-full" style={{ width: `${progress}%` }} />
             </div>
-            <p className="text-center text-sm text-muted-foreground mt-2">
+            <p className="text-center text-sm text-muted-foreground mt-1">
               {progress < 30 ? 'תופס את הפריט...' : progress < 70 ? 'זז לפח...' : 'משחרר...'}
             </p>
           </div>
         )}
         {robotState !== 'executing' && (
-          <div className="text-center">
+          <div className="text-center shrink-0">
             <p className="text-sm text-muted-foreground">סטטוס רובוט:</p>
-            <p className="font-mono text-lg font-bold text-foreground">{robotStatus === 'idle' ? 'מוכן' : robotStatus}</p>
+            <p className="font-mono text-base font-bold text-foreground">{robotStatus === 'idle' ? 'מוכן' : robotStatus}</p>
           </div>
         )}
-        <div className="flex-1 flex flex-col items-center justify-center gap-6">
+        <div className="flex-1 flex flex-col items-center justify-center gap-3 min-h-0">
           {robotState === 'complete' ? (
-            <div className="text-center"><div className="text-6xl mb-4 animate-bounce">🎉</div><p className="text-xl font-bold text-primary">מעולה! הפריט מוין!</p></div>
+            <div className="text-center"><div className="text-5xl mb-2 animate-bounce">🎉</div><p className="text-lg font-bold text-primary">מעולה! הפריט מוין!</p></div>
           ) : robotState === 'idle' || robotState === 'stopped' ? (
-            <button onClick={handleLaunch} className="w-48 h-48 rounded-full flex flex-col items-center justify-center gap-2 shadow-2xl bg-gradient-to-b from-primary to-primary-dark hover:scale-105 active:scale-95 transition-all duration-300 border-2">
-              <Play size={64} className="text-black" fill="black " />
-              <span className="text-black font-bold text-lg">שגר!</span>
+            <button onClick={handleLaunch} className="w-32 h-32 rounded-full flex flex-col items-center justify-center gap-1 shadow-2xl bg-gradient-to-b from-primary to-primary-dark hover:scale-105 active:scale-95 transition-all duration-300 border-2">
+              <Play size={48} className="text-black" fill="black " />
+              <span className="text-black font-bold text-base">שגר!</span>
             </button>
           ) : robotState === 'executing' ? (
-            <div className="w-48 h-48 rounded-full bg-gray-400 flex items-center justify-center"><Loader2 size={64} className="text-white animate-spin" /></div>
+            <div className="w-32 h-32 rounded-full bg-gray-400 flex items-center justify-center"><Loader2 size={48} className="text-white animate-spin" /></div>
           ) : null}
-
         </div>
+        <div className="max-w-sm mx-auto w-full shrink-0"><EmergencyStop onStop={handleEmergencyStop} /></div>
       </div>
-      <div className="p-4 pb-8"><EmergencyStop onStop={handleEmergencyStop} /></div>
     </div>
   );
 }

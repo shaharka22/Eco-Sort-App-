@@ -7,7 +7,7 @@ import { WASTE_BINS, MOTIVATION_MESSAGES } from '@/types';
 
 export default function Impact() {
   const navigate = useNavigate();
-  const { score, sessionStats, sortingSession, validateFullSuccess, recordSuccessfulSort, resetSortingSession } = useApp();
+  const { score, sessionStats, sortingSession, validateFullSuccess, recordSuccessfulSort, resetSortingSession, studentName } = useApp();
   const [showConfetti, setShowConfetti] = useState(false);
   const [isFullSuccess, setIsFullSuccess] = useState(false);
   const hasRecorded = useRef(false);
@@ -37,7 +37,7 @@ export default function Impact() {
     const success = validateFullSuccess();
     if (!success) {
       return (
-        <div className=" bg-gradient-to-b from-yellow-100 to-orange-100 flex flex-col items-center justify-center p-6">
+        <div className="h-dvh bg-gradient-to-b from-yellow-100 to-orange-100 flex flex-col items-center justify-center p-6">
           <div className="bg-white rounded-3xl p-8 max-w-sm text-center shadow-xl">
             <div className="w-24 h-24 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-6">
               <AlertTriangle size={48} className="text-yellow-600" />
@@ -54,74 +54,76 @@ export default function Impact() {
   }
 
   return (
-    <div className=" bg-gradient-to-b from-green-100 via-emerald-50 to-white flex flex-col">
+    <div className="h-dvh bg-gradient-to-b from-green-100 via-emerald-50 to-white flex flex-col overflow-hidden">
       {showConfetti && (
         <div className="fixed inset-0 pointer-events-none overflow-hidden z-10">
           {[...Array(20)].map((_, i) => (
             <div key={i} className="absolute animate-bounce"
               style={{ left: `${Math.random() * 100}%`, top: `${Math.random() * 50}%`, animationDelay: `${Math.random() * 2}s`, animationDuration: `${2 + Math.random() * 2}s`, fontSize: `${16 + Math.random() * 16}px`, opacity: 0.6 }}>
-              {['⭐', '🌟', '✨', '🎉', '🌱', '♻️', '🌍'][i % 7]}
+              {['⭐', '🌟', '✨', '🎉', '🌱', '♻️', '🌿'][i % 7]}
             </div>
           ))}
         </div>
       )}
-      <div className="p-4 flex items-center justify-between">
-        <button onClick={() => navigate('/')} className="w-12 h-12 bg-white rounded-full shadow-md flex items-center justify-center hover:bg-gray-50 transition-colors">
-          <Home size={24} className="text-gray-600" />
+      <div className="p-3 flex items-center justify-between shrink-0">
+        <button onClick={() => navigate('/')} className="w-10 h-10 bg-white rounded-full shadow-md flex items-center justify-center hover:bg-gray-50 transition-colors">
+          <Home size={20} className="text-gray-600" />
         </button>
         <div className="bg-white/90 backdrop-blur-sm px-4 py-2 rounded-full shadow-md flex items-center gap-2">
           <span className="text-lg font-bold text-primary">{score}</span>
           <span className="text-sm text-muted-foreground">נקודות</span>
         </div>
       </div>
-      <div className="flex-1 flex flex-col items-center justify-center p-6 gap-6 relative z-20">
-        <div className="text-center mb-4">
-          <div className="text-6xl mb-4 animate-bounce">🎉</div>
-          <h1 className="text-4xl font-black text-primary mb-2">כל הכבוד!</h1>
+      <div className="flex-1 min-h-0 overflow-y-auto flex flex-col items-center p-4 gap-3 relative z-20">
+        <div className="text-center mb-1 shrink-0">
+          <div className="text-4xl mb-1 animate-bounce">🎉</div>
+          <h1 className="text-2xl font-black text-primary mb-1">
+            {studentName ? `כל הכבוד, ${studentName}!` : 'כל הכבוד!'}
+          </h1>
         </div>
         <GrowingTree score={score} animated />
         {sortedBin && (
-          <div className="w-full max-w-sm p-6 rounded-2xl text-center shadow-lg" style={{ backgroundColor: sortedBin.bgColor }}>
-            <div className="flex items-center justify-center gap-3 mb-4">
-              <div className="w-14 h-14 rounded-xl flex items-center justify-center" style={{ backgroundColor: sortedBin.color }}>
-                <Trash2 size={28} className="text-white" />
+          <div className="w-full max-w-sm p-4 rounded-2xl text-center shadow-lg shrink-0" style={{ backgroundColor: sortedBin.bgColor }}>
+            <div className="flex items-center justify-center gap-3 mb-2">
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: sortedBin.color }}>
+                <Trash2 size={20} className="text-white" />
               </div>
               <div className="text-right">
-                <p className="text-sm text-muted-foreground">מיינת בהצלחה:</p>
-                <p className="text-2xl font-bold" style={{ color: sortedBin.color }}>{sortedBin.icon} {sortedBin.labelHe}</p>
+                <p className="text-xs text-muted-foreground">מיינתם בהצלחה:</p>
+                <p className="text-xl font-bold" style={{ color: sortedBin.color }}>{sortedBin.icon} {sortedBin.labelHe}</p>
               </div>
             </div>
-            <div className="bg-white/60 rounded-xl p-4">
-              <p className="text-foreground font-medium leading-relaxed">💚 {motivationMessage}</p>
+            <div className="bg-white/60 rounded-xl p-3">
+              <p className="text-foreground text-sm font-medium leading-snug">💚 {motivationMessage}</p>
             </div>
           </div>
         )}
-        <div className="w-full max-w-sm bg-white rounded-xl p-4 shadow-md">
-          <h3 className="font-bold text-foreground mb-3 text-center">הסטטיסטיקה שלי</h3>
-          <div className="bg-gray-50 rounded-lg p-4 text-center mb-4">
-            <p className="text-4xl font-bold text-primary">{sessionStats.totalItems}</p>
-            <p className="text-sm text-muted-foreground">פריטים מוינו</p>
+        <div className="w-full max-w-sm bg-white rounded-xl p-3 shadow-md shrink-0">
+          <h3 className="font-bold text-foreground mb-2 text-center text-sm">הסטטיסטיקה שלי</h3>
+          <div className="bg-gray-50 rounded-lg p-2 text-center mb-2">
+            <p className="text-2xl font-bold text-primary">{sessionStats.totalItems}</p>
+            <p className="text-xs text-muted-foreground">פריטים מוינו</p>
           </div>
           <div className="flex justify-center gap-4">
             {WASTE_BINS.map((bin) => {
               const count = sessionStats[`${bin.category}Count` as keyof typeof sessionStats] as number;
               return (
                 <div key={bin.category} className="flex flex-col items-center">
-                  <div className="w-10 h-10 rounded-lg flex items-center justify-center mb-1" style={{ backgroundColor: bin.bgColor }}>
-                    <span className="text-lg">{bin.icon}</span>
+                  <div className="w-8 h-8 rounded-lg flex items-center justify-center mb-1" style={{ backgroundColor: bin.bgColor }}>
+                    <span className="text-sm">{bin.icon}</span>
                   </div>
-                  <span className="text-sm font-bold" style={{ color: bin.color }}>{count}</span>
+                  <span className="text-xs font-bold" style={{ color: bin.color }}>{count}</span>
                 </div>
               );
             })}
           </div>
         </div>
-        <div className="flex flex-col gap-3 w-full max-w-sm mt-4">
-          <button onClick={handleSortAnother} className="flex items-center justify-center gap-3 bg-white border-2 border-gray-200 text-foreground text-lg font-medium py-4 px-8 rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 hover:border-primary">
-            <RotateCcw size={28} /><span>מיין עוד פריט</span>
+        <div className="flex flex-col gap-2 w-full max-w-sm shrink-0">
+          <button onClick={handleSortAnother} className="flex items-center justify-center gap-2 bg-white border-2 border-gray-200 text-foreground text-base font-medium py-3 px-6 rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 hover:border-primary">
+            <RotateCcw size={20} /><span>מיין עוד פריט</span>
           </button>
-          <button onClick={handleFinish} className="flex items-center justify-center gap-3 bg-white border-2 border-gray-200 text-foreground text-lg font-medium py-4 px-8 rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 hover:border-primary">
-            <LogOut size={24} /><span>סיימתי למיין</span>
+          <button onClick={handleFinish} className="flex items-center justify-center gap-2 bg-white border-2 border-gray-200 text-foreground text-base font-medium py-3 px-6 rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 hover:border-primary">
+            <LogOut size={20} /><span>סיימתי למיין</span>
           </button>
         </div>
       </div>
