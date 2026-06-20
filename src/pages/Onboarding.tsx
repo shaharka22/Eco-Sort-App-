@@ -7,10 +7,10 @@ import binPurple from '../assets/uploads/bin-purple.svg';
 import binBrown from '../assets/uploads/bin-brown.svg';
 
 const slides = [
-  { emoji: '', titleHe: 'הכירו את הרובוט!', descHe: 'הרובוט שלנו עוזר למיין אשפה לפחים הנכונים', video: '/1rd onboarding video.mp4' },
-  { emoji: '', titleHe: 'צלמו פריט', descHe: 'צלמו את האשפה והאפליקציה תזהה לאן היא שייכת', video: '/2rd onboarding video.mp4' },
-  { emoji: '', titleHe: 'אשרו את המיון', descHe: 'בדקו שהאפליקציה צדקה ולחצו על הפח הנכון', video: '/3rd onboarding video.mp4' },
-  { emoji: '', titleHe: 'שמרו על העולם!', descHe: 'כל מיון נכון עוזר לשמור על כדור הארץ', video: '/4rd onboarding video.mp4' },
+  { emoji: '🤖', titleHe: 'הכירו את הרובוט!', descHe: 'הרובוט שלנו עוזר למיין אשפה לפחים הנכונים', video: '/1rd onboarding video.mp4' },
+  { emoji: '📸', titleHe: 'צלמו פריט', descHe: 'צלמו את האשפה והאפליקציה תזהה לאן היא שייכת', video: '/2rd onboarding video.mp4' },
+  { emoji: '✅', titleHe: 'אשרו את המיון', descHe: 'בדקו שהאפליקציה צדקה ולחצו על הפח הנכון', video: '/3rd onboarding video.mp4' },
+  { emoji: '🌍', titleHe: 'שמרו על העולם!', descHe: 'כל מיון נכון עוזר לשמור על כדור הארץ', video: '/4rd onboarding video.mp4' },
 ];
 
 // 4 סרטוני דוגמאות מיון - הקבצים נמצאים בתיקיית public/ עם רווחים בשם (בדיוק כמו שאר סרטוני האונבורדינג)
@@ -25,7 +25,8 @@ export default function Onboarding() {
   const navigate = useNavigate();
   const [started, setStarted] = useState(false); // האם המשתמש כבר לחץ "התחל" ועבר את מסך הפתיחה
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [showWasteGrid, setShowWasteGrid] = useState(false); // שקף גריד דוגמאות המיון - מופיע ישירות אחרי הסרטון הרביעי
+  const [showWasteGrid, setShowWasteGrid] = useState(false); // שקף גריד דוגמאות המיון - מופיע ישירות אחרי הסרטון הרביעי, או דרך "דלג"
+  const [hideVideo, setHideVideo] = useState(false); // מסתיר את אלמנט הוידאו מיידית בזמן מעבר ל-showWasteGrid, כדי שהפריים הקפוא האחרון לא "יבליח" מתחת לאנימציית ה-fade
   const [openVideoIndex, setOpenVideoIndex] = useState<number | null>(null); // איזה כרטיס בגריד פתוח כרגע במודאל מוגדל
   const [isVisible, setIsVisible] = useState(true); // לאנימציית fade בין סליידים
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -34,8 +35,9 @@ export default function Onboarding() {
   const TRANSITION_MS = 800;
 
   // כשעוברים לסלייד חדש (אחרי שהתחילו) - לטעון את הוידאו, להריץ fade-in, ולנגן אותו אוטומטית עם קול
+  // showWasteGrid תמיד מנצח: אם הגריד אמור להיות מוצג, לעולם לא טוענים וידאו - גם אם started הפך ל-true באותו רגע
   useEffect(() => {
-    if (!started || showWasteGrid) return;
+    if (!started || showWasteGrid || hideVideo) return;
     const videoEl = videoRef.current;
     if (!videoEl) return;
 
@@ -46,7 +48,7 @@ export default function Onboarding() {
     // לאחר שהמקור הוחלף, מציגים בהדרגה (fade-in)
     const fadeInTimeout = setTimeout(() => setIsVisible(true), 30);
     return () => clearTimeout(fadeInTimeout);
-  }, [currentSlide, started, showWasteGrid]);
+  }, [currentSlide, started, showWasteGrid, hideVideo]);
 
   // כניסה לשקף הגריד - גם כאן צריך fade-in (אין וידאו שמפעיל אותו)
   useEffect(() => {
@@ -72,11 +74,18 @@ export default function Onboarding() {
     }, TRANSITION_MS);
   };
 
-  // מעבר רך אל שקף גריד דוגמאות המיון (ישירות אחרי הסרטון הרביעי, או דרך "דלג")
+  // מעבר רך אל שקף גריד דוגמאות המיון (מסרטון 4, או מ"דלג" - בכל מצב started)
+  // hideVideo מוסתר מיידית (לא רק מושהה) כדי שלא יישאר פריים קפוא גלוי מתחת לאנימציית ה-fade
   const goToWasteGrid = () => {
     if (showWasteGrid) return;
-    setIsVisible(false);
     if (transitionTimeoutRef.current) clearTimeout(transitionTimeoutRef.current);
+    if (videoRef.current) {
+      videoRef.current.onended = null;
+      videoRef.current.pause();
+    }
+    setHideVideo(true);
+    if (!started) setStarted(true);
+    setIsVisible(false);
     transitionTimeoutRef.current = setTimeout(() => {
       setShowWasteGrid(true);
     }, TRANSITION_MS);
@@ -86,14 +95,11 @@ export default function Onboarding() {
     setStarted(true);
   };
 
-  // "דלג" מוביל ישירות לגריד דוגמאות המיון
-  const handleSkip = () => {
-    if (!started) setStarted(true);
-    goToWasteGrid();
-  };
+  // "דלג" מוביל ישירות לגריד דוגמאות המיון, מכל שלב באונבורדינג (גם לפני "התחל")
+  const handleSkip = () => goToWasteGrid();
 
   // כפתור קבוע: חזרה לדף הראשי של האפליקציה, זמין בכל מסכי האונבורדינג
-  const handleGoHome = () => navigate('/home');
+  const handleGoHome = () => navigate('/');
 
   // כשהוידאו מסיים לנגן - מעבר אוטומטי לסלייד הבא, ובסרטון האחרון מעבר ישיר לגריד
   const handleVideoEnded = () => {
@@ -124,24 +130,8 @@ export default function Onboarding() {
         </button>
       </div>
 
-      {!started ? (
-        // מסך פתיחה - לא וידאו, רק כפתור התחל
-        <div className="flex-1 flex flex-col items-center justify-center p-6 text-center">
-          <div className="text-7xl mb-6">🤖♻️</div>
-          <h1 className="text-3xl font-bold text-foreground mb-3">ברוכים הבאים!</h1>
-          <p className="text-muted-foreground max-w-xs mb-10">
-            בואו נראה לכם איך האפליקציה עוזרת לכם למיין אשפה בקלות
-          </p>
-          <button
-            onClick={handleStart}
-            className="px-10 py-5 bg-primary text-black rounded-full shadow-lg font-bold text-xl hover:bg-green-600 transition-colors flex items-center gap-3"
-          >
-            <Play size={28} fill="currentColor" />
-            <span>התחל</span>
-          </button>
-        </div>
-      ) : showWasteGrid ? (
-        // שקף גריד דוגמאות מיון - ישירות אחרי הסרטון הרביעי
+      {showWasteGrid ? (
+        // שקף גריד דוגמאות מיון - showWasteGrid תמיד מנצח, לא משנה אם started true או false
         <div
           className={`flex-1 flex flex-col items-center p-6 min-h-0 overflow-y-auto transition-all duration-[600ms] ease-in-out ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
         >
@@ -164,7 +154,23 @@ export default function Onboarding() {
             onClick={handleGridContinue}
             className="px-8 py-4 bg-primary text-black rounded-full shadow-lg font-bold text-lg hover:bg-green-600 transition-colors flex items-center gap-2 shrink-0"
           >
-            <span>בואו נתחיל למיין!</span><span className="text-xl"></span>
+            <span>בואו נתחיל למיין!</span><span className="text-xl">🚀</span>
+          </button>
+        </div>
+      ) : !started ? (
+        // מסך פתיחה - לא וידאו, רק כפתור התחל
+        <div className="flex-1 flex flex-col items-center justify-center p-6 text-center">
+          <div className="text-7xl mb-6">🤖♻️</div>
+          <h1 className="text-3xl font-bold text-foreground mb-3">ברוכים הבאים!</h1>
+          <p className="text-muted-foreground max-w-xs mb-10">
+            בואו נראה לכם איך האפליקציה עוזרת לכם למיין אשפה בקלות
+          </p>
+          <button
+            onClick={handleStart}
+            className="px-10 py-5 bg-primary text-black rounded-full shadow-lg font-bold text-xl hover:bg-green-600 transition-colors flex items-center gap-3"
+          >
+            <Play size={28} fill="currentColor" />
+            <span>התחל</span>
           </button>
         </div>
       ) : (
@@ -172,15 +178,17 @@ export default function Onboarding() {
           <div
             className={`w-full max-w-lg flex-1 min-h-0 flex items-center justify-center mb-4 transition-all duration-[600ms] ease-in-out ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
           >
-            <video
-              ref={videoRef}
-              className="max-w-full max-h-full w-auto h-auto rounded-3xl shadow-lg"
-              playsInline
-              autoPlay
-              onEnded={handleVideoEnded}
-            >
-              <source src={slides[currentSlide].video} type="video/mp4" />
-            </video>
+            {!hideVideo && (
+              <video
+                ref={videoRef}
+                className="max-w-full max-h-full w-auto h-auto rounded-3xl shadow-lg"
+                playsInline
+                autoPlay
+                onEnded={handleVideoEnded}
+              >
+                <source src={slides[currentSlide].video} type="video/mp4" />
+              </video>
+            )}
           </div>
           <div className={`text-center mb-4 shrink-0 transition-all duration-[600ms] ease-in-out ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}`}>
             <div className="text-4xl mb-2">{slides[currentSlide].emoji}</div>

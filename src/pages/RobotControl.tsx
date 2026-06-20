@@ -143,12 +143,7 @@ export default function RobotControl() {
           ) : robotState === 'executing' ? (
             <div className="w-48 h-48 rounded-full bg-gray-400 flex items-center justify-center"><Loader2 size={64} className="text-white animate-spin" /></div>
           ) : null}
-          {robotState === 'idle' && (
-            <div className="mt-4">
-              <p className="text-center text-sm text-muted-foreground mb-2">שליטה ידנית</p>
-              <VirtualJoystick disabled={false} />
-            </div>
-          )}
+
         </div>
       </div>
       <div className="p-4 pb-8"><EmergencyStop onStop={handleEmergencyStop} /></div>
