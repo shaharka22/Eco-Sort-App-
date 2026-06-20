@@ -1,12 +1,12 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router';
-import { Play, SkipForward, ChevronLeft, ChevronRight, Home } from 'lucide-react';
+import { Play, SkipForward, Home } from 'lucide-react';
 
 const slides = [
-  {emoji: '', titleHe: 'הכירו את הרובוט!', descHe: 'הרובוט שלנו עוזר למיין אשפה לפחים הנכונים', video: '/1rd onboarding video.mp4' },
-  {emoji: '', titleHe: 'צלמו פריט', descHe: 'צלמו את האשפה והאפליקציה תזהה לאן היא שייכת', video: '/2rd onboarding video.mp4' },
-  {emoji: '', titleHe: 'אשרו את המיון', descHe: 'בדקו שהאפליקציה צדקה ולחצו על הפח הנכון', video: '/3rd onboarding video.mp4' },
-  {emoji: '', titleHe: 'שמרו על העולם!', descHe: 'כל מיון נכון עוזר לשמור על כדור הארץ', video: '/4rd onboarding video.mp4' },
+  { emoji: '🤖', titleHe: 'הכירו את הרובוט!', descHe: 'הרובוט שלנו עוזר למיין אשפה לפחים הנכונים', video: '/1rd onboarding video.mp4' },
+  { emoji: '📸', titleHe: 'צלמו פריט', descHe: 'צלמו את האשפה והאפליקציה תזהה לאן היא שייכת', video: '/2rd onboarding video.mp4' },
+  { emoji: '✅', titleHe: 'אשרו את המיון', descHe: 'בדקו שהאפליקציה צדקה ולחצו על הפח הנכון', video: '/3rd onboarding video.mp4' },
+  { emoji: '🌍', titleHe: 'שמרו על העולם!', descHe: 'כל מיון נכון עוזר לשמור על כדור הארץ', video: '/4rd onboarding video.mp4' },
 ];
 
 export default function Onboarding() {
@@ -81,11 +81,6 @@ export default function Onboarding() {
 
   // כפתור קבוע: חזרה לדף הראשי של האפליקציה, זמין בכל מסכי האונבורדינג
   const handleGoHome = () => navigate('/home');
-
-  const handlePrev = () => {
-    if (showFinish) { goToSlide(slides.length - 1); return; }
-    if (currentSlide > 0) goToSlide(currentSlide - 1);
-  };
 
   // כשהוידאו מסיים לנגן - מעבר אוטומטי לסלייד הבא, ובסרטון האחרון מעבר לשקף הסיום
   const handleVideoEnded = () => {
@@ -164,14 +159,9 @@ export default function Onboarding() {
             </div>
           )}
           <div className="flex gap-4 shrink-0">
-            {(showFinish || currentSlide > 0) && (
-              <button onClick={handlePrev} className="w-12 h-12 bg-white rounded-full shadow-md flex items-center justify-center hover:bg-gray-50 transition-colors">
-                <ChevronRight size={24} className="text-gray-600" />
-              </button>
-            )}
             {showFinish && (
               <button onClick={handleFinishCta} className="px-6 py-3 bg-primary text-black rounded-full shadow-lg font-bold hover:bg-green-600 transition-colors flex items-center gap-2">
-                <span>בואו נתחיל!</span><span className="text-xl"></span>
+                <span>בואו נתחיל!</span><span className="text-xl">🚀</span>
               </button>
             )}
           </div>
