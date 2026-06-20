@@ -161,7 +161,7 @@ export default function Onboarding() {
           <div className="flex gap-4 shrink-0">
             {showFinish && (
               <button onClick={handleFinishCta} className="px-6 py-3 bg-primary text-black rounded-full shadow-lg font-bold hover:bg-green-600 transition-colors flex items-center gap-2">
-                <span>בואו נתחיל!</span><span className="text-xl">🚀</span>
+                <span>בואו נתחיל!</span><span className="text-xl"></span>
               </button>
             )}
           </div>
