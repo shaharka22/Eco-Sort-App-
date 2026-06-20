@@ -14,8 +14,8 @@ export default function Onboarding() {
   const [started, setStarted] = useState(false); // האם המשתמש כבר לחץ "התחל" ועבר את מסך הפתיחה
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isVisible, setIsVisible] = useState(true); // לאנימציית fade בין סליידים
-  const videoRef = useRef(null);
-  const transitionTimeoutRef = useRef(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const transitionTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const TRANSITION_MS = 800;
 
@@ -41,7 +41,7 @@ export default function Onboarding() {
   }, []);
 
   // מעבר רך: קודם דוהים (fade-out), ורק לאחר מכן מחליפים את הסלייד בפועל
-  const goToSlide = (index) => {
+  const goToSlide = (index: number) => {
     if (index === currentSlide) return;
     setIsVisible(false);
     if (transitionTimeoutRef.current) clearTimeout(transitionTimeoutRef.current);
