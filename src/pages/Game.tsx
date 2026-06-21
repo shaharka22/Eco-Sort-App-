@@ -385,12 +385,12 @@ const handleGameOver = useCallback(async (finalScore: number, correct: number, w
               </div>
             ))}
             {feedbacks.map((fb) => (
-              <div key={fb.id} className="absolute pointer-events-none animate-ping" style={{ left: fb.x, top: fb.y }}>
-                {fb.type === 'success' && <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center"><Check size={32} className="text-white" /></div>}
-                {fb.type === 'wrong' && <div className="w-16 h-16 bg-red-500 rounded-full flex items-center justify-center"><X size={32} className="text-white" /></div>}
-                {fb.type === 'miss' && <div className="w-12 h-12 bg-yellow-500 rounded-full flex items-center justify-center text-white font-bold">-2</div>}
-              </div>
-            ))}
+  <div key={fb.id} className="absolute pointer-events-none feedback-pop" style={{ left: fb.x, top: fb.y }}>
+    {fb.type === 'success' && <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center"><Check size={32} className="text-white" /></div>}
+    {fb.type === 'wrong' && <div className="w-16 h-16 bg-red-500 rounded-full flex items-center justify-center"><X size={32} className="text-white" /></div>}
+    {fb.type === 'miss' && <div className="w-12 h-12 bg-yellow-500 rounded-full flex items-center justify-center text-white font-bold">-2</div>}
+  </div>
+))}
             <div className="absolute bottom-24" style={{ left: `${binX}%`, transform: 'translateX(-50%)' }}>
               <img src={BIN_IMAGES[selectedBin]} alt={currentBin.labelHe} className="w-24 h-28 object-contain drop-shadow-2xl" />
             </div>
@@ -459,6 +459,14 @@ const handleGameOver = useCallback(async (finalScore: number, correct: number, w
           </div>
         </div>
       )}
+    <style>{`
+        @keyframes feedback-pop {
+          0% { transform: scale(0.5); opacity: 0; }
+          40% { transform: scale(1.3); opacity: 1; }
+          100% { transform: scale(1.6); opacity: 0; }
+        }
+        .feedback-pop { animation: feedback-pop 0.6s ease-out forwards; }
+      `}</style>
     </div>
   );
 }
