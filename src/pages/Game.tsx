@@ -119,6 +119,7 @@ export default function Game() {
     if (!audioRef.current) {
       audioRef.current = new Audio('/music.m4a');
       audioRef.current.volume = 0.3;
+      audioRef.current.loop = true; // מבטיח שהשיר יתנגן שוב ושוב לאורך כל 90 שניות המשחק, גם אם הקובץ קצר יותר
     }
     const audio = audioRef.current;
     if (gameState === 'playing' && soundEnabled) audio.play().catch(() => {});
