@@ -119,7 +119,14 @@ export default function Game() {
     if (!audioRef.current) {
       audioRef.current = new Audio('/music.m4a');
       audioRef.current.volume = 0.3;
-      audioRef.current.loop = true; // מבטיח שהשיר יתנגן שוב ושוב לאורך כל 90 שניות המשחק, גם אם הקובץ קצר יותר
+      audioRef.current.loop = true; // עובד ברוב הדפדפנים, אך ב-iOS Safari weakly enforced, ולכן יש גם listener ידני למטה
+      // לולאה ידנית - עוקפת בעיה ידועה ב-iOS Safari שבה loop=true לא נכבד באופן עקבי
+      audioRef.current.addEventListener('ended', () => {
+        if (audioRef.current) {
+          audioRef.current.currentTime = 0;
+          audioRef.current.play().catch(() => {});
+        }
+      });
     }
     const audio = audioRef.current;
     if (gameState === 'playing' && soundEnabled) audio.play().catch(() => {});
@@ -280,7 +287,9 @@ const handleGameOver = useCallback(async (finalScore: number, correct: number, w
   }, [gameState]);
 
   const lastMoveTime = useRef(0);
-  const handlePointerMove = useCallback((e: React.PointerEvent) => {
+  // onMouseMove (לא onPointerMove) - חשוב להשתמש דווקא בזה, כי PointerEvent יורה גם עבור touch בדפדפנים מודרניים,
+  // וזה היה גורם להתנגשות עם handleTouchMove במובייל (שני handlers מעדכנים את binX באותו זמן = feedback כפול)
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
     if (gameState !== 'playing') return;
     const now = Date.now();
     if (now - lastMoveTime.current < 16) return;
@@ -366,7 +375,7 @@ const handleGameOver = useCallback(async (finalScore: number, correct: number, w
             </button>
           </div>
 
-          <div ref={gameAreaRef} className="flex-1 relative overflow-hidden cursor-none" onPointerMove={handlePointerMove} onTouchMove={handleTouchMove} style={{ touchAction: 'none' }}>
+          <div ref={gameAreaRef} className="flex-1 relative overflow-hidden cursor-none" onMouseMove={handleMouseMove} onTouchMove={handleTouchMove} style={{ touchAction: 'none' }}>
             <img src={ecosortLogo} alt="EcoSort" className="absolute inset-0 m-auto w-64 opacity-10 pointer-events-none select-none z-0" />
             {fallingItems.map((item) => (
               <div key={item.id} className="absolute transition-none" style={{ left: item.x, top: item.y, width: ITEM_SIZE, height: ITEM_SIZE }}>
