@@ -106,6 +106,15 @@ export default function Game() {
   const gameOverCalledRef = useRef(false);
   const [spawnInterval, setSpawnInterval] = useState(INITIAL_SPAWN_INTERVAL);
 
+  // "מצב חי" - עותק תמיד-עדכני של הסטטיסטיקות, נקרא סינכרונית בתוך לולאת המשחק
+  // (state רגיל לא מבטיח ערך עדכני בתוך אותו פריים, ולכן אסור לקרוא ל-score/misses/וכו' ישירות בתוך gameLoop)
+  const statsRef = useRef({ score: 0, misses: 0, correctCatches: 0, wrongCatches: 0 });
+  const fallingItemsRef = useRef<FallingItem[]>([]);
+
+  useEffect(() => {
+    statsRef.current = { score, misses, correctCatches, wrongCatches };
+  }, [score, misses, correctCatches, wrongCatches]);
+
   useEffect(() => {
     if (!audioRef.current) {
       audioRef.current = new Audio('/music.m4a');
@@ -131,7 +140,9 @@ export default function Game() {
     const randomItem = WASTE_ITEMS[Math.floor(Math.random() * WASTE_ITEMS.length)];
     const padding = ITEM_SIZE;
     const x = padding + Math.random() * (width - padding * 2);
-    setFallingItems((prev) => [...prev, { id: itemIdCounterRef.current++, itemType: randomItem, x, y: -ITEM_SIZE, speed: fallSpeed + Math.random() * 0.5 }]);
+    const newItem: FallingItem = { id: itemIdCounterRef.current++, itemType: randomItem, x, y: -ITEM_SIZE, speed: fallSpeed + Math.random() * 0.5 };
+    fallingItemsRef.current = [...fallingItemsRef.current, newItem];
+    setFallingItems(fallingItemsRef.current);
   }, [fallSpeed, getGameAreaDimensions]);
 
   const checkCollision = useCallback((item: FallingItem): boolean => {
@@ -180,40 +191,53 @@ const handleGameOver = useCallback(async (finalScore: number, correct: number, w
       lastTime = currentTime;
       const { height } = getGameAreaDimensions();
       if (currentTime - lastSpawnTimeRef.current > spawnInterval) { spawnItem(); lastSpawnTimeRef.current = currentTime; }
-      setFallingItems((prev) => {
-        const updated: FallingItem[] = [];
-        for (const item of prev) {
-          const newY = item.y + item.speed * deltaTime;
-          if (checkCollision({ ...item, y: newY })) {
-            if (item.itemType.category === selectedBin) { setScore((s) => s + 10); setCorrectCatches((c) => c + 1); addFeedback('success', item.x, newY); }
-            else { setScore((s) => Math.max(0, s - 5)); setWrongCatches((c) => c + 1); addFeedback('wrong', item.x, newY); }
-            continue;
-          }
-          if (newY > height) {
-            setMisses((m) => {
-              const newMisses = m + 1;
-              if (newMisses >= MAX_MISSES) {
-                setScore((s) => {
-                  setCorrectCatches((c) => {
-                    setWrongCatches((w) => {
-                      handleGameOver(Math.max(0, s - 2), c, w, newMisses);
-                      return w;
-                    });
-                    return c;
-                  });
-                  return s;
-                });
-              }
-              return newMisses;
-            });
-            setScore((s) => Math.max(0, s - 2));
-            addFeedback('miss', item.x, height - 50);
-            continue;
-          }
-          updated.push({ ...item, y: newY });
+
+      // מחשבים את המיקום החדש של כל פריט ומסווגים אותו - בלי לגעת ב-state כאן בכלל.
+      // זה משתמש ב-fallingItems הנוכחי (מהקלוז'ר), לא ב-updater function, כדי שהקוד ירוץ פעם אחת ויחידה
+      // גם אם React מריץ פעמיים updater functions (StrictMode) - אנחנו פשוט לא נמצאים בתוך אחד.
+      const stillFalling: FallingItem[] = [];
+      const caughtCorrect: FallingItem[] = [];
+      const caughtWrong: FallingItem[] = [];
+      const missed: FallingItem[] = [];
+      for (const item of fallingItemsRef.current) {
+        const newY = item.y + item.speed * deltaTime;
+        if (checkCollision({ ...item, y: newY })) {
+          if (item.itemType.category === selectedBin) caughtCorrect.push(item);
+          else caughtWrong.push(item);
+        } else if (newY > height) {
+          missed.push(item);
+        } else {
+          stillFalling.push({ ...item, y: newY });
         }
-        return updated;
-      });
+      }
+
+      if (caughtCorrect.length > 0) {
+        statsRef.current.score += caughtCorrect.length * 10;
+        statsRef.current.correctCatches += caughtCorrect.length;
+        for (const item of caughtCorrect) addFeedback('success', item.x, item.y);
+      }
+      if (caughtWrong.length > 0) {
+        statsRef.current.score = Math.max(0, statsRef.current.score - caughtWrong.length * 5);
+        statsRef.current.wrongCatches += caughtWrong.length;
+        for (const item of caughtWrong) addFeedback('wrong', item.x, item.y);
+      }
+      if (missed.length > 0) {
+        statsRef.current.misses += missed.length;
+        statsRef.current.score = Math.max(0, statsRef.current.score - missed.length * 2);
+        for (const item of missed) addFeedback('miss', item.x, height - 50);
+      }
+      if (caughtCorrect.length > 0 || caughtWrong.length > 0 || missed.length > 0) {
+        setScore(statsRef.current.score);
+        setCorrectCatches(statsRef.current.correctCatches);
+        setWrongCatches(statsRef.current.wrongCatches);
+        setMisses(statsRef.current.misses);
+      }
+      if (missed.length > 0 && statsRef.current.misses >= MAX_MISSES) {
+        handleGameOver(statsRef.current.score, statsRef.current.correctCatches, statsRef.current.wrongCatches, statsRef.current.misses);
+      }
+
+      fallingItemsRef.current = stillFalling;
+      setFallingItems(stillFalling);
       animationFrameRef.current = requestAnimationFrame(gameLoop);
     };
     animationFrameRef.current = requestAnimationFrame(gameLoop);
@@ -225,19 +249,8 @@ const handleGameOver = useCallback(async (finalScore: number, correct: number, w
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 1) {
-          setScore((s) => {
-            setCorrectCatches((c) => {
-              setWrongCatches((w) => {
-                setMisses((m) => {
-                  handleGameOver(s, c, w, m);
-                  return m;
-                });
-                return w;
-              });
-              return c;
-            });
-            return s;
-          });
+          const { score: finalScore, correctCatches: c, wrongCatches: w, misses: m } = statsRef.current;
+          handleGameOver(finalScore, c, w, m);
           return 0;
         }
         const elapsed = GAME_DURATION - prev + 1;
@@ -287,6 +300,8 @@ const handleGameOver = useCallback(async (finalScore: number, correct: number, w
 
   const startGame = () => {
     gameOverCalledRef.current = false;
+    statsRef.current = { score: 0, misses: 0, correctCatches: 0, wrongCatches: 0 };
+    fallingItemsRef.current = [];
     setGameState('playing'); setScore(0); setTimeLeft(GAME_DURATION); setMisses(0);
     setCorrectCatches(0); setWrongCatches(0); setFallingItems([]); setFallSpeed(INITIAL_FALL_SPEED);
     setSpawnInterval(INITIAL_SPAWN_INTERVAL); setBinX(50); lastSpawnTimeRef.current = 0;
@@ -320,7 +335,7 @@ const handleGameOver = useCallback(async (finalScore: number, correct: number, w
               </div>
             ))}
           </div>
-          <button onClick={startGame} className="flex items-center gap-3 bg-gradient-to-r color from-green-300 to-green-500 from-primary-light-500 to-primary-dark-600 text-white text-2xl font-bold py-5 px-10 rounded-2xl shadow-lg hover:scale-105 active:scale-95 transition-transform">
+          <button onClick={startGame} className="flex items-center gap-3 bg-gradient-to-r from-green-400 to-green-600 text-white text-2xl font-bold py-5 px-10 rounded-2xl shadow-lg hover:scale-105 active:scale-95 transition-transform">
             <Play size={32} fill="white" /><span>התחל לשחק !</span>
           </button>
           <button onClick={() => navigate('/')} className="hover:scale-105 text-muted-foreground hover:text-foreground transition-colors">חזרה לתפריט</button>
@@ -387,10 +402,10 @@ const handleGameOver = useCallback(async (finalScore: number, correct: number, w
               <div className="bg-white rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl">
                 <h2 className="text-3xl font-black text-foreground mb-6">⏸️ הפסק משחק</h2>
                 <div className="flex flex-col gap-3">
-                  <button onClick={() => setGameState('playing')} className="w-full hover:scale-105 bg-gray-200 py-4 bg-primary text rounded-xl font-bold text-lg hover:bg-primary-dark transition-colors flex items-center justify-center gap-2">
+                  <button onClick={() => setGameState('playing')} className="w-full hover:scale-105 bg-green-500 text-white py-4 rounded-xl font-bold text-lg hover:bg-green-600 transition-colors flex items-center justify-center gap-2">
                     <Play size={24} />המשך לשחק
                   </button>
-                  <button onClick={startGame} className="w-full hover:scale-105 py-4 bg-gray-200 text-foreground rounded-xl font-bold text-lg hover:bg-gray-200 transition-colors flex items-center justify-center gap-2 from-primary-light to-primary-dark">
+                  <button onClick={startGame} className="w-full hover:scale-105 py-4 bg-gray-200 text-foreground rounded-xl font-bold text-lg hover:bg-gray-300 transition-colors flex items-center justify-center gap-2">
                     <RotateCcw size={24} />התחל מחדש
                   </button>
                   <button onClick={() => navigate('/')} className="w-full hover:scale-105 py-3 text-muted-foreground hover:text-foreground transition-colors">יציאה לתפריט</button>
@@ -425,7 +440,7 @@ const handleGameOver = useCallback(async (finalScore: number, correct: number, w
             </div>
           </div>
           <div className="flex flex-col gap-3 w-full max-w-sm">
-            <button onClick={startGame} className="flex items-center justify-center gap-3 bg-gradient-to-r border-2 border-gray-200 from-primary to-primary-dark text-black text-xl font-bold py-5 px-8 rounded-2xl shadow-lg hover:scale-105 active:scale-95 transition-transform">
+            <button onClick={startGame} className="flex items-center justify-center gap-3 bg-gradient-to-r from-green-400 to-green-600 text-white text-xl font-bold py-5 px-8 rounded-2xl shadow-lg hover:scale-105 active:scale-95 transition-transform">
               <RotateCcw size={28} /><span>שחק שוב</span>
             </button>
             <button onClick={() => navigate('/')} className="flex items-center justify-center gap-3 bg-white border-2 border-gray-200 text-foreground text-lg font-medium py-4 px-8 rounded-2xl shadow-md hover:border-primary transition-colors">
