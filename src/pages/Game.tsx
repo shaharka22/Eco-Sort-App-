@@ -119,14 +119,7 @@ export default function Game() {
     if (!audioRef.current) {
       audioRef.current = new Audio('/music.m4a');
       audioRef.current.volume = 0.3;
-      audioRef.current.loop = true; // עובד ברוב הדפדפנים, אך ב-iOS Safari weakly enforced, ולכן יש גם listener ידני למטה
-      // לולאה ידנית - עוקפת בעיה ידועה ב-iOS Safari שבה loop=true לא נכבד באופן עקבי
-      audioRef.current.addEventListener('ended', () => {
-        if (audioRef.current) {
-          audioRef.current.currentTime = 0;
-          audioRef.current.play().catch(() => {});
-        }
-      });
+      audioRef.current.loop = true; // מבטיח שהשיר יתנגן שוב ושוב לאורך כל 90 שניות המשחק, גם אם הקובץ קצר יותר
     }
     const audio = audioRef.current;
     if (gameState === 'playing' && soundEnabled) audio.play().catch(() => {});
